@@ -322,7 +322,7 @@ namespace Kudupst.Views
                         if (await maker.Save(item, path))
                         {
                             result.Exported++;
-                            if (options.CombinePdf) parts.Add((path, Title(item)));
+                            if (options.CombinePdf) parts.Add((path, BookmarkTitle(item)));
                             else
                             {
                                 result.Files++;
@@ -357,7 +357,7 @@ namespace Kudupst.Views
             return result;
         }
 
-        private static string Title(MailItem item)
+        private static string BookmarkTitle(MailItem item)
         {
             var date = item.Date.HasValue ? item.Date.Value.ToLocalTime().ToString("yyyy-MM-dd") + " " : string.Empty;
             return date + (item.Subject.Length > 0 ? item.Subject : "(no subject)");

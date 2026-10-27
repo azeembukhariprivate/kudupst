@@ -133,6 +133,10 @@ namespace Kudupst.Views
         public event Action Shown;
 
         public MailItem Item => _item;
+
+        /// <summary>The email the page on screen shows (once it has finished loading).</summary>
+        public MailItem ShownItem { get; private set; }
+        private MailItem _rendering;
         public bool PicturesBlocked { get; private set; }
         public bool UsingFallback { get; private set; }
         public bool AllowRemote => _allowRemote;
@@ -199,7 +203,11 @@ namespace Kudupst.Views
                     e.Handled = true;
                     Web.OpenLink(Window.GetWindow(this), e.Uri);
                 };
-                _core.NavigationCompleted += (s, e) => Shown?.Invoke();
+                _core.NavigationCompleted += (s, e) =>
+                {
+                    ShownItem = _rendering;
+                    Shown?.Invoke();
+                };
                 _core.ContextMenuRequested += (s, e) =>
                 {
                     // Keep copying and selecting; leave out "back", "reload", "save as", "inspect" and the like.
@@ -277,6 +285,7 @@ namespace Kudupst.Views
             var item = _item;
             if (item == null) return;
             _empty.Visibility = Visibility.Collapsed;
+            _rendering = item;
             var remote = MailHtml.HasRemoteContent(item);
             PicturesBlocked = remote && !_allowRemote;
             if (UsingFallback)
@@ -286,6 +295,7 @@ namespace Kudupst.Views
                 _banner.Visibility = Visibility.Visible;
                 _fallback.Text = Header(item) + "\r\n\r\n" + item.Body.PlainText;
                 _fallback.Visibility = Visibility.Visible;
+                ShownItem = item;
                 Shown?.Invoke();
                 return;
             }

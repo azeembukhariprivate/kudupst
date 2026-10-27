@@ -85,10 +85,12 @@ namespace Kudupst.Views
                 await Step("Dark theme", async () =>
                 {
                     main.OpenFile(Sample("enron.pst"));
-                    await Wait(() => main.Rows.Count > 0, 30, "the folder");
+                    main.ExpandAll();
+                    var group = main.FolderRows.Select(r => r.Folder).First(f => f.Name == "TW-Commercial Group");
+                    main.SelectFolder(group);
+                    await Wait(() => main.CurrentFolder?.Nid == group.Nid && main.Rows.Count > 0, 30, "the folder");
                     ThemeManager.Apply(ThemeMode.Dark);
-                    main.SelectRow(0);
-                    await Shown(main.View);
+                    await ShowRow(main, "New OBA's");
                     await Capture(main.View, "Dark theme email");
                     Screenshots.All("Dark theme");
                     ShowAndClose(new SettingsWindow(main));
@@ -151,11 +153,7 @@ namespace Kudupst.Views
             });
             await Step("Read an email", async () =>
             {
-                var index = main.Rows.ToList().FindIndex(r => r.Subject == "I/B Link Capacity for November and December 2001");
-                Expect(index >= 0, "the email is listed");
-                main.SelectRow(index);
-                await Shown(main.View);
-                Expect(main.View.Item?.Subject == "I/B Link Capacity for November and December 2001", "the email is shown");
+                await ShowRow(main, "I/B Link Capacity for November and December 2001");
                 var text = await main.View.PageText();
                 Expect(text.Contains("Burlington Resources agrees to purchase"), "its text is on the page");
                 Expect(text.Contains("Reames Julie"), "the sender is on the page");
@@ -181,7 +179,7 @@ namespace Kudupst.Views
             await Step("Email in its own window", async () =>
             {
                 main.SelectRow(0);
-                await Shown(main.View);
+                await ShownNow(main.View);
                 var w = new ItemWindow(main.View.Item, main);
                 OffScreen(w);
                 var shown = Shown(w.View);
@@ -209,13 +207,13 @@ namespace Kudupst.Views
                 await Wait(() => main.CurrentFolder?.Nid == group.Nid && main.Rows.Count > 0, 30, "the folder");
                 var items = main.FolderItems(group, false);
                 var dir = Path.Combine(_temp, "pdf");
-                var result = await Export(main, items, new ExportOptions { Format = ExportFormat.Pdf, Destination = dir });
+                var result = await Export(main, items, new ExportOptions { Format = ExportFormat.Pdf, Destination = dir, KeepFolders = false });
                 Expect(result.Exported == items.Count && result.Problems.Count == 0, "all saved: " + string.Join("; ", result.Problems));
                 var files = Directory.GetFiles(dir, "*.pdf");
                 Expect(files.Length == items.Count, "one PDF each");
                 foreach (var f in files) Expect(Encoding.ASCII.GetString(File.ReadAllBytes(f), 0, 5) == "%PDF-", "a PDF: " + Path.GetFileName(f));
                 var joined = Path.Combine(_temp, "pdf-one");
-                var r2 = await Export(main, items, new ExportOptions { Format = ExportFormat.Pdf, Destination = joined, CombinePdf = true });
+                var r2 = await Export(main, items, new ExportOptions { Format = ExportFormat.Pdf, Destination = joined, CombinePdf = true, KeepFolders = false });
                 Expect(r2.Files == 1 && File.Exists(r2.FirstFile), "one joined PDF");
                 using (var doc = PdfSharp.Pdf.IO.PdfReader.Open(r2.FirstFile, PdfSharp.Pdf.IO.PdfDocumentOpenMode.Import))
                     Expect(doc.PageCount >= items.Count, $"pages: {doc.PageCount} for {items.Count} emails");
@@ -227,7 +225,7 @@ namespace Kudupst.Views
                 var csv = Path.Combine(_temp, "list.csv");
                 var r = await Export(main, items, new ExportOptions { Format = ExportFormat.Csv, Destination = csv });
                 Expect(File.ReadAllLines(csv).Length == items.Count + 1, "a row per email");
-                var att = await Export(main, items, new ExportOptions { Format = ExportFormat.Attachments, Destination = Path.Combine(_temp, "att") });
+                var att = await Export(main, items, new ExportOptions { Format = ExportFormat.Attachments, Destination = Path.Combine(_temp, "att"), KeepFolders = false });
                 Expect(att.Problems.Count == 0, "attachments: " + string.Join("; ", att.Problems));
             });
             await Step("Export window", () =>
@@ -250,18 +248,19 @@ namespace Kudupst.Views
                 var inbox = main.FolderRows.First(r => r.Folder.Name == "Inbox").Folder;
                 main.SelectFolder(inbox);
                 await Wait(() => main.CurrentFolder?.Nid == inbox.Nid && main.Rows.Count == 5, 30, "the inbox");
-                var index = main.Rows.ToList().FindIndex(r => r.Subject == "never gonna give you up");
-                main.SelectRow(index);
-                await Shown(main.View);
-                Expect(main.View.Item.VisibleAttachments.Any(a => a.FileName == "rickroll.jpg"), "the attachment");
+                await ShowRow(main, "word attachment");
+                Expect(main.View.Item.VisibleAttachments.Any(a => a.FileName == "OBA_2760.doc"), "the attachment");
                 var text = await main.View.PageText();
-                Expect(text.Contains("rickroll.jpg"), "attachments listed on the page");
+                Expect(text.Contains("OBA_2760.doc"), "attachments listed on the page");
                 await Capture(main.View, "An email with an attachment");
+                await ShowRow(main, "never gonna give you up");
+                Expect(!main.View.Item.VisibleAttachments.Any(), "a picture in the text isn't listed as an attachment");
+                await Capture(main.View, "A picture in the text");
                 var calendar = main.FolderRows.First(r => r.Folder.Name == "Calendar").Folder;
                 main.SelectFolder(calendar);
                 await Wait(() => main.CurrentFolder?.Nid == calendar.Nid && main.Rows.Count > 0, 30, "the calendar");
                 main.SelectRow(0);
-                await Shown(main.View);
+                await ShownNow(main.View);
                 main.ShowSystemFolders(true);
                 Expect(main.FolderRows.Any(r => r.Folder.Name == "Root - Mailbox"), "system folders shown");
                 main.ShowSystemFolders(false);
@@ -294,7 +293,7 @@ namespace Kudupst.Views
             {
                 Expect(main.OpenFile(Sample("multi-to.msg")), "opened");
                 Expect(!main.Source.IsDataFile && main.Rows.Count == 1, "one email");
-                await Shown(main.View);
+                await ShownNow(main.View);
                 var text = await main.View.PageText();
                 Expect(text.Contains("alice@example.com"), "its recipients");
                 await Capture(main.View, "An msg file");
@@ -306,7 +305,7 @@ namespace Kudupst.Views
                     "From: Shop <news@shop.example>\r\nTo: you@example.com\r\nSubject: Our sale\r\nDate: Tue, 5 Mar 2024 10:30:00 +0000\r\n" +
                     "MIME-Version: 1.0\r\nContent-Type: text/html; charset=utf-8\r\n\r\n<p>Big sale!</p><img src=\"https://shop.example/track.gif\" width=\"1\" height=\"1\">\r\n");
                 Expect(main.OpenFile(path), "opened");
-                await Shown(main.View);
+                await ShownNow(main.View);
                 Expect(main.View.PicturesBlocked, "internet pictures blocked");
                 var text = await main.View.PageText();
                 Expect(text.Contains("Big sale!"), "the text is shown");
@@ -333,6 +332,19 @@ namespace Kudupst.Views
                 return t.Result;
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
+
+        /// <summary>Selects the email with this subject and waits until the page shows it.</summary>
+        private static async Task ShowRow(MainWindow main, string subject)
+        {
+            var index = main.Rows.ToList().FindIndex(r => r.Subject == subject);
+            Expect(index >= 0, "\"" + subject + "\" in the list");
+            main.SelectRow(index);
+            await Wait(() => main.View.ShownItem != null && main.View.ShownItem.Subject == subject, 30, "\"" + subject + "\" to show");
+        }
+
+        /// <summary>Waits until the page on screen shows the email the view has.</summary>
+        private static Task ShownNow(MailView view) =>
+            Wait(() => view.Item != null && ReferenceEquals(view.ShownItem, view.Item), 30, "the email to show");
 
         private static Task Shown(MailView view)
         {
