@@ -339,9 +339,11 @@ namespace Kudupst.Views
             }
             if (options.CombinePdf && parts.Count > 0 && !result.Cancelled)
             {
-                var path = Exporter.Unique(Path.Combine(options.Destination, "Emails.pdf"), used);
+                var path = Path.Combine(options.Destination, "Emails.pdf");
                 try
                 {
+                    Directory.CreateDirectory(options.Destination);
+                    path = Exporter.Unique(path, used);
                     await Task.Run(() => PdfMaker.Join(parts, path));
                     result.Files = 1;
                     result.FirstFile = path;
