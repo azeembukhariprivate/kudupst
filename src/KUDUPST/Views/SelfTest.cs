@@ -307,12 +307,13 @@ namespace Kudupst.Views
                 Expect(main.OpenFile(Sample("pstextractortest@outlook.com.ost")), "opened");
                 var calendar = main.FolderRows.First(r => r.Folder.Name == "Calendar").Folder;
                 main.SelectFolder(calendar);
-                await Wait(() => main.CurrentFolder?.Nid == calendar.Nid && main.Rows.Count > 9, 30, "the calendar");
+                await Wait(() => main.CurrentFolder?.Nid == calendar.Nid && main.Rows.Count == 9, 30, "the calendar's 9 items");
                 Expect(main.Kind == MainWindow.ListKind.Calendar, "listed as a calendar");
                 var starts = main.Rows.Select(x => x.When ?? DateTime.MaxValue).ToList();
                 Expect(starts.SequenceEqual(starts.OrderBy(x => x)), "oldest first");
                 var groups = System.Windows.Data.CollectionViewSource.GetDefaultView(main.Rows).Groups;
-                Expect(groups != null && groups.Count > 1, "month headings");
+                var august = new DateTime(2021, 8, 1).ToString("MMMM yyyy", System.Globalization.CultureInfo.CurrentCulture);
+                Expect(groups != null && groups.Count == 1 && (groups[0] as System.Windows.Data.CollectionViewGroup)?.Name as string == august, "a month heading (all its items are in August 2021)");
                 var weekly = main.Rows.First(x => x.Subject == "repeats every monday for 10 weeks");
                 Expect(weekly.MarkText == "Repeats", "repeating items are marked");
                 Expect(main.Rows.First(x => x.Subject == "all day event for 3 days").Line2.StartsWith("All day, 3 days"), "all-day items are marked");
