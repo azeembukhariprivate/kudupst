@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Checks KUDUPST's readers (PST, OST, MSG, EML), search and exports. Real Outlook files from other open-source
+       projects are downloaded once (checked by SHA-256) into samples-cache. Runs on any OS with:
+       dotnet run, project tests/KUDUPST.Tests -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\KUDUPST\Core\**\*.cs" Exclude="..\..\src\KUDUPST\Core\ThemeManager.cs" LinkBase="Core" />
+  </ItemGroup>
+
+</Project>
