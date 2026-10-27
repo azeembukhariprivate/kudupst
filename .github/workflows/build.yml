@@ -1,0 +1,161 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Work out the version
+        id: ver
+        shell: pwsh
+        run: |
+          $version = ([xml](Get-Content src/KUDUPST/KUDUPST.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          if ("${{ github.ref_type }}" -eq "tag") { $version = "${{ github.ref_name }}".TrimStart('v', 'V') }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Version: $version"
+
+      - name: Is this a new version?
+        id: rel
+        shell: pwsh
+        run: |
+          # A push to main whose version has no tag yet gets a release of its own.
+          $new = "false"
+          if ("${{ github.event_name }}" -eq "push" -and "${{ github.ref }}" -eq "refs/heads/main") {
+            git ls-remote --exit-code --tags origin "refs/tags/v${{ steps.ver.outputs.version }}" | Out-Null
+            if ($LASTEXITCODE -eq 2) { $new = "true" }
+            elseif ($LASTEXITCODE -ne 0) { Write-Host "Couldn't check the tags (exit code $LASTEXITCODE); no release this time." }
+          }
+          "new=$new" >> $env:GITHUB_OUTPUT
+          Write-Host "New release: $new"
+          $global:LASTEXITCODE = 0
+
+      - name: Shared code matches kudu-common
+        shell: pwsh
+        run: |
+          # The shared files come from https://github.com/azeembukhariprivate/kudu-common and mustn't be edited here.
+          $sha = (Select-String -Path .kudu-common -Pattern '^commit (\S+)').Matches[0].Groups[1].Value
+          git clone -q https://github.com/azeembukhariprivate/kudu-common "$env:RUNNER_TEMP/kudu-common"
+          git -C "$env:RUNNER_TEMP/kudu-common" checkout -q $sha
+          if ($LASTEXITCODE -ne 0) { Write-Host "kudu-common has no commit $sha"; exit 1 }
+          python "$env:RUNNER_TEMP/kudu-common/sync.py" --check .
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          git -C "$env:RUNNER_TEMP/kudu-common" diff --quiet $sha origin/main -- shared
+          if ($LASTEXITCODE -ne 0) { Write-Host "::warning::kudu-common has newer shared code than this app; run its sync.py." }
+          $global:LASTEXITCODE = 0
+
+      - name: Test the readers, search and exports (with real Outlook files from other open-source projects)
+        shell: pwsh
+        run: dotnet run --project tests/KUDUPST.Tests -c Release
+
+      - name: Build
+        shell: pwsh
+        run: dotnet build src/KUDUPST/KUDUPST.csproj -c Release "-p:Version=${{ steps.ver.outputs.version }}" -o out/KUDUPST
+
+      - name: Make sure the Edge engine (WebView2 Runtime) is installed
+        shell: pwsh
+        run: |
+          $key = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
+          if (Test-Path $key) { Write-Host "WebView2 Runtime $((Get-ItemProperty $key).pv)" }
+          else { choco install webview2-runtime -y --no-progress }
+
+      - name: Self-test the app (PST, OST, MSG and EML files, the email viewer, search, every export, both themes)
+        shell: pwsh
+        timeout-minutes: 15
+        run: |
+          $samples = (Resolve-Path tests/KUDUPST.Tests/samples-cache).Path
+          $p = Start-Process -FilePath out/KUDUPST/KUDUPST.exe -ArgumentList '--self-test', '--samples', "`"$samples`"" -PassThru
+          if (-not $p.WaitForExit(840000)) { $p.Kill(); Write-Host "Self-test timed out"; Get-Content out/KUDUPST/self-test.log -ErrorAction SilentlyContinue; exit 1 }
+          Get-Content out/KUDUPST/self-test.log -ErrorAction SilentlyContinue
+          Remove-Item out/KUDUPST/self-test.log -ErrorAction SilentlyContinue
+          if ($p.ExitCode -ne 0) { Write-Host "Self-test failed with exit code $($p.ExitCode)"; exit 1 }
+
+      - name: Keep the screenshots the self-test took
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: KUDUPST-screenshots-${{ steps.ver.outputs.version }}
+          path: out/KUDUPST/screenshots/*.png
+          if-no-files-found: warn
+
+      - name: Leave the screenshots out of the app
+        if: always()
+        shell: pwsh
+        run: Remove-Item -Recurse -Force out/KUDUPST/screenshots -ErrorAction SilentlyContinue
+
+      - name: Show build output
+        shell: pwsh
+        run: Get-ChildItem -Recurse out/KUDUPST | Select-Object FullName, Length | Format-Table -AutoSize
+
+      - name: Make portable zip
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          Compress-Archive -Path out/KUDUPST/* -DestinationPath "artifacts/KUDUPST-${{ steps.ver.outputs.version }}-portable.zip"
+
+      - name: Make installer
+        shell: pwsh
+        run: |
+          $iscc = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y --no-progress | Out-Null
+          }
+          & $iscc "/DMyAppVersion=${{ steps.ver.outputs.version }}" "/DSourceDir=$PWD\out\KUDUPST" "/O$PWD\artifacts" installer\KUDUPST.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload build files
+        uses: actions/upload-artifact@v6
+        with:
+          name: KUDUPST-${{ steps.ver.outputs.version }}
+          path: artifacts/*
+
+      - name: Add a copy of the installer without the version in its name
+        if: github.ref_type == 'tag' || steps.rel.outputs.new == 'true'
+        shell: pwsh
+        run: Copy-Item "artifacts/KUDUPST-${{ steps.ver.outputs.version }}-setup.exe" "artifacts/KUDUPST-setup.exe"
+
+      - name: Publish GitHub release
+        if: github.ref_type == 'tag' || steps.rel.outputs.new == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "v${{ steps.ver.outputs.version }}"
+          $files = (Get-ChildItem artifacts/*).FullName
+          gh release view $tag 2>$null | Out-Null
+          if ($LASTEXITCODE -eq 0) { gh release upload $tag $files --clobber }
+          else { gh release create $tag $files --target "${{ github.sha }}" --title "KUDUPST ${{ steps.ver.outputs.version }}" --generate-notes }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Give the latest release a copy of the installer without the version in its name
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.rel.outputs.new != 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The README's download button links to releases/latest/download/KUDUPST-setup.exe.
+          $json = gh release view --json tagName,assets 2>$null
+          if ($LASTEXITCODE -ne 0 -or -not $json) { Write-Host "No release yet."; $global:LASTEXITCODE = 0; exit 0 }
+          $latest = $json | ConvertFrom-Json
+          $names = @($latest.assets | ForEach-Object { $_.name })
+          if ($names -contains "KUDUPST-setup.exe") { Write-Host "$($latest.tagName) already has KUDUPST-setup.exe."; exit 0 }
+          $versioned = $names | Where-Object { $_ -like "KUDUPST-*-setup.exe" } | Select-Object -First 1
+          if (-not $versioned) { Write-Host "$($latest.tagName) has no installer."; exit 0 }
+          New-Item -ItemType Directory -Force latest | Out-Null
+          gh release download $latest.tagName --pattern $versioned --dir latest
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Copy-Item "latest/$versioned" latest/KUDUPST-setup.exe
+          gh release upload $latest.tagName latest/KUDUPST-setup.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
