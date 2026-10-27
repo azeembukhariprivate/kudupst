@@ -346,9 +346,10 @@ namespace Kudupst.Views
                     result.Files = 1;
                     result.FirstFile = path;
                 }
-                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is InvalidOperationException)
+                catch (Exception ex)
                 {
-                    result.Problems.Add("The PDF files couldn't be joined: " + ex.Message);
+                    // Anything the PDF library reports is shown, not left to crash the export.
+                    result.Problems.Add("The PDF files couldn't be joined: " + ex.GetType().Name + ": " + ex.Message);
                 }
             }
             try { if (Directory.Exists(temp)) Directory.Delete(temp, true); }

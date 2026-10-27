@@ -214,7 +214,7 @@ namespace Kudupst.Views
                 foreach (var f in files) Expect(Encoding.ASCII.GetString(File.ReadAllBytes(f), 0, 5) == "%PDF-", "a PDF: " + Path.GetFileName(f));
                 var joined = Path.Combine(_temp, "pdf-one");
                 var r2 = await Export(main, items, new ExportOptions { Format = ExportFormat.Pdf, Destination = joined, CombinePdf = true, KeepFolders = false });
-                Expect(r2.Files == 1 && File.Exists(r2.FirstFile), "one joined PDF");
+                Expect(r2.Files == 1 && File.Exists(r2.FirstFile), $"one joined PDF (exported {r2.Exported}, files {r2.Files}, cancelled {r2.Cancelled}, problems: {string.Join("; ", r2.Problems)})");
                 using (var doc = PdfSharp.Pdf.IO.PdfReader.Open(r2.FirstFile, PdfSharp.Pdf.IO.PdfDocumentOpenMode.Import))
                     Expect(doc.PageCount >= items.Count, $"pages: {doc.PageCount} for {items.Count} emails");
                 Note($"{items.Count} emails as PDF");
