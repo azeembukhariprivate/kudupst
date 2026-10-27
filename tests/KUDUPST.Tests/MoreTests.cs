@@ -18,7 +18,7 @@ namespace Kudupst.Tests
         private const uint TopNid = 0x8022, InboxNid = 0x8042, MessageNid = 0x200024;
 
         /// <summary>A small PST with one folder holding one email (text and HTML body, two recipients, a big attachment, an attached email).</summary>
-        private static byte[] MakePst(bool unicode, PstCryptMethod crypt, string password = null)
+        private static byte[] MakePst(bool unicode, PstCryptMethod crypt, string password = null, Action<PstWriter> extra = null)
         {
             var w = new PstWriter(unicode, crypt);
             var ansi = Encoding.GetEncoding(1252);
@@ -124,6 +124,7 @@ namespace Kudupst.Tests
             }, ansi)), 0));
 
             w.Node(MessageNid, w.Data(msgData), w.SubNodes(subs), InboxNid);
+            extra?.Invoke(w);
             return w.Build();
         }
 

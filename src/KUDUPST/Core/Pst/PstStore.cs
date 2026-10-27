@@ -48,6 +48,11 @@ namespace Kudupst.Core.Pst
         public string Company { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
 
+        // Deleted items found in the file.
+        public bool Deleted { get; set; }
+        public bool Partial { get; set; }
+        public string FoundIn { get; set; } = string.Empty;
+
         public ItemKind Kind => ItemKinds.Of(MessageClass);
     }
 
@@ -75,6 +80,10 @@ namespace Kudupst.Core.Pst
         public uint TopNid { get; }
         public Encoding Ansi { get; }
         private NameMap _names;
+        private Recovery _found;
+        private Dictionary<uint, FoundItem> _foundById = new Dictionary<uint, FoundItem>();
+        private PstFolder _foundFolder;
+        private List<ItemSummary> _foundSummaries;
 
         /// <summary>The file's table of named properties (contact and calendar fields).</summary>
         public NameMap Names
@@ -152,6 +161,72 @@ namespace Kudupst.Core.Pst
 
         public void Dispose() => File.Dispose();
 
+        // ================================================================== deleted items found in the file
+
+        public const string FoundFolderName = "Found deleted items";
+
+        /// <summary>The deleted items found so far (null until something looked).</summary>
+        public Recovery Found => _found;
+
+        /// <summary>The "Found deleted items" folder, when there's something in it.</summary>
+        public PstFolder FoundFolder => _foundFolder;
+
+        /// <summary>Shows these deleted items in a "Found deleted items" folder at the end of the top folder.</summary>
+        public void UseFound(Recovery found)
+        {
+            File.AddFoundBlocks(found.Blocks);
+            lock (_sync)
+            {
+                _found = found;
+                _foundById = found.Items.ToDictionary(f => f.Id);
+                _foundSummaries = null;
+                _foundFolder = found.Items.Count == 0 ? null : new PstFolder
+                {
+                    Nid = Recovery.FolderNid, ParentNid = TopNid, Name = FoundFolderName, ItemCount = found.Items.Count
+                };
+            }
+        }
+
+        private FoundItem FoundById(uint nid)
+        {
+            lock (_sync) return _foundById.TryGetValue(nid, out var f) ? f : null;
+        }
+
+        private List<ItemSummary> FoundSummaries()
+        {
+            lock (_sync)
+            {
+                if (_foundSummaries != null) return _foundSummaries;
+            }
+            var list = new List<ItemSummary>();
+            List<FoundItem> items;
+            lock (_sync) items = _found?.Items.ToList() ?? new List<FoundItem>();
+            foreach (var f in items)
+            {
+                try
+                {
+                    var m = ReadItem(f.Id);
+                    var s = new ItemSummary
+                    {
+                        Nid = f.Id, FolderNid = Recovery.FolderNid, MessageClass = m.MessageClass, Subject = m.Contact?.Name ?? m.Group?.Name ?? m.Subject,
+                        From = m.From.Short, To = m.DisplayTo, Date = m.Date, Size = m.Size, Read = m.Read, Importance = m.Importance,
+                        HasAttachments = m.VisibleAttachments.Any(), Deleted = true, Partial = m.Partial, FoundIn = m.FoundIn,
+                        Start = m.Appointment?.Start, End = m.Appointment?.End, AllDay = m.Appointment?.AllDay == true,
+                        Recurring = m.Appointment?.Recurring == true, Location = m.Appointment?.Location ?? string.Empty,
+                        FileAs = m.Contact?.FileAs ?? string.Empty, Company = m.Contact?.Company ?? string.Empty,
+                        Email = m.Contact?.Emails.FirstOrDefault()?.Address ?? string.Empty
+                    };
+                    list.Add(s);
+                }
+                catch (Exception ex) when (ex is PstException || ex is ArgumentException || ex is IndexOutOfRangeException)
+                {
+                    // Too little of it is left to show.
+                }
+            }
+            lock (_sync) _foundSummaries = list;
+            return list;
+        }
+
         // ================================================================== password
 
         /// <summary>
@@ -180,6 +255,7 @@ namespace Kudupst.Core.Pst
         {
             lock (_sync)
             {
+                if (nid == Recovery.FolderNid && _foundFolder != null) return _foundFolder;
                 if (_folders.TryGetValue(nid, out var cached)) return cached;
             }
             var pc = new PropertyContext(NodeData.Of(File, File.GetNode(nid))) { Ansi = Ansi };
@@ -224,6 +300,8 @@ namespace Kudupst.Core.Pst
                 try { result.Add(Folder(id)); }
                 catch (PstException) { /* a damaged folder is left out */ }
             }
+            var found = _foundFolder;
+            if (folder.Nid == TopNid && found != null) result.Add(found);
             return result;
         }
 
@@ -265,6 +343,7 @@ namespace Kudupst.Core.Pst
         /// <summary>The items in a folder, from its contents table (fast: the items themselves aren't read).</summary>
         public List<ItemSummary> Items(PstFolder folder)
         {
+            if (folder.Nid == Recovery.FolderNid) return FoundSummaries().ToList();
             var list = new List<ItemSummary>();
             if (folder.IsSearchFolder) return list; // a search folder only points at items in other folders
             var tableNid = (folder.Nid & ~0x1Fu) | 0x0E;
@@ -368,11 +447,24 @@ namespace Kudupst.Core.Pst
 
         // ================================================================== items
 
-        public bool Exists(uint nid) => File.TryGetNode(nid, out _);
+        public bool Exists(uint nid) => FoundById(nid) != null || File.TryGetNode(nid, out _);
 
         /// <summary>Reads a whole item. The body and attachment contents are read when first asked for.</summary>
         public MailItem ReadItem(uint nid)
         {
+            var found = FoundById(nid);
+            if (found != null)
+            {
+                var item = ReadItem(new NodeData(File, found.DataBid, found.SubBid) { Lenient = found.Partial });
+                item.Deleted = true;
+                item.Partial = found.Partial;
+                if (found.ParentNid != 0 && File.TryGetNode(found.ParentNid, out _))
+                {
+                    try { item.FoundIn = Folder(found.ParentNid).Name; }
+                    catch (PstException) { item.FoundIn = string.Empty; }
+                }
+                return item;
+            }
             var node = File.GetNode(nid);
             return ReadItem(NodeData.Of(File, node));
         }

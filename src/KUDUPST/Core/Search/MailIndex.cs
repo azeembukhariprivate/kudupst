@@ -308,8 +308,8 @@ namespace Kudupst.Core.Search
         private const int MaxBodyChars = 200000;
         private const int MergeAbove = 8;
 
-        /// <summary>Raised when what's put in the index changes (2: contact details), so files are indexed again.</summary>
-        private const int Layout = 2;
+        /// <summary>Raised when what's put in the index changes (2: contact details, 3: deleted items found in the file), so files are indexed again.</summary>
+        private const int Layout = 3;
 
         private readonly string _sourcePath;
         private readonly List<Segment> _segments = new List<Segment>();
@@ -321,6 +321,9 @@ namespace Kudupst.Core.Search
         public bool Complete { get; private set; }
         public int Done { get; private set; }
         public int Total { get; private set; }
+
+        /// <summary>How many of the deleted items found in the file are in the index.</summary>
+        public int FoundIndexed { get; private set; }
         public string Error { get; private set; }
         public bool Running => _thread != null && _thread.IsAlive;
 
@@ -356,6 +359,8 @@ namespace Kudupst.Core.Search
             Complete = state.Contains("complete");
             var total = state.FirstOrDefault(l => l.StartsWith("total="));
             if (total != null && int.TryParse(total.Substring(6), out var t)) Total = t;
+            var found = state.FirstOrDefault(l => l.StartsWith("found="));
+            if (found != null && int.TryParse(found.Substring(6), out var fi)) FoundIndexed = fi;
             foreach (var path in Directory.GetFiles(Folder, "seg-*.bin").OrderBy(p => p, StringComparer.Ordinal))
             {
                 try { _segments.Add(new Segment(path)); }
@@ -413,6 +418,9 @@ namespace Kudupst.Core.Search
             {
                 using (var store = PstStore.Open(_sourcePath))
                 {
+                    // Deleted items found in the file are indexed too (in their own folder, at the end).
+                    var found = Recovery.LoadOrFind(store, Folder);
+                    store.UseFound(found);
                     var folders = store.AllFolders(store.Root).Where(f => !f.IsSearchFolder).ToList();
                     Total = folders.Sum(f => Math.Max(0, f.ItemCount));
                     var ordinal = 0;
@@ -432,36 +440,7 @@ namespace Kudupst.Core.Search
                                 ordinal++;
                                 continue;
                             }
-                            var entry = new IndexedItem
-                            {
-                                Ordinal = ordinal, Nid = s.Nid, FolderNid = folder.Nid, Date = s.Date, Size = s.Size, Read = s.Read,
-                                HasAttachments = s.HasAttachments, MessageClass = s.MessageClass, Subject = s.Subject, From = s.From, To = s.To
-                            };
-                            var text = new StringBuilder();
-                            text.Append(s.Subject).Append(' ').Append(s.From).Append(' ').Append(s.To).Append(' ');
-                            try
-                            {
-                                var item = store.ReadItem(s.Nid);
-                                text.Append(item.From.Name).Append(' ').Append(item.From.Address).Append(' ');
-                                foreach (var r in item.Recipients) text.Append(r.Address.Name).Append(' ').Append(r.Address.Address).Append(' ');
-                                var body = item.Body.PlainText;
-                                text.Append(body.Length > MaxBodyChars ? body.Substring(0, MaxBodyChars) : body).Append(' ');
-                                foreach (var a in item.Attachments) text.Append(a.FileName).Append(' ');
-                                if (item.Contact != null) text.Append(item.Contact.SearchText).Append(' ');
-                                if (item.Group != null) text.Append(item.Group.Name).Append(' ').Append(item.Group.MembersText).Append(' ');
-                                if (item.Appointment != null) text.Append(item.Appointment.Location).Append(' ');
-                                if (entry.From.Length == 0) entry.From = item.From.Short;
-                                if (!entry.Date.HasValue) entry.Date = item.Date;
-                            }
-                            catch (Exception ex) when (ex is PstException || ex is IOException || ex is InvalidDataException || ex is ArgumentException || ex is IndexOutOfRangeException)
-                            {
-                                // An item that can't be read is still listed by its subject.
-                            }
-                            foreach (var word in new HashSet<string>(Words.Of(text.ToString())))
-                            {
-                                if (!words.TryGetValue(word, out var list)) words[word] = list = new List<int>();
-                                list.Add(ordinal);
-                            }
+                            var entry = Entry(store, s, folder.Nid, ordinal, words);
                             items.Add(entry);
                             ordinal++;
                             if (items.Count >= ItemsPerSegment)
@@ -476,7 +455,8 @@ namespace Kudupst.Core.Search
                     MergeAll();
                     Total = Done;
                     Complete = true;
-                    File.WriteAllLines(StatePath, new[] { "complete", "total=" + Done });
+                    FoundIndexed = found.Items.Count;
+                    WriteState();
                     Progress?.Invoke();
                 }
             }
@@ -484,6 +464,96 @@ namespace Kudupst.Core.Search
             {
                 Error = ex.Message;
                 Progress?.Invoke();
+            }
+        }
+
+        private void WriteState()
+        {
+            var lines = new List<string>();
+            if (Complete) lines.Add("complete");
+            lines.Add("total=" + Total);
+            lines.Add("found=" + FoundIndexed);
+            File.WriteAllLines(StatePath, lines);
+        }
+
+        /// <summary>An item's entry in the index, and its words.</summary>
+        private static IndexedItem Entry(PstStore store, ItemSummary s, uint folderNid, int ordinal, SortedDictionary<string, List<int>> words)
+        {
+            var entry = new IndexedItem
+            {
+                Ordinal = ordinal, Nid = s.Nid, FolderNid = folderNid, Date = s.Date, Size = s.Size, Read = s.Read,
+                HasAttachments = s.HasAttachments, MessageClass = s.MessageClass, Subject = s.Subject, From = s.From, To = s.To
+            };
+            var text = new StringBuilder();
+            text.Append(s.Subject).Append(' ').Append(s.From).Append(' ').Append(s.To).Append(' ');
+            try
+            {
+                var item = store.ReadItem(s.Nid);
+                text.Append(item.From.Name).Append(' ').Append(item.From.Address).Append(' ');
+                foreach (var r in item.Recipients) text.Append(r.Address.Name).Append(' ').Append(r.Address.Address).Append(' ');
+                var body = item.Body.PlainText;
+                text.Append(body.Length > MaxBodyChars ? body.Substring(0, MaxBodyChars) : body).Append(' ');
+                foreach (var a in item.Attachments) text.Append(a.FileName).Append(' ');
+                if (item.Contact != null) text.Append(item.Contact.SearchText).Append(' ');
+                if (item.Group != null) text.Append(item.Group.Name).Append(' ').Append(item.Group.MembersText).Append(' ');
+                if (item.Appointment != null) text.Append(item.Appointment.Location).Append(' ');
+                if (entry.From.Length == 0) entry.From = item.From.Short;
+                if (!entry.Date.HasValue) entry.Date = item.Date;
+            }
+            catch (Exception ex) when (ex is PstException || ex is IOException || ex is InvalidDataException || ex is ArgumentException || ex is IndexOutOfRangeException)
+            {
+                // An item that can't be read is still listed by its subject.
+            }
+            foreach (var word in new HashSet<string>(Words.Of(text.ToString())))
+            {
+                if (!words.TryGetValue(word, out var list)) words[word] = list = new List<int>();
+                list.Add(ordinal);
+            }
+            return entry;
+        }
+
+        /// <summary>
+        /// Adds deleted items found by looking deeper (after the index was built). Runs in the background, after any
+        /// build still going on.
+        /// </summary>
+        public void AddFound(Recovery found)
+        {
+            var previous = _thread;
+            _thread = new Thread(() =>
+            {
+                previous?.Join();
+                AddFoundNow(found);
+            }) { IsBackground = true, Name = "KUDUPST index (found items)", Priority = ThreadPriority.BelowNormal };
+            _thread.Start();
+        }
+
+        public void AddFoundNow(Recovery found)
+        {
+            if (!Complete || found.Items.Count <= FoundIndexed) return;
+            try
+            {
+                using (var store = PstStore.Open(_sourcePath))
+                {
+                    store.UseFound(found);
+                    var add = new HashSet<uint>(found.Items.Skip(FoundIndexed).Select(i => i.Id));
+                    var items = new List<IndexedItem>();
+                    var words = new SortedDictionary<string, List<int>>(StringComparer.Ordinal);
+                    var ordinal = Done;
+                    foreach (var s in store.Items(store.FoundFolder).Where(i => add.Contains(i.Nid)))
+                    {
+                        if (_stop) return;
+                        items.Add(Entry(store, s, Recovery.FolderNid, ordinal++, words));
+                    }
+                    if (items.Count > 0) Flush(items, words);
+                    Total = Done;
+                    FoundIndexed = found.Items.Count;
+                    WriteState();
+                    Progress?.Invoke();
+                }
+            }
+            catch (Exception ex) when (ex is PstException || ex is IOException || ex is UnauthorizedAccessException || ex is InvalidDataException)
+            {
+                Error = ex.Message;
             }
         }
 
@@ -495,7 +565,7 @@ namespace Kudupst.Core.Search
             {
                 _segments.Add(new Segment(path));
                 Done += items.Count;
-                File.WriteAllLines(StatePath, new[] { "total=" + Total });
+                WriteState();
                 if (_segments.Count > MergeAbove) MergeAll();
             }
             Progress?.Invoke();

@@ -55,6 +55,7 @@ namespace Kudupst.Core.Pst
         private readonly Dictionary<long, byte[]> _pages = new Dictionary<long, byte[]>();
         private readonly long _nbtRoot, _bbtRoot;
         private readonly int _pageSize;
+        private readonly Dictionary<ulong, BlockRef> _foundBlocks = new Dictionary<ulong, BlockRef>();
 
         public PstFormat Format { get; }
         public PstCryptMethod Crypt { get; }
@@ -63,6 +64,15 @@ namespace Kudupst.Core.Pst
         public string Path { get; }
 
         public bool Unicode => Format != PstFormat.Ansi;
+
+        /// <summary>The size of an index page: 512 bytes, or 4 KB in newer OST files.</summary>
+        public int PageSize => _pageSize;
+
+        /// <summary>Whether the file's map of used and free space can be trusted (Outlook marks it when it's up to date).</summary>
+        public bool FreeMapValid { get; }
+
+        /// <summary>Where the file's own data ends (anything after it is unused).</summary>
+        public long EndOfData { get; }
 
         public static PstFile Open(string path)
         {
@@ -101,6 +111,8 @@ namespace Kudupst.Core.Pst
                 _bbtRoot = BitConverter.ToUInt32(header, 196);
                 Crypt = (PstCryptMethod)header[0x1CD];
                 _pageSize = 512;
+                FreeMapValid = header[200] != 0;
+                EndOfData = BitConverter.ToUInt32(header, 168);
             }
             else
             {
@@ -108,9 +120,12 @@ namespace Kudupst.Core.Pst
                 _bbtRoot = (long)BitConverter.ToUInt64(header, 240);
                 Crypt = (PstCryptMethod)header[0x201];
                 _pageSize = Format == PstFormat.Unicode4K ? 4096 : 512;
+                FreeMapValid = header[248] != 0;
+                EndOfData = (long)BitConverter.ToUInt64(header, 184);
             }
             if (Crypt != PstCryptMethod.None && Crypt != PstCryptMethod.Compressible && Crypt != PstCryptMethod.High)
                 throw new PstException("This Outlook data file uses an unknown kind of encryption.");
+            if (EndOfData <= 0 || EndOfData > Length) EndOfData = Length;
             if (_nbtRoot <= 0 || _nbtRoot >= Length || _bbtRoot <= 0 || _bbtRoot >= Length)
                 throw new PstException("This Outlook data file is damaged: its index is missing.");
         }
@@ -119,6 +134,9 @@ namespace Kudupst.Core.Pst
         {
             lock (_sync) _stream.Dispose();
         }
+
+        /// <summary>Reads bytes from the file as they are (for looking through its free space).</summary>
+        public int ReadRaw(long offset, byte[] buffer, int count) => ReadAt(offset, buffer, count);
 
         private int ReadAt(long offset, byte[] buffer, int count)
         {
@@ -225,11 +243,30 @@ namespace Kudupst.Core.Pst
             throw new PstException("This Outlook data file is damaged: its index is too deep.");
         }
 
+        /// <summary>
+        /// Blocks found in the file's free space (left over from deleted items), used when the index no longer lists
+        /// them. Each one was checked against its own checksum when it was found.
+        /// </summary>
+        public void AddFoundBlocks(IEnumerable<BlockRef> blocks)
+        {
+            lock (_sync)
+            {
+                foreach (var b in blocks)
+                    if (!_foundBlocks.ContainsKey(b.Bid)) _foundBlocks[b.Bid] = b;
+            }
+        }
+
+        /// <summary>Whether the file's index lists a block (it's in use).</summary>
+        public bool IsListed(ulong bid) => FindLeaf(_bbtRoot, bid & ~1UL, out _, out _);
+
         public bool TryGetBlock(ulong bid, out BlockRef block)
         {
             bid &= ~1UL; // the lowest bit isn't part of the ID
             block = default;
-            if (!FindLeaf(_bbtRoot, bid, out var page, out var e)) return false;
+            if (!FindLeaf(_bbtRoot, bid, out var page, out var e))
+            {
+                lock (_sync) return _foundBlocks.TryGetValue(bid, out block);
+            }
             switch (Format)
             {
                 case PstFormat.Ansi:
@@ -284,6 +321,123 @@ namespace Kudupst.Core.Pst
                         : new NodeRef { Nid = BitConverter.ToUInt32(page, e), DataBid = BitConverter.ToUInt32(page, e + 4), SubBid = BitConverter.ToUInt32(page, e + 8), ParentNid = BitConverter.ToUInt32(page, e + 12) };
                 }
             }
+        }
+
+        // ================================================================== recognising leftovers
+
+        /// <summary>The checksum-like signature of a block or index page, from where it is and its ID (MS-PST 5.5).</summary>
+        public static ushort Signature(long offset, ulong bid)
+        {
+            var x = (uint)offset ^ (uint)bid;
+            return (ushort)((x >> 16) ^ x);
+        }
+
+        /// <summary>The size of a block's trailer: the size, signature, checksum and ID kept after its data.</summary>
+        public int BlockTrailerSize => Format == PstFormat.Ansi ? 12 : Format == PstFormat.Unicode ? 16 : 24;
+
+        /// <summary>Blocks take up whole units of this many bytes.</summary>
+        public int BlockUnit => Format == PstFormat.Unicode4K ? 512 : 64;
+
+        /// <summary>The most data one block holds.</summary>
+        public int MaxBlockData => Format == PstFormat.Unicode4K ? 65536 - 24 : 8192 - BlockTrailerSize;
+
+        /// <summary>
+        /// Checks whether a block ends at <paramref name="end"/> (an index into <paramref name="buffer"/>, which holds the
+        /// file from <paramref name="bufferOffset"/>): its trailer must be whole, and its signature and checksum right.
+        /// </summary>
+        public bool TryBlockEndingAt(byte[] buffer, long bufferOffset, int end, int lowest, out BlockRef block)
+        {
+            block = default;
+            var tr = BlockTrailerSize;
+            var t = end - tr;
+            if (t < lowest) return false;
+            int cb = BitConverter.ToUInt16(buffer, t);
+            if (cb == 0 || cb > MaxBlockData) return false;
+            ulong bid;
+            uint crc;
+            if (Format == PstFormat.Ansi)
+            {
+                bid = BitConverter.ToUInt32(buffer, t + 4);
+                crc = BitConverter.ToUInt32(buffer, t + 8);
+            }
+            else
+            {
+                crc = BitConverter.ToUInt32(buffer, t + 4);
+                bid = BitConverter.ToUInt64(buffer, t + 8);
+            }
+            if (bid == 0) return false;
+            var unit = BlockUnit;
+            var total = (cb + tr + unit - 1) / unit * unit;
+            var start = end - total;
+            if (start < lowest) return false;
+            if (BitConverter.ToUInt16(buffer, t + 2) != Signature(bufferOffset + start, bid)) return false;
+            if (Crc32.Plain(buffer, start, cb) != crc) return false;
+            var inflated = Format == PstFormat.Unicode4K ? BitConverter.ToUInt16(buffer, t + 18) : 0;
+            block = new BlockRef { Bid = bid & ~1UL, Offset = bufferOffset + start, Size = cb, InflatedSize = inflated == 0 ? cb : inflated };
+            return true;
+        }
+
+        /// <summary>
+        /// Reads the node entries of an index page that lists nodes (a leaf of the node tree) starting at
+        /// <paramref name="at"/> in <paramref name="buffer"/>, if it is one and its checksum is right.
+        /// </summary>
+        public bool TryNodePage(byte[] buffer, int at, List<NodeRef> into)
+        {
+            if (at + _pageSize > buffer.Length) return false;
+            int typeAt, crcAt, dataSize;
+            switch (Format)
+            {
+                case PstFormat.Ansi: typeAt = at + 500; crcAt = at + 508; dataSize = 500; break;
+                case PstFormat.Unicode: typeAt = at + 496; crcAt = at + 500; dataSize = 496; break;
+                default: typeAt = at + 4072; crcAt = at + 4076; dataSize = 4072; break;
+            }
+            if (buffer[typeAt] != 0x81 || buffer[typeAt + 1] != 0x81) return false;
+            if (Crc32.Plain(buffer, at, dataSize) != BitConverter.ToUInt32(buffer, crcAt)) return false;
+            var page = new byte[_pageSize];
+            Buffer.BlockCopy(buffer, at, page, 0, _pageSize);
+            var info = Info(page);
+            if (info.Level != 0 || info.EntrySize <= 0 || info.Count * info.EntrySize > dataSize) return false;
+            for (var i = 0; i < info.Count; i++)
+            {
+                var e = i * info.EntrySize;
+                into.Add(Unicode
+                    ? new NodeRef { Nid = (uint)BitConverter.ToUInt64(page, e), DataBid = BitConverter.ToUInt64(page, e + 8), SubBid = BitConverter.ToUInt64(page, e + 16), ParentNid = BitConverter.ToUInt32(page, e + 24) }
+                    : new NodeRef { Nid = BitConverter.ToUInt32(page, e), DataBid = BitConverter.ToUInt32(page, e + 4), SubBid = BitConverter.ToUInt32(page, e + 8), ParentNid = BitConverter.ToUInt32(page, e + 12) });
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// The parts of the file marked free in its map of used space (each map page covers 253,952 bytes, a bit for
+        /// every 64), as (offset, length). Null when there's no map to go by (it's out of date, or a newer OST file).
+        /// </summary>
+        public List<(long Offset, long Length)> FreeSpace()
+        {
+            if (Format == PstFormat.Unicode4K || !FreeMapValid) return null;
+            const long first = 0x4400, span = 253952;
+            var runs = new List<(long, long)>();
+            long runStart = -1;
+            var page = new byte[512];
+            for (var map = first; map < EndOfData; map += span)
+            {
+                if (ReadAt(map, page, 512) < 512) break;
+                var type = Format == PstFormat.Ansi ? page[500] : page[496];
+                if (type != 0x84) return null;
+                var units = (int)(Math.Min(span, EndOfData - map) / 64);
+                for (var i = 0; i < units; i++)
+                {
+                    var used = (page[i >> 3] >> (7 - (i & 7)) & 1) != 0;
+                    var at = map + i * 64L;
+                    if (!used && runStart < 0) runStart = at;
+                    else if (used && runStart >= 0)
+                    {
+                        runs.Add((runStart, at - runStart));
+                        runStart = -1;
+                    }
+                }
+            }
+            if (runStart >= 0) runs.Add((runStart, EndOfData - runStart));
+            return runs;
         }
 
         // ================================================================== blocks

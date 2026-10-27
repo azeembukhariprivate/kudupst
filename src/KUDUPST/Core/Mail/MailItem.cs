@@ -135,6 +135,15 @@ namespace Kudupst.Core.Mail
         /// <summary>The categories (coloured labels) given in Outlook.</summary>
         public string[] Categories { get; set; } = new string[0];
 
+        /// <summary>A deleted item found inside the file.</summary>
+        public bool Deleted { get; set; }
+
+        /// <summary>A deleted item of which only some parts could be found.</summary>
+        public bool Partial { get; set; }
+
+        /// <summary>For a deleted item: the folder it was in, when that's known.</summary>
+        public string FoundIn { get; set; } = string.Empty;
+
         /// <summary>Private (2) or confidential (3); 0 when normal.</summary>
         public int Sensitivity { get; set; }
 

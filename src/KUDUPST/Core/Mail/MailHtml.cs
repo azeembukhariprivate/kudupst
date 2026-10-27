@@ -112,6 +112,11 @@ namespace Kudupst.Core.Mail
                 sb.Append("<tr><td class=\"k\">").Append(E(key)).Append("</td><td>")
                   .Append(string.Join("<br>", list.Select(v => E(v).Replace("\r\n", "<br>").Replace("\n", "<br>")))).Append("</td></tr>");
             }
+            if (item.Deleted)
+            {
+                Row("Deleted", (item.FoundIn.Length > 0 ? $"Found inside the file (it was in {item.FoundIn})." : "Found inside the file.") +
+                               (item.Partial ? " Only part of it is left: some text, recipients or attachments may be missing." : string.Empty));
+            }
             var kind = item.Kind;
             if (item.Contact != null) ContactRows(item, o, sb, Row, Lines);
             else if (item.Group != null)

@@ -18,7 +18,7 @@ namespace Kudupst.Views
     /// KUDUPST.exe --self-test --samples folder: opens real Outlook files (the ones the unit tests download) in the
     /// real window and uses it: folders, emails in the Edge viewer, search with the index, every export (email files,
     /// PDF one by one and joined, attachments, CSV, contacts as .vcf and CSV, calendar as .ics), contacts and contact
-    /// groups, the calendar by month, a password-protected file, an OST, .msg and .eml files, blocked
+    /// groups, the calendar by month, deleted items found inside a file, a password-protected file, an OST, .msg and .eml files, blocked
     /// internet pictures, the File Explorer integration, and every window in both themes. Writes self-test.log next to
     /// the exe; exits with 0 when everything passed.
     /// </summary>
@@ -82,6 +82,7 @@ namespace Kudupst.Views
                 await PstRound(main);
                 await OstRound(main);
                 await ContactsAndCalendarRound(main);
+                await DeletedRound(main);
                 await PasswordRound(main);
                 await SingleFilesRound(main);
                 await Step("Dark theme", async () =>
@@ -332,6 +333,45 @@ namespace Kudupst.Views
                 Expect(r.Exported == main.Rows.Count && r.Problems.Count == 0, $"every item saved as .ics ({r.Exported} of {main.Rows.Count}; {string.Join("; ", r.Problems)})");
                 var cal = File.ReadAllText(ics);
                 Expect(cal.Contains("RRULE:FREQ=WEEKLY;BYDAY=MO;WKST=SU;COUNT=10") && cal.Contains("BEGIN:VTIMEZONE"), "the .ics file");
+            });
+        }
+
+        // ================================================================== deleted items found inside a file
+
+        private static async Task DeletedRound(MainWindow main)
+        {
+            await Step("Deleted items found inside a file", async () =>
+            {
+                Expect(main.OpenFile(Sample("example-2013.ost")), "opened");
+                await Wait(() => main.FolderRows.Any(r => r.Folder.Nid == Recovery.FolderNid), 60, "the \"Found deleted items\" folder");
+                var found = main.FolderRows.First(r => r.Folder.Nid == Recovery.FolderNid);
+                Expect(found.Name == PstStore.FoundFolderName && ReferenceEquals(main.FolderRows.Last(), found), "at the end of the folders");
+                main.SelectFolder(found.Folder);
+                await Wait(() => main.CurrentFolder?.Nid == Recovery.FolderNid && main.Rows.Count == 3, 30, "the three deleted emails");
+                Expect(main.Rows.All(r => r.Deleted && !r.Partial && r.MarkText == "Deleted"), "marked deleted");
+                Expect(main.Rows.Any(r => r.Subject == "Test Attachment" && r.FolderLine == "Was in Sampler"), "the folder it was in");
+                await ShowRow(main, "Test Attachment");
+                var text = await main.View.PageText();
+                Expect(text.Contains("Found inside the file (it was in Sampler)."), "the page says it was deleted");
+                await Capture(main.View, "A deleted email found inside the file");
+            });
+            await Step("Look deeper for deleted items", async () =>
+            {
+                await main.LookDeeper();
+                Expect(main.Source.Store.Found.Deep, "looked through the whole file");
+                await Wait(() => main.Rows.Count == 4, 30, "a fourth, partly found email");
+                var partial = main.Rows.Single(r => r.Partial);
+                Expect(partial.Subject == "Test1" && partial.MarkText == "Partial", "marked partial");
+                await ShowRow(main, "Test1");
+                var text = await main.View.PageText();
+                Expect(text.Contains("Only part of it is left"), "the page says it's partial");
+                await Capture(main.View, "A partly found deleted email");
+                await Wait(() => main.Index.Complete && main.Index.FoundIndexed == 4, 120, "the deleted emails in the search index");
+                main.SetSearch("Test1");
+                await Wait(() => main.IsSearching && main.Rows.Any(r => r.Subject == "Test1" && r.Deleted), 30, "the deleted email in search results");
+                main.ClearSearch();
+                Expect(main.OpenFile(Sample("example-2013.ost")), "opened again");
+                await Wait(() => main.Source.Store.Found != null && main.Source.Store.Found.Deep, 30, "the deeper look remembered");
             });
         }
 

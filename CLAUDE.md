@@ -1,7 +1,7 @@
 # KUDUPST
 
 View, search and export Outlook data files (PST, OST) and single emails (.msg, .eml) on Windows, without Outlook: emails,
-contacts and contact groups (export .vcf and import CSV) and the calendar (export .ics).
+contacts and contact groups (export .vcf and import CSV), the calendar (export .ics), and deleted items still inside a file.
 Part of the KUDU family of free, open-source (MIT) Windows apps by Azeem Bukhari.
 
 ## Working with Azeem (the owner)
@@ -67,4 +67,9 @@ The build fails when a copy differs from kudu-common. App-specific details go in
 - Contacts and calendar fields are Outlook "named properties": `Core/Pst/NameMap.cs` reads each file's name table (PST node
   0x61, the .msg `__nameid` storage). Readers: `Core/Mail/Contact.cs`, `Core/Mail/Appointment.cs` (repeat patterns, time zones);
   writers: `Core/Export/Cards.cs` (vCard 3.0, Outlook/Google contacts CSV, iCalendar). Tasks and notes stay plain items.
-- Plan agreed for later versions: 1.2 finding deleted emails inside a file.
+- Deleted items (`Core/Pst/Recovery.cs`): each open does a quick look through the free space (the file's map of used space;
+  the whole file for 4 KB-page OSTs) for old node-index pages and blocks, checked by their signature and checksum, and keeps
+  complete items; "Look deeper" reads the whole file and also keeps partial items and property blocks with no index entry.
+  Old copies of items that are still in a folder never count as deleted. Results are saved next to the search index
+  (`found-quick.bin`, `found-deep.bin`) and shown in a made-up "Found deleted items" folder (`Recovery.FolderNid`).
+  Tests build files with deleted items via `tests/KUDUPST.Tests/PstWriter.cs` (`Forget`, `Damage`, `DeletedNode`).

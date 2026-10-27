@@ -71,7 +71,7 @@ jobs:
           if (Test-Path $key) { Write-Host "WebView2 Runtime $((Get-ItemProperty $key).pv)" }
           else { choco install webview2-runtime -y --no-progress }
 
-      - name: Self-test the app (PST, OST, MSG and EML files, the email viewer, contacts, the calendar, search, every export, both themes)
+      - name: Self-test the app (PST, OST, MSG and EML files, the email viewer, contacts, the calendar, deleted items, search, every export, both themes)
         shell: pwsh
         timeout-minutes: 15
         run: |

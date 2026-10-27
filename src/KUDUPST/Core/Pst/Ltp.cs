@@ -14,6 +14,12 @@ namespace Kudupst.Core.Pst
         public PstFile File { get; }
         public ulong SubBid { get; }
 
+        /// <summary>
+        /// For a deleted item found in the file: a value whose blocks are gone reads as missing instead of failing
+        /// the whole item. (In the file's own items a missing block means the file is damaged, and is reported.)
+        /// </summary>
+        public bool Lenient { get; set; }
+
         public NodeData(PstFile file, ulong dataBid, ulong subBid)
         {
             File = file;
@@ -30,8 +36,16 @@ namespace Kudupst.Core.Pst
         public bool TryGetSubNode(uint nid, out NodeData data)
         {
             data = null;
-            if (SubBid == 0 || !SubNodes.TryGetValue(nid, out var sub)) return false;
-            data = new NodeData(File, sub.DataBid, sub.SubBid);
+            if (SubBid == 0) return false;
+            Dictionary<uint, SubNodeRef> subNodes;
+            try { subNodes = SubNodes; }
+            catch (PstException)
+            {
+                // The list of parts is gone (only in a deleted item found in the file): the parts count as missing.
+                return false;
+            }
+            if (!subNodes.TryGetValue(nid, out var sub)) return false;
+            data = new NodeData(File, sub.DataBid, sub.SubBid) { Lenient = Lenient };
             return true;
         }
     }
@@ -183,7 +197,14 @@ namespace Kudupst.Core.Pst
                 case PropType.Boolean:
                     return BitConverter.GetBytes(e.Value);
                 default:
-                    return _heap.GetHnid(e.Value);
+                    try
+                    {
+                        return _heap.GetHnid(e.Value);
+                    }
+                    catch (PstException) when (_heap.Node.Lenient)
+                    {
+                        return null;
+                    }
             }
         }
 

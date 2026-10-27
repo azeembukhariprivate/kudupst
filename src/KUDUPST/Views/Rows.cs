@@ -53,6 +53,7 @@ namespace Kudupst.Views
             get
             {
                 var c = Folder.ContainerClass.ToUpperInvariant();
+                if (Folder.Nid == Recovery.FolderNid) return "IconTrash";
                 if (c.StartsWith("IPF.APPOINTMENT")) return "IconCalendar";
                 if (c.StartsWith("IPF.CONTACT")) return "IconUser";
                 if (c.StartsWith("IPF.TASK")) return "IconTask";
@@ -90,6 +91,11 @@ namespace Kudupst.Views
         public string Company { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
 
+        // Deleted items found in the file: where they were, and whether only part of them is left.
+        public bool Deleted { get; set; }
+        public bool Partial { get; set; }
+        public string FoundIn { get; set; } = string.Empty;
+
         /// <summary>For a single .msg or .eml file.</summary>
         public MailItem Item { get; set; }
 
@@ -98,13 +104,13 @@ namespace Kudupst.Views
             Nid = s.Nid, FolderNid = s.FolderNid, MessageClass = s.MessageClass, Subject = s.Subject, From = s.From,
             Date = s.Date, Size = s.Size, Read = s.Read, HasAttachments = s.HasAttachments,
             Start = s.Start, End = s.End, AllDay = s.AllDay, Recurring = s.Recurring, Location = s.Location,
-            FileAs = s.FileAs, Company = s.Company, Email = s.Email
+            FileAs = s.FileAs, Company = s.Company, Email = s.Email, Deleted = s.Deleted, Partial = s.Partial, FoundIn = s.FoundIn
         };
 
         public static MailRow Of(IndexedItem i) => new MailRow
         {
             Nid = i.Nid, FolderNid = i.FolderNid, MessageClass = i.MessageClass, Subject = i.Subject, From = i.From,
-            Date = i.Date, Size = i.Size, Read = i.Read, HasAttachments = i.HasAttachments
+            Date = i.Date, Size = i.Size, Read = i.Read, HasAttachments = i.HasAttachments, Deleted = i.FolderNid == Recovery.FolderNid
         };
 
         public static MailRow Of(MailItem m) => new MailRow
@@ -113,7 +119,7 @@ namespace Kudupst.Views
             HasAttachments = m.VisibleAttachments.GetEnumerator().MoveNext(),
             Start = m.Appointment?.Start, End = m.Appointment?.End, AllDay = m.Appointment?.AllDay == true, Recurring = m.Appointment?.Recurring == true,
             Location = m.Appointment?.Location ?? string.Empty, FileAs = m.Contact?.FileAs ?? string.Empty, Company = m.Contact?.Company ?? string.Empty,
-            Email = m.Contact?.Emails.FirstOrDefault()?.Address ?? string.Empty
+            Email = m.Contact?.Emails.FirstOrDefault()?.Address ?? string.Empty, Deleted = m.Deleted, Partial = m.Partial, FoundIn = m.FoundIn
         };
 
         public bool IsCalendar => Start.HasValue && (Kind == ItemKind.Appointment || Kind == ItemKind.Meeting);
@@ -171,8 +177,8 @@ namespace Kudupst.Views
             }
         }
 
-        /// <summary>A mark for repeating calendar items.</summary>
-        public string MarkText => IsCalendar && Recurring ? "Repeats" : string.Empty;
+        /// <summary>A mark for deleted items found in the file, and for repeating calendar items.</summary>
+        public string MarkText => Partial ? "Partial" : Deleted ? "Deleted" : IsCalendar && Recurring ? "Repeats" : string.Empty;
         public Visibility MarkVisible => MarkText.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         public ItemKind Kind => ItemKinds.Of(MessageClass);
@@ -227,12 +233,13 @@ namespace Kudupst.Views
                 if (Size > 0) parts.Add(MailHtml.Size(Size));
                 if (FolderName.Length > 0) parts.Add("In: " + FolderName);
                 if (Kind != ItemKind.Email) parts.Add(ItemKinds.Name(Kind));
+                if (Deleted) parts.Add(Partial ? "Deleted, and only partly found" : "Deleted (found inside the file)");
                 return string.Join("\n", parts);
             }
         }
 
-        public string FolderLine => FolderName;
-        public Visibility FolderVisible => FolderName.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        public string FolderLine => Deleted && FoundIn.Length > 0 ? "Was in " + FoundIn : FolderName;
+        public Visibility FolderVisible => FolderLine.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>Row templates, written in XAML and loaded at startup, so long lists only build the rows on screen.</summary>

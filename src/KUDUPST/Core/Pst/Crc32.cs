@@ -23,6 +23,13 @@ namespace Kudupst.Core.Pst
         /// <summary>The variant MS-PST uses for its own checksums: starts from zero, not inverted.</summary>
         public static uint Plain(byte[] data) => Run(0, data);
 
+        public static uint Plain(byte[] data, int offset, int count)
+        {
+            uint crc = 0;
+            for (var i = offset; i < offset + count; i++) crc = Table[(crc ^ data[i]) & 0xFF] ^ (crc >> 8);
+            return crc;
+        }
+
         private static uint Run(uint crc, byte[] data)
         {
             foreach (var b in data) crc = Table[(crc ^ b) & 0xFF] ^ (crc >> 8);

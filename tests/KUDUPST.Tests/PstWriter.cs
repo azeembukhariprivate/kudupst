@@ -18,6 +18,16 @@ namespace Kudupst.Tests
         private readonly SortedDictionary<ulong, byte[]> _blocks = new SortedDictionary<ulong, byte[]>();
         private readonly SortedDictionary<uint, (ulong Data, ulong Sub, uint Parent)> _nodes = new SortedDictionary<uint, (ulong, ulong, uint)>();
         private ulong _nextBid = 4;
+        private ulong _nextPageBid = 0x10000;
+
+        // Deleted items: blocks written into free space (not in the block index), damaged blocks, and node entries kept
+        // only in an old index page left in free space.
+        private readonly HashSet<ulong> _forgotten = new HashSet<ulong>();
+        private readonly HashSet<ulong> _damaged = new HashSet<ulong>();
+        private readonly List<(uint Nid, ulong Data, ulong Sub, uint Parent)> _oldNodes = new List<(uint, ulong, ulong, uint)>();
+
+        /// <summary>Whether to write the map of used and free space (Outlook does; without it everything is looked through).</summary>
+        public bool FreeMap { get; set; } = true;
 
         public PstWriter(bool unicode, PstCryptMethod crypt)
         {
@@ -67,6 +77,55 @@ namespace Kudupst.Tests
         }
 
         public void Node(uint nid, ulong data, ulong sub = 0, uint parent = 0) => _nodes[nid] = (data, sub, parent);
+
+        /// <summary>A deleted item's node: listed only in an old index page left in free space.</summary>
+        public void DeletedNode(uint nid, ulong data, ulong sub = 0, uint parent = 0) => _oldNodes.Add((nid, data, sub, parent));
+
+        /// <summary>Leaves blocks out of the block index, in free space, as Outlook does with a deleted item's blocks.</summary>
+        public void Forget(params ulong[] bids)
+        {
+            foreach (var b in bids) _forgotten.Add(b);
+        }
+
+        /// <summary>A block that was written over after it was freed: its checksum no longer matches.</summary>
+        public void Damage(ulong bid)
+        {
+            _forgotten.Add(bid);
+            _damaged.Add(bid);
+        }
+
+        /// <summary>Every block a node uses: its data (and block list), its sub-node list and the sub-nodes' blocks.</summary>
+        public List<ulong> BlocksOf(ulong data, ulong sub)
+        {
+            var list = new List<ulong>();
+            void Data(ulong bid)
+            {
+                if (bid == 0) return;
+                list.Add(bid);
+                if (!PstFile.IsInternal(bid)) return;
+                var b = _blocks[bid];
+                var size = _unicode ? 8 : 4;
+                for (var i = 0; i < BitConverter.ToUInt16(b, 2); i++)
+                    Data(_unicode ? BitConverter.ToUInt64(b, 8 + i * size) : BitConverter.ToUInt32(b, 8 + i * size));
+            }
+            void Sub(ulong bid)
+            {
+                if (bid == 0) return;
+                list.Add(bid);
+                var b = _blocks[bid];
+                var head = _unicode ? 8 : 4;
+                var size = _unicode ? 24 : 12;
+                for (var i = 0; i < BitConverter.ToUInt16(b, 2); i++)
+                {
+                    var at = head + i * size;
+                    Data(_unicode ? BitConverter.ToUInt64(b, at + 8) : BitConverter.ToUInt32(b, at + 4));
+                    Sub(_unicode ? BitConverter.ToUInt64(b, at + 16) : BitConverter.ToUInt32(b, at + 8));
+                }
+            }
+            Data(data);
+            Sub(sub);
+            return list;
+        }
 
         /// <summary>A sub-node list (SLBLOCK).</summary>
         public ulong SubNodes(IEnumerable<(uint Nid, ulong Data, ulong Sub)> entries)
@@ -256,11 +315,16 @@ namespace Kudupst.Tests
 
         // ================================================================== the file
 
+        private const long MapAt = 0x4400, MapSpan = 253952;
+        private readonly List<(long Offset, long Length)> _used = new List<(long, long)>();
+
         public byte[] Build()
         {
             var output = new MemoryStream();
-            output.Write(new byte[0x400], 0, 0x400);
+            output.Write(new byte[MapAt + 512], 0, (int)MapAt + 512);
+            _used.Add((MapAt, 512));
             var placed = new List<(ulong Bid, long Offset, int Size)>();
+            var trailer = _unicode ? 16 : 12;
             foreach (var kv in _blocks)
             {
                 var data = (byte[])kv.Value.Clone();
@@ -270,8 +334,29 @@ namespace Kudupst.Tests
                     else if (_crypt == PstCryptMethod.High) PstCrypt.EncodeCyclic(data, 0, data.Length, (uint)kv.Key);
                 }
                 var at = Align(output, 64);
-                output.Write(data, 0, data.Length);
+                var total = (data.Length + trailer + 63) / 64 * 64;
+                var block = new byte[total];
+                data.CopyTo(block, 0);
+                // The trailer: size, signature, checksum and ID (MS-PST 2.2.2.8.1).
+                var t = total - trailer;
+                BitConverter.GetBytes((ushort)data.Length).CopyTo(block, t);
+                BitConverter.GetBytes(PstFile.Signature(at, kv.Key)).CopyTo(block, t + 2);
+                var crc = Crc32.Plain(data);
+                if (_unicode)
+                {
+                    BitConverter.GetBytes(crc).CopyTo(block, t + 4);
+                    BitConverter.GetBytes(kv.Key).CopyTo(block, t + 8);
+                }
+                else
+                {
+                    BitConverter.GetBytes((uint)kv.Key).CopyTo(block, t + 4);
+                    BitConverter.GetBytes(crc).CopyTo(block, t + 8);
+                }
+                if (_damaged.Contains(kv.Key)) block[data.Length / 2] ^= 0x5A;
+                output.Write(block, 0, block.Length);
+                if (_forgotten.Contains(kv.Key)) continue;
                 placed.Add((kv.Key, at, data.Length));
+                _used.Add((at, total));
             }
 
             var bbtEntrySize = _unicode ? 24 : 12;
@@ -316,8 +401,46 @@ namespace Kudupst.Tests
             }).ToList();
             var bbtRoot = Tree(output, bbtLeaves, bbtEntrySize, 0x80);
             var nbtRoot = Tree(output, nbtLeaves, nbtEntrySize, 0x81);
+            if (_oldNodes.Count > 0)
+            {
+                // An old copy of a node-index page, still listing the deleted items, in free space.
+                var old = _oldNodes.OrderBy(n => n.Nid).Select(n =>
+                {
+                    var e = new byte[nbtEntrySize];
+                    if (_unicode)
+                    {
+                        BitConverter.GetBytes((ulong)n.Nid).CopyTo(e, 0);
+                        BitConverter.GetBytes(n.Data).CopyTo(e, 8);
+                        BitConverter.GetBytes(n.Sub).CopyTo(e, 16);
+                        BitConverter.GetBytes(n.Parent).CopyTo(e, 24);
+                    }
+                    else
+                    {
+                        BitConverter.GetBytes(n.Nid).CopyTo(e, 0);
+                        BitConverter.GetBytes((uint)n.Data).CopyTo(e, 4);
+                        BitConverter.GetBytes((uint)n.Sub).CopyTo(e, 8);
+                        BitConverter.GetBytes(n.Parent).CopyTo(e, 12);
+                    }
+                    return e;
+                }).ToList();
+                Page(output, old, nbtEntrySize, 0, 0x81, used: false);
+            }
+            Align(output, 512);
 
             var file = output.ToArray();
+            var mapValid = FreeMap && file.Length <= MapAt + MapSpan;
+            if (mapValid)
+            {
+                // The map of used space: a bit for every 64 bytes, set where something is in use.
+                var map = new byte[512];
+                foreach (var (offset, length) in _used)
+                    for (var u = (offset - MapAt) / 64; u < (offset + length - MapAt + 63) / 64; u++)
+                        map[u >> 3] |= (byte)(0x80 >> (int)(u & 7));
+                var typeAt = _unicode ? 496 : 500;
+                map[typeAt] = 0x84;
+                map[typeAt + 1] = 0x84;
+                map.CopyTo(file, MapAt);
+            }
             Encoding.ASCII.GetBytes("!BDN").CopyTo(file, 0);
             file[8] = (byte)'S';
             file[9] = (byte)'M';
@@ -327,12 +450,16 @@ namespace Kudupst.Tests
                 BitConverter.GetBytes((ulong)nbtRoot).CopyTo(file, 224);
                 BitConverter.GetBytes((ulong)bbtRoot).CopyTo(file, 240);
                 file[0x201] = (byte)_crypt;
+                BitConverter.GetBytes((ulong)file.Length).CopyTo(file, 184);
+                file[248] = (byte)(mapValid ? 2 : 0);
             }
             else
             {
                 BitConverter.GetBytes((uint)nbtRoot).CopyTo(file, 188);
                 BitConverter.GetBytes((uint)bbtRoot).CopyTo(file, 196);
                 file[0x1CD] = (byte)_crypt;
+                BitConverter.GetBytes((uint)file.Length).CopyTo(file, 168);
+                file[200] = (byte)(mapValid ? 2 : 0);
             }
             return file;
         }
@@ -375,7 +502,7 @@ namespace Kudupst.Tests
             return Page(output, branch, branchSize, 1, type);
         }
 
-        private long Page(MemoryStream output, List<byte[]> entries, int entrySize, int level, byte type)
+        private long Page(MemoryStream output, List<byte[]> entries, int entrySize, int level, byte type, bool used = true)
         {
             var page = new byte[512];
             for (var i = 0; i < entries.Count; i++) entries[i].CopyTo(page, i * entrySize);
@@ -398,7 +525,22 @@ namespace Kudupst.Tests
                 page[501] = type;
             }
             var at = Align(output, 512);
+            // The trailer: type, signature, checksum and ID (MS-PST 2.2.2.7.1).
+            var bid = _nextPageBid++;
+            if (_unicode)
+            {
+                BitConverter.GetBytes(PstFile.Signature(at, bid)).CopyTo(page, 498);
+                BitConverter.GetBytes(Crc32.Plain(page.Take(496).ToArray())).CopyTo(page, 500);
+                BitConverter.GetBytes(bid).CopyTo(page, 504);
+            }
+            else
+            {
+                BitConverter.GetBytes(PstFile.Signature(at, bid)).CopyTo(page, 502);
+                BitConverter.GetBytes((uint)bid).CopyTo(page, 504);
+                BitConverter.GetBytes(Crc32.Plain(page.Take(500).ToArray())).CopyTo(page, 508);
+            }
             output.Write(page, 0, page.Length);
+            if (used) _used.Add((at, 512));
             return at;
         }
     }

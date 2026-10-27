@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -50,6 +51,10 @@ namespace Kudupst.Views
         private readonly CheckBox _withAttachments = new CheckBox { Content = "With attachments", VerticalAlignment = VerticalAlignment.Center };
         private readonly TextBlock _listTitle = Ui.Text(string.Empty, 14, bold: true);
         private readonly CheckBox _systemFolders = new CheckBox { Content = "Show system folders", FontSize = 12 };
+        private readonly Button _lookDeeper;
+        private readonly TextBlock _deletedNote = Ui.Subtle(string.Empty, 12);
+        private CancellationTokenSource _recoveryCancel;
+        private const string LookDeeperText = "Look deeper for deleted items";
         private readonly DispatcherTimer _searchTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(450) };
         private readonly DispatcherTimer _indexTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         private readonly ColumnDefinition _treeColumn = new ColumnDefinition { Width = new GridLength(250), MinWidth = 150 };
@@ -148,7 +153,11 @@ namespace Kudupst.Views
             treePanel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             treePanel.Children.Add(Ui.Text("Folders", 12.5, "SubtleText", bold: true).Margin(14, 12, 0, 6).At(0));
             treePanel.Children.Add(_folders.At(1));
-            treePanel.Children.Add(_systemFolders.Margin(14, 6, 0, 10).At(2));
+            _lookDeeper = Ui.Link(LookDeeperText, async (s, e) => await LookDeeper());
+            _lookDeeper.ToolTip = "Reads the whole file for what's left of deleted items. Takes longer on big files; some may be only partly there.";
+            _lookDeeper.HorizontalAlignment = HorizontalAlignment.Left;
+            _deletedNote.Visibility = Visibility.Collapsed;
+            treePanel.Children.Add(Ui.Column(_systemFolders, _lookDeeper.Margin(0, 6, 0, 0), _deletedNote.Margin(0, 4, 8, 0)).Margin(14, 6, 0, 10).At(2));
             treePanel.Res(BackgroundProperty, "SurfaceAltBg");
 
             // The search box with its options.
@@ -474,6 +483,7 @@ namespace Kudupst.Views
                 _searchArea.Visibility = Visibility.Visible;
                 FillFolders();
                 StartIndex(path);
+                FindDeleted();
                 var inbox = _folderRows.FirstOrDefault(r => string.Equals(r.Folder.Name, "Inbox", StringComparison.OrdinalIgnoreCase)) ?? _folderRows.FirstOrDefault();
                 if (inbox != null) _folders.SelectedItem = inbox;
             }
@@ -497,6 +507,7 @@ namespace Kudupst.Views
 
         public void CloseFile()
         {
+            _recoveryCancel?.Cancel();
             _indexTimer.Stop();
             _index?.Dispose();
             _index = null;
@@ -537,6 +548,122 @@ namespace Kudupst.Views
         }
 
         // ================================================================== folders
+
+        // ================================================================== deleted items found in the file
+
+        private string FoundCacheFolder => _index?.Folder ?? Path.Combine(MailIndex.IndexRoot, MailIndex.KeyOf(_source.Path));
+
+        /// <summary>The quick look for deleted items, in the background, each time a file is opened.</summary>
+        private async void FindDeleted()
+        {
+            var store = _source.Store;
+            var folder = FoundCacheFolder;
+            _lookDeeper.Content = LookDeeperText;
+            _lookDeeper.Visibility = Visibility.Visible;
+            _deletedNote.Visibility = Visibility.Collapsed;
+            Recovery found;
+            try
+            {
+                found = await Task.Run(() => Recovery.LoadOrFind(store, folder));
+            }
+            catch (Exception ex) when (Exporter.IsReadProblem(ex) || ex is ObjectDisposedException)
+            {
+                return;
+            }
+            if (_source?.Store != store) return;
+            ShowFound(found);
+        }
+
+        public bool LookingDeeper => _recoveryCancel != null;
+
+        /// <summary>Reads the whole file for deleted items (or stops doing so).</summary>
+        public async Task LookDeeper()
+        {
+            if (_recoveryCancel != null)
+            {
+                _recoveryCancel.Cancel();
+                return;
+            }
+            var store = _source?.Store;
+            if (store == null) return;
+            var folder = FoundCacheFolder;
+            var cancel = new CancellationTokenSource();
+            _recoveryCancel = cancel;
+            _lookDeeper.Content = "Stop looking";
+            _deletedNote.Visibility = Visibility.Visible;
+            _deletedNote.Text = "Looking through the whole file…";
+            IProgress<double> progress = new Progress<double>(p =>
+            {
+                if (_recoveryCancel == cancel) _deletedNote.Text = $"Looking through the whole file… {p:P0}";
+            });
+            try
+            {
+                var earlier = store.Found;
+                var deep = await Task.Run(() => Recovery.Find(store, true, progress.Report, cancel.Token, earlier));
+                try { deep.Save(Path.Combine(folder, "found-deep.bin")); }
+                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+                {
+                    // Looked through again next time.
+                }
+                if (_source?.Store != store) return;
+                ShowFound(deep);
+                if (_index != null)
+                {
+                    _index.AddFound(deep);
+                    _indexTimer.Start();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                if (_source?.Store == store) _deletedNote.Text = "Stopped looking.";
+            }
+            catch (Exception ex) when (Exporter.IsReadProblem(ex) || ex is ObjectDisposedException)
+            {
+                if (_source?.Store == store) _deletedNote.Text = "Couldn't look through the whole file: " + ex.Message;
+            }
+            finally
+            {
+                if (_recoveryCancel == cancel) _recoveryCancel = null;
+                if (_source?.Store == store && !(store.Found?.Deep ?? false)) _lookDeeper.Content = LookDeeperText;
+            }
+        }
+
+        /// <summary>Shows the "Found deleted items" folder (at the end of the top folders), or updates it.</summary>
+        private void ShowFound(Recovery found)
+        {
+            var store = _source.Store;
+            store.UseFound(found);
+            var partial = found.Items.Count(i => i.Partial);
+            if (found.Deep)
+            {
+                _lookDeeper.Visibility = Visibility.Collapsed;
+                _deletedNote.Visibility = Visibility.Visible;
+                _deletedNote.Text = found.Items.Count == 0
+                    ? "Looked through the whole file: no deleted items left in it."
+                    : $"Looked through the whole file: {Plural(found.Items.Count, "deleted item")} found" + (partial > 0 ? $" ({partial:N0} only partly)." : ".");
+            }
+            else if (found.Items.Count == 0) _deletedNote.Visibility = Visibility.Collapsed;
+            if (store.FoundFolder == null) return;
+            var row = _folderRows.FirstOrDefault(r => r.Folder.Nid == Recovery.FolderNid);
+            if (row != null)
+            {
+                row.Folder = store.FoundFolder;
+                row.Refresh();
+            }
+            else if (_systemFolders.IsChecked != true)
+            {
+                _folderRows.Add(new FolderRow { Folder = store.FoundFolder, Depth = 0 });
+            }
+            else
+            {
+                var selected = _currentFolder?.Nid;
+                FillFolders();
+                if (selected.HasValue) _folders.SelectedItem = _folderRows.FirstOrDefault(r => r.Folder.Nid == selected.Value);
+            }
+            if (_currentFolder?.Nid == Recovery.FolderNid && !_searching) ShowFolder(store.FoundFolder);
+        }
+
+        private static string Plural(int n, string word) => n == 1 ? "1 " + word : $"{n:N0} {word}s";
 
         private void FillFolders()
         {
