@@ -308,6 +308,9 @@ namespace Kudupst.Core.Search
         private const int MaxBodyChars = 200000;
         private const int MergeAbove = 8;
 
+        /// <summary>Raised when what's put in the index changes (2: contact details), so files are indexed again.</summary>
+        private const int Layout = 2;
+
         private readonly string _sourcePath;
         private readonly List<Segment> _segments = new List<Segment>();
         private readonly object _sync = new object();
@@ -340,7 +343,7 @@ namespace Kudupst.Core.Search
         public static string KeyOf(string path)
         {
             var info = new FileInfo(path);
-            var text = path.ToLowerInvariant() + "|" + info.Length + "|" + info.LastWriteTimeUtc.Ticks;
+            var text = path.ToLowerInvariant() + "|" + info.Length + "|" + info.LastWriteTimeUtc.Ticks + (Layout > 1 ? "|" + Layout : string.Empty);
             using (var sha = SHA1.Create())
                 return BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", string.Empty).Substring(0, 20).ToLowerInvariant();
         }
@@ -444,6 +447,9 @@ namespace Kudupst.Core.Search
                                 var body = item.Body.PlainText;
                                 text.Append(body.Length > MaxBodyChars ? body.Substring(0, MaxBodyChars) : body).Append(' ');
                                 foreach (var a in item.Attachments) text.Append(a.FileName).Append(' ');
+                                if (item.Contact != null) text.Append(item.Contact.SearchText).Append(' ');
+                                if (item.Group != null) text.Append(item.Group.Name).Append(' ').Append(item.Group.MembersText).Append(' ');
+                                if (item.Appointment != null) text.Append(item.Appointment.Location).Append(' ');
                                 if (entry.From.Length == 0) entry.From = item.From.Short;
                                 if (!entry.Date.HasValue) entry.Date = item.Date;
                             }

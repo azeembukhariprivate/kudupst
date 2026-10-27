@@ -4,7 +4,7 @@
 
 <h1 align="center">KUDUPST</h1>
 
-<p align="center">Open Outlook data files (.pst and .ost) on Windows without Outlook: read your emails, search them all in an instant, and save them as email files, PDF or a list. Free and open source.</p>
+<p align="center">Open Outlook data files (.pst and .ost) on Windows without Outlook: read your emails, contacts and calendar, search them all in an instant, and save them as email files, PDF, contact cards, a calendar file or a list. Free and open source.</p>
 
 <p align="center">
   <a href="https://github.com/azeembukhariprivate/kudupst/releases/latest/download/KUDUPST-setup.exe"><img src="https://img.shields.io/badge/Download-KUDUPST%20for%20Windows-4f46e5?style=for-the-badge" alt="Download KUDUPST for Windows"></a>
@@ -21,19 +21,24 @@
   - **OST files**, the offline copy of an Exchange or Microsoft 365 mailbox, including the newer kind Outlook 2013 and later makes.
   - **Single emails** saved as **.msg** (dragged out of Outlook) or **.eml** (from other mail programs).
 - **Read emails as they were sent**: the folder tree with the number of emails in each, a list of emails (sender, subject, date, attachments), and the email itself with its pictures, formatting and attachments. Open any email in its own window, open or save its attachments, see its internet headers, or print it.
+- **Contacts**: a list with each contact's name, company and email, and a card with everything Outlook keeps: name, photo, email addresses, phone numbers, company and job title, addresses, web pages, birthday, anniversary and notes. **Contact groups** show who's in them.
+- **Calendar**: appointments and meetings listed by date under month headings, with the time, title and place, and a mark for repeating and all-day items. Open one to see when and where it is, how it repeats (in plain words, such as "Every Monday, 10 times"), the organiser and who accepted or declined, the reminder, the details and attachments. Times are shown in your computer's time zone.
 - **Private by design**: pictures from the internet are blocked until you click *Show pictures*, so senders can't tell you've opened their email. Scripts in emails never run. Links open in your browser only after you say yes.
-- **Search everything at once**: the first time a file is opened, KUDUPST builds a search index in the background (you can read emails meanwhile). After that, searching a whole mailbox for words in the subject, sender, recipients, text or attachment names is instant, even for files of tens of gigabytes. Search everything or only the subject, sender or recipients, in the whole file or one folder, and filter by date or attachments.
+- **Search everything at once**: the first time a file is opened, KUDUPST builds a search index in the background (you can read emails meanwhile). After that, searching a whole mailbox for words in the subject, sender, recipients, text or attachment names, or a contact's name, email, company or phone number, is instant, even for files of tens of gigabytes. Search everything or only the subject, sender or recipients, in the whole file or one folder, and filter by date or attachments.
 - **Export** the selected emails, a folder (with or without its sub-folders), the search results or the whole file:
   - **Email files (.eml)**, one per email with its attachments inside, keeping the folder structure. They open in Outlook, Thunderbird, Windows Mail and most other mail programs.
   - **PDF**, looking as the email does on screen, one file per email or all in one PDF with a bookmark for each.
   - **Attachments only**, all the attached files in a folder.
   - **A list (CSV)** for Excel: date, from, to, subject, size and attachment names.
+  - **Contacts (.vcf)**: all the contacts in one vCard file, with their photos, for phones, Google Contacts, Apple Contacts, Thunderbird and Outlook. Contact groups are kept with their members.
+  - **Contacts list (CSV)** with the columns Outlook and Google Contacts expect, ready to import.
+  - **Calendar (.ics)**: all the appointments and meetings in one file for Google Calendar, Apple Calendar, Thunderbird or Outlook, keeping repeats (with skipped and moved times), reminders, attendees and time zones.
 - **Password-protected PST files** ask for their password. If you've forgotten the password of your own file, KUDUPST can open it anyway (Outlook's password doesn't lock the emails themselves).
 - **Never changes your files**: everything is only read. The search index is kept in your own AppData folder, never next to the file.
 - **Open files your way**: drop them on the window, use Open or the recent files list, or (optional, chosen when installing or in Settings) right-click a file → *Open with KUDUPST*, or open it with a double-click.
 - Light and dark themes, following Windows.
 
-Coming next: contacts (save as vCard or CSV) and calendars (save as .ics) in version 1.1, then finding deleted emails that are still inside a file in version 1.2.
+Coming next: finding deleted emails that are still inside a file, in version 1.2.
 
 ## Download
 
@@ -60,7 +65,7 @@ dotnet build src/KUDUPST/KUDUPST.csproj -c Release -o out/KUDUPST
 out\KUDUPST\KUDUPST.exe --self-test --samples tests\KUDUPST.Tests\samples-cache
 ```
 
-KUDUPST reads Outlook files with its own code, written from Microsoft's published specifications. The tests check it against real Outlook files from other open-source projects (downloaded once and checked by SHA-256, not copied into this repository): an Enron mailbox PST, Outlook 2013 OST files and .msg emails, comparing folder trees, subjects, bodies, recipients and attachments byte for byte with what those projects expect. They also build PST files byte by byte for the formats those files don't cover (the old format, both kinds of encryption, values spread over many blocks, attached emails), and check compressed RTF bodies, HTML kept inside RTF, internet mail (.eml), writing .eml files and reading them back, the search index and every export. `--self-test` opens those files in the real window and uses it: folders, emails in the viewer, search, every export (PDF included), a password-protected file, .msg and .eml files, blocked internet pictures, the File Explorer integration and every window in both themes; it writes `self-test.log` and exits. To build the installer, install [Inno Setup 6](https://jrsoftware.org/isinfo.php) and compile `installer/KUDUPST.iss`.
+KUDUPST reads Outlook files with its own code, written from Microsoft's published specifications. The tests check it against real Outlook files from other open-source projects (downloaded once and checked by SHA-256, not copied into this repository): an Enron mailbox PST, Outlook 2013 OST files and .msg emails, comparing folder trees, subjects, bodies, recipients and attachments byte for byte with what those projects expect, and contacts, contact groups and calendar items (including repeating ones) field by field. They also build PST files byte by byte for the formats those files don't cover (the old format, both kinds of encryption, values spread over many blocks, attached emails), and check compressed RTF bodies, HTML kept inside RTF, internet mail (.eml), writing .eml files and reading them back, the search index and every export (the .vcf and .ics files are also checked line by line, including repeats with moved and skipped times and summer-time rules). `--self-test` opens those files in the real window and uses it: folders, emails in the viewer, contacts and groups, the calendar by month, search, every export (PDF included), a password-protected file, .msg and .eml files, blocked internet pictures, the File Explorer integration and every window in both themes; it writes `self-test.log` and exits. To build the installer, install [Inno Setup 6](https://jrsoftware.org/isinfo.php) and compile `installer/KUDUPST.iss`.
 
 ### Shared code
 

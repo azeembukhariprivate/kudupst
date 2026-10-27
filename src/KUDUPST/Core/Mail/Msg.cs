@@ -246,12 +246,21 @@ namespace Kudupst.Core.Mail
         public static MailItem Read(byte[] data)
         {
             var file = new CompoundFile(data);
-            var item = ReadMessage(file, file.Root, 32);
+            var item = ReadMessage(file, file.Root, 32, Names(file));
             if (item.Size == 0) item.Size = data.Length;
             return item;
         }
 
-        private static MailItem ReadMessage(CompoundFile file, CompoundFile.Entry storage, int headerSize)
+        /// <summary>The named-property table, kept once for the whole file (MS-OXMSG 2.2.3).</summary>
+        private static NameMap Names(CompoundFile file)
+        {
+            var storage = file.Root.Find("__nameid_version1.0");
+            if (storage == null) return NameMap.Empty;
+            return NameMap.Parse(file.Read(storage.Find("__substg1.0_00020102")), file.Read(storage.Find("__substg1.0_00030102")),
+                file.Read(storage.Find("__substg1.0_00040102")));
+        }
+
+        private static MailItem ReadMessage(CompoundFile file, CompoundFile.Entry storage, int headerSize, NameMap names)
         {
             var props = new MsgProperties(file, storage, headerSize);
             var codePage = props.Int(PropId.InternetCodepage);
@@ -267,6 +276,9 @@ namespace Kudupst.Core.Mail
                 item.Recipients.Add(new Recipient
                 {
                     Kind = type == 2 ? RecipientKind.Cc : type == 3 ? RecipientKind.Bcc : RecipientKind.To,
+                    MeetingType = type,
+                    Response = r.Int(PropId.RecipientTrackStatus),
+                    IsOrganizer = (r.Int(PropId.RecipientFlags) & 0x2) != 0,
                     Address = PstStore.Address(r.String(PropId.DisplayName), r.String(PropId.SmtpAddress), r.String(PropId.EmailAddress), r.String(PropId.AddrType))
                 });
             }
@@ -278,10 +290,11 @@ namespace Kudupst.Core.Mail
                 {
                     var a = new MsgProperties(file, child, 8) { Ansi = props.Ansi };
                     var embeddedStorage = child.Find("__substg1.0_3701000D");
-                    list.Add(PstStore.Attachment(a, () => embeddedStorage == null ? null : ReadMessage(file, embeddedStorage, 24)));
+                    list.Add(PstStore.Attachment(a, () => embeddedStorage == null ? null : ReadMessage(file, embeddedStorage, 24, names)));
                 }
                 return list;
             };
+            PstStore.Details(item, new Props(props, names), null);
             return item;
         }
     }

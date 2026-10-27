@@ -352,7 +352,7 @@ namespace Kudupst.Tests
                         var item = store.ReadItem(s.Nid);
                         var back = EmlReader.Read(EmlWriter.Write(item));
                         Equal(item.Subject, back.Subject, "real subject");
-                        Equal(item.VisibleAttachments.Count() + item.Attachments.Count(a => a.Inline || a.Hidden), back.Attachments.Count, "real attachments of " + item.Subject);
+                        Equal(item.Attachments.Count, back.Attachments.Count, "real attachments of " + item.Subject);
                     }
             }
             var msg = MsgReader.Read(Samples.MultiTo);
@@ -451,6 +451,9 @@ namespace Kudupst.Tests
                 ost.BuildNow();
                 Check(ost.Search(new SearchQuery { Text = "rickroll" }).Count >= 2, "attachment names searchable");
                 Check(ost.Search(new SearchQuery { Text = "", OnlyWithAttachments = true }).All(i => i.HasAttachments), "attachments filter");
+                Check(ost.Search(new SearchQuery { Text = "666-9776" }).Any(i => i.Subject == "Ed Pfromer"), "contacts found by phone number");
+                Check(ost.Search(new SearchQuery { Text = "klonzo" }).Count(i => i.MessageClass == "IPM.Contact") == 2, "contacts found by company");
+                Check(ost.Search(new SearchQuery { Text = "kpfromer2" }).Any(i => i.MessageClass == "IPM.DistList"), "groups found by member");
             }
             MailIndex.CleanUp(root);
             Check(Directory.GetDirectories(root).Length == 2, "indexes of existing files are kept");

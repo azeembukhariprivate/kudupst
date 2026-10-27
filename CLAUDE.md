@@ -1,6 +1,7 @@
 # KUDUPST
 
-View, search and export Outlook data files (PST, OST) and single emails (.msg, .eml) on Windows, without Outlook.
+View, search and export Outlook data files (PST, OST) and single emails (.msg, .eml) on Windows, without Outlook: emails,
+contacts and contact groups (export .vcf and import CSV) and the calendar (export .ics).
 Part of the KUDU family of free, open-source (MIT) Windows apps by Azeem Bukhari.
 
 ## Working with Azeem (the owner)
@@ -63,4 +64,7 @@ The build fails when a copy differs from kudu-common. App-specific details go in
   blocked until the user clicks "Show pictures". Keep it that way.
 - The search index (`Core/Search/MailIndex.cs`) lives in `%LocalAppData%\KUDUPST\Index`, never next to the user's file.
 - Password-protected PST files ask for the password; "Forgot the password?" opens the user's own file after a warning.
-- Plan agreed for later versions: 1.1 contacts (vCard/CSV) and calendar (.ics); 1.2 finding deleted emails inside a file.
+- Contacts and calendar fields are Outlook "named properties": `Core/Pst/NameMap.cs` reads each file's name table (PST node
+  0x61, the .msg `__nameid` storage). Readers: `Core/Mail/Contact.cs`, `Core/Mail/Appointment.cs` (repeat patterns, time zones);
+  writers: `Core/Export/Cards.cs` (vCard 3.0, Outlook/Google contacts CSV, iCalendar). Tasks and notes stay plain items.
+- Plan agreed for later versions: 1.2 finding deleted emails inside a file.

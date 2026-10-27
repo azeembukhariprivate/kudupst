@@ -9,7 +9,7 @@ using Kudupst.Core.Mail;
 
 namespace Kudupst.Core.Export
 {
-    public enum ExportFormat { Eml, Pdf, Attachments, Csv }
+    public enum ExportFormat { Eml, Pdf, Attachments, Csv, Vcard, ContactsCsv, Ics }
 
     /// <summary>An item to export: how to read it, and the folder it's in (for keeping the folder structure).</summary>
     public sealed class ExportItem
@@ -52,6 +52,9 @@ namespace Kudupst.Core.Export
                 case ExportFormat.Csv: return Csv(items, options.Destination, progress, cancel);
                 case ExportFormat.Attachments: return Attachments(items, options, progress, cancel);
                 case ExportFormat.Eml: return Eml(items, options, progress, cancel);
+                case ExportFormat.Vcard:
+                case ExportFormat.ContactsCsv:
+                case ExportFormat.Ics: return OneFile(items, options.Format, options.Destination, progress, cancel);
                 default: throw new NotSupportedException("PDF is saved by the app window.");
             }
         }
@@ -174,6 +177,55 @@ namespace Kudupst.Core.Export
             if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
             // UTF-8 with a byte order mark, so Excel shows accents and other scripts correctly.
             File.WriteAllText(path, sb.ToString(), new UTF8Encoding(true));
+            result.Files = 1;
+            result.FirstFile = path;
+            progress?.Invoke(items.Count, null);
+            return result;
+        }
+
+        /// <summary>Whether an item can go into a contacts or calendar file.</summary>
+        public static bool Fits(ExportFormat format, MailItem item)
+        {
+            switch (format)
+            {
+                case ExportFormat.Vcard:
+                case ExportFormat.ContactsCsv: return item.Contact != null || item.Group != null;
+                case ExportFormat.Ics: return IcsWriter.IsEvent(item);
+                default: return true;
+            }
+        }
+
+        /// <summary>Contacts into one .vcf or .csv file, or calendar items into one .ics file. Other items are skipped.</summary>
+        public static ExportResult OneFile(IList<ExportItem> items, ExportFormat format, string path, Action<int, string> progress, CancellationToken cancel)
+        {
+            var result = new ExportResult();
+            var sb = new StringBuilder();
+            var ics = new IcsWriter();
+            if (format == ExportFormat.ContactsCsv) sb.Append(ContactsCsv.Header);
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (cancel.IsCancellationRequested) { result.Cancelled = true; break; }
+                var e = items[i];
+                progress?.Invoke(i, e.Subject);
+                try
+                {
+                    var item = e.Load();
+                    if (!Fits(format, item)) continue;
+                    if (format == ExportFormat.Vcard) sb.Append(VcardWriter.Write(item));
+                    else if (format == ExportFormat.ContactsCsv) sb.Append(ContactsCsv.Row(item));
+                    else ics.Add(item);
+                    result.Exported++;
+                }
+                catch (Exception ex) when (IsReadProblem(ex))
+                {
+                    result.Problems.Add($"{Describe(e)}: {ex.Message}");
+                }
+            }
+            var dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+            var text = format == ExportFormat.Ics ? ics.ToString() : sb.ToString();
+            // CSV gets a byte order mark so Excel shows accents correctly; vCard and iCalendar readers expect none.
+            File.WriteAllText(path, text, new UTF8Encoding(format == ExportFormat.ContactsCsv));
             result.Files = 1;
             result.FirstFile = path;
             progress?.Invoke(items.Count, null);

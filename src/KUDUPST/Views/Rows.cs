@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
@@ -79,13 +80,25 @@ namespace Kudupst.Views
         public bool Read { get; set; } = true;
         public bool HasAttachments { get; set; }
 
+        // Calendar items (UTC) and contacts.
+        public DateTime? Start { get; set; }
+        public DateTime? End { get; set; }
+        public bool AllDay { get; set; }
+        public bool Recurring { get; set; }
+        public string Location { get; set; } = string.Empty;
+        public string FileAs { get; set; } = string.Empty;
+        public string Company { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+
         /// <summary>For a single .msg or .eml file.</summary>
         public MailItem Item { get; set; }
 
         public static MailRow Of(ItemSummary s) => new MailRow
         {
             Nid = s.Nid, FolderNid = s.FolderNid, MessageClass = s.MessageClass, Subject = s.Subject, From = s.From,
-            Date = s.Date, Size = s.Size, Read = s.Read, HasAttachments = s.HasAttachments
+            Date = s.Date, Size = s.Size, Read = s.Read, HasAttachments = s.HasAttachments,
+            Start = s.Start, End = s.End, AllDay = s.AllDay, Recurring = s.Recurring, Location = s.Location,
+            FileAs = s.FileAs, Company = s.Company, Email = s.Email
         };
 
         public static MailRow Of(IndexedItem i) => new MailRow
@@ -96,13 +109,75 @@ namespace Kudupst.Views
 
         public static MailRow Of(MailItem m) => new MailRow
         {
-            Item = m, MessageClass = m.MessageClass, Subject = m.Subject, From = m.From.Short, Date = m.Date, Size = m.Size, Read = true,
-            HasAttachments = m.VisibleAttachments.GetEnumerator().MoveNext()
+            Item = m, MessageClass = m.MessageClass, Subject = m.Contact?.Name ?? m.Group?.Name ?? m.Subject, From = m.From.Short, Date = m.Date, Size = m.Size, Read = true,
+            HasAttachments = m.VisibleAttachments.GetEnumerator().MoveNext(),
+            Start = m.Appointment?.Start, End = m.Appointment?.End, AllDay = m.Appointment?.AllDay == true, Recurring = m.Appointment?.Recurring == true,
+            Location = m.Appointment?.Location ?? string.Empty, FileAs = m.Contact?.FileAs ?? string.Empty, Company = m.Contact?.Company ?? string.Empty,
+            Email = m.Contact?.Emails.FirstOrDefault()?.Address ?? string.Empty
         };
+
+        public bool IsCalendar => Start.HasValue && (Kind == ItemKind.Appointment || Kind == ItemKind.Meeting);
+        public bool IsContact => Kind == ItemKind.Contact || Kind == ItemKind.DistributionList;
+
+        /// <summary>When a calendar item starts, else when the item was sent or received: what the list sorts by.</summary>
+        public DateTime? When => IsCalendar ? Start : Date;
+
+        /// <summary>The name a contact is sorted by.</summary>
+        public string SortName => FileAs.Length > 0 ? FileAs : Subject;
+
+        /// <summary>The day a calendar item is on, in this computer's time.</summary>
+        private DateTime? Day => !IsCalendar ? (DateTime?)null : AllDay ? AppointmentInfo.DayOfAllDay(Start.Value) : Start.Value.ToLocalTime().Date;
+
+        /// <summary>The month heading a calendar item is listed under.</summary>
+        public string MonthText => Day?.ToString("MMMM yyyy", CultureInfo.CurrentCulture) ?? string.Empty;
+
+        // What the two lines and the right-hand side of a row show.
+        public string Line1 => IsCalendar || IsContact ? SubjectText : FromText;
+
+        public string Line2
+        {
+            get
+            {
+                if (IsCalendar)
+                {
+                    string time;
+                    if (AllDay)
+                    {
+                        var days = End.HasValue ? (int)Math.Round((End.Value - Start.Value).TotalDays) : 1;
+                        time = days > 1 ? $"All day, {days} days" : "All day";
+                    }
+                    else
+                    {
+                        var start = Start.Value.ToLocalTime();
+                        var end = (End ?? Start.Value).ToLocalTime();
+                        time = start.ToString("HH:mm", CultureInfo.CurrentCulture) + " – " +
+                               end.ToString(end.Date == start.Date ? "HH:mm" : "d MMM HH:mm", CultureInfo.CurrentCulture);
+                    }
+                    return Location.Length > 0 ? time + "  ·  " + Location : time;
+                }
+                if (Kind == ItemKind.DistributionList) return "Contact group";
+                if (IsContact) return string.Join("  ·  ", new[] { Company, Email }.Where(x => x.Length > 0));
+                return SubjectText;
+            }
+        }
+
+        public string RightText
+        {
+            get
+            {
+                if (IsCalendar) return Day.Value.ToString("ddd d MMM", CultureInfo.CurrentCulture);
+                if (IsContact) return string.Empty;
+                return DateText;
+            }
+        }
+
+        /// <summary>A mark for repeating calendar items.</summary>
+        public string MarkText => IsCalendar && Recurring ? "Repeats" : string.Empty;
+        public Visibility MarkVisible => MarkText.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         public ItemKind Kind => ItemKinds.Of(MessageClass);
         public string FromText => From.Length > 0 ? From : "(no sender)";
-        public string SubjectText => Subject.Length > 0 ? Subject : "(no subject)";
+        public string SubjectText => Subject.Length > 0 ? Subject : IsContact && Email.Length > 0 ? Email : IsContact ? "(no name)" : "(no subject)";
         public FontWeight Weight => Read ? FontWeights.Normal : FontWeights.SemiBold;
         public Visibility UnreadBar => Read ? Visibility.Hidden : Visibility.Visible;
         public Visibility AttachmentVisible => HasAttachments ? Visibility.Visible : Visibility.Collapsed;
@@ -144,8 +219,11 @@ namespace Kudupst.Views
         {
             get
             {
-                var parts = new List<string> { SubjectText, "From: " + FromText };
-                if (Date.HasValue) parts.Add(MailHtml.FormatDate(Date.Value));
+                var parts = new List<string> { SubjectText };
+                if (IsCalendar) parts.Add(RightText + ", " + Line2 + (Recurring ? " (repeats)" : string.Empty));
+                else if (IsContact) parts.Add(Line2);
+                else parts.Add("From: " + FromText);
+                if (Date.HasValue && !IsCalendar && !IsContact) parts.Add(MailHtml.FormatDate(Date.Value));
                 if (Size > 0) parts.Add(MailHtml.Size(Size));
                 if (FolderName.Length > 0) parts.Add("In: " + FolderName);
                 if (Kind != ItemKind.Email) parts.Add(ItemKinds.Name(Kind));
@@ -181,15 +259,20 @@ namespace Kudupst.Views
             "<Border Background=\"{DynamicResource Accent}\" Visibility=\"{Binding UnreadBar}\" Margin=\"0,6,0,6\" CornerRadius=\"1\"/>" +
             "<Grid Grid.Column=\"1\" VerticalAlignment=\"Top\" Margin=\"0,10,0,0\" HorizontalAlignment=\"Center\">" + Icon("Icon", "SubtleText") + "</Grid>" +
             "<StackPanel Grid.Column=\"2\" VerticalAlignment=\"Center\" Margin=\"0,0,8,0\">" +
-            "<TextBlock Text=\"{Binding FromText}\" FontWeight=\"{Binding Weight}\" TextTrimming=\"CharacterEllipsis\"/>" +
-            "<TextBlock Text=\"{Binding SubjectText}\" FontSize=\"12.5\" Foreground=\"{DynamicResource SubtleText}\" TextTrimming=\"CharacterEllipsis\" Margin=\"0,1,0,0\"/>" +
+            "<TextBlock Text=\"{Binding Line1}\" FontWeight=\"{Binding Weight}\" TextTrimming=\"CharacterEllipsis\"/>" +
+            "<TextBlock Text=\"{Binding Line2}\" FontSize=\"12.5\" Foreground=\"{DynamicResource SubtleText}\" TextTrimming=\"CharacterEllipsis\" Margin=\"0,1,0,0\"/>" +
             "<TextBlock Text=\"{Binding FolderLine}\" Visibility=\"{Binding FolderVisible}\" FontSize=\"11\" Foreground=\"{DynamicResource SubtleText}\" TextTrimming=\"CharacterEllipsis\" Opacity=\"0.8\"/>" +
             "</StackPanel>" +
             "<StackPanel Grid.Column=\"3\" VerticalAlignment=\"Center\" Margin=\"0,0,12,0\">" +
-            "<TextBlock Text=\"{Binding DateText}\" FontSize=\"12\" HorizontalAlignment=\"Right\" FontWeight=\"{Binding Weight}\" Foreground=\"{DynamicResource SubtleText}\"/>" +
+            "<TextBlock Text=\"{Binding RightText}\" FontSize=\"12\" HorizontalAlignment=\"Right\" FontWeight=\"{Binding Weight}\" Foreground=\"{DynamicResource SubtleText}\"/>" +
+            "<TextBlock Text=\"{Binding MarkText}\" Visibility=\"{Binding MarkVisible}\" FontSize=\"11\" HorizontalAlignment=\"Right\" Margin=\"0,3,0,0\" Foreground=\"{DynamicResource Accent}\"/>" +
             "<Grid HorizontalAlignment=\"Right\" Margin=\"0,4,0,0\" Visibility=\"{Binding AttachmentVisible}\">" + Icon("AttachIcon", "SubtleText", 14) + "</Grid>" +
             "</StackPanel>" +
             "</Grid></DataTemplate>");
+
+        /// <summary>The month headings of the calendar list.</summary>
+        public static DataTemplate MonthHeading => Parse(
+            "<DataTemplate " + Ns + "><TextBlock Text=\"{Binding Name}\" FontWeight=\"SemiBold\" FontSize=\"13\" Margin=\"10,14,0,6\" Foreground=\"{DynamicResource Accent}\"/></DataTemplate>");
 
         private static DataTemplate Parse(string xaml) => (DataTemplate)XamlReader.Parse(xaml);
     }

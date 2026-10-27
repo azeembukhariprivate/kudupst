@@ -17,7 +17,8 @@ namespace Kudupst.Views
     /// <summary>
     /// KUDUPST.exe --self-test --samples folder: opens real Outlook files (the ones the unit tests download) in the
     /// real window and uses it: folders, emails in the Edge viewer, search with the index, every export (email files,
-    /// PDF one by one and joined, attachments, CSV), a password-protected file, an OST, .msg and .eml files, blocked
+    /// PDF one by one and joined, attachments, CSV, contacts as .vcf and CSV, calendar as .ics), contacts and contact
+    /// groups, the calendar by month, a password-protected file, an OST, .msg and .eml files, blocked
     /// internet pictures, the File Explorer integration, and every window in both themes. Writes self-test.log next to
     /// the exe; exits with 0 when everything passed.
     /// </summary>
@@ -80,6 +81,7 @@ namespace Kudupst.Views
             {
                 await PstRound(main);
                 await OstRound(main);
+                await ContactsAndCalendarRound(main);
                 await PasswordRound(main);
                 await SingleFilesRound(main);
                 await Step("Dark theme", async () =>
@@ -264,6 +266,71 @@ namespace Kudupst.Views
                 main.ShowSystemFolders(true);
                 Expect(main.FolderRows.Any(r => r.Folder.Name == "Root - Mailbox"), "system folders shown");
                 main.ShowSystemFolders(false);
+            });
+        }
+
+        // ================================================================== contacts and the calendar
+
+        private static async Task ContactsAndCalendarRound(MainWindow main)
+        {
+            await Step("Contacts and contact groups", async () =>
+            {
+                Expect(main.OpenFile(Sample("mtnman1965@outlook.com.ost")), "opened");
+                var contacts = main.FolderRows.First(r => r.Folder.Name == "Contacts").Folder;
+                main.SelectFolder(contacts);
+                await Wait(() => main.CurrentFolder?.Nid == contacts.Nid && main.Rows.Count == 3, 30, "the contacts");
+                Expect(main.Kind == MainWindow.ListKind.Contacts, "listed as contacts");
+                Expect(main.Rows[0].Subject == "Ed Pfromer" && main.Rows[0].Line2.Contains("Klonzo, LLC") && main.Rows[0].Line2.Contains("epfromer@gmail.com"), "name, company and email in the list");
+                await ShowRow(main, "Ed Pfromer");
+                var text = await main.View.PageText();
+                Expect(text.Contains("(720) 666-9776") && text.Contains("300 Edison Place") && text.Contains("President"), "the contact's details");
+                Expect(text.Contains("rickroll.jpg") && !text.Contains("ContactPicture.jpg"), "the photo is shown, not listed as an attachment");
+                await Capture(main.View, "A contact");
+                await ShowRow(main, "Staff");
+                text = await main.View.PageText();
+                Expect(text.Contains("kpfromer2@gmail.com") && text.Contains("2 members"), "the group's members");
+                await Capture(main.View, "A contact group");
+                ShowAndClose(new ExportWindow(main));
+
+                var items = main.FolderItems(contacts, false);
+                var vcf = Path.Combine(_temp, "contacts.vcf");
+                var r = await Export(main, items, new ExportOptions { Format = ExportFormat.Vcard, Destination = vcf });
+                Expect(r.Exported == 3 && r.Problems.Count == 0, $"three saved as vCard ({r.Exported}; {string.Join("; ", r.Problems)})");
+                var card = File.ReadAllText(vcf);
+                Expect(card.Contains("FN:Ed Pfromer") && card.Contains("KIND:group") && card.Contains("PHOTO;ENCODING=b"), "the vCard file");
+                var csv = Path.Combine(_temp, "contacts.csv");
+                r = await Export(main, items, new ExportOptions { Format = ExportFormat.ContactsCsv, Destination = csv });
+                Expect(r.Exported == 3 && File.ReadAllText(csv).StartsWith("Title,First Name,"), "the contacts CSV");
+            });
+            await Step("Calendar by month", async () =>
+            {
+                Expect(main.OpenFile(Sample("pstextractortest@outlook.com.ost")), "opened");
+                var calendar = main.FolderRows.First(r => r.Folder.Name == "Calendar").Folder;
+                main.SelectFolder(calendar);
+                await Wait(() => main.CurrentFolder?.Nid == calendar.Nid && main.Rows.Count > 9, 30, "the calendar");
+                Expect(main.Kind == MainWindow.ListKind.Calendar, "listed as a calendar");
+                var starts = main.Rows.Select(x => x.When ?? DateTime.MaxValue).ToList();
+                Expect(starts.SequenceEqual(starts.OrderBy(x => x)), "oldest first");
+                var groups = System.Windows.Data.CollectionViewSource.GetDefaultView(main.Rows).Groups;
+                Expect(groups != null && groups.Count > 1, "month headings");
+                var weekly = main.Rows.First(x => x.Subject == "repeats every monday for 10 weeks");
+                Expect(weekly.MarkText == "Repeats", "repeating items are marked");
+                Expect(main.Rows.First(x => x.Subject == "all day event for 3 days").Line2.StartsWith("All day, 3 days"), "all-day items are marked");
+                await ShowRow(main, "repeats every monday for 10 weeks");
+                var text = await main.View.PageText();
+                Expect(text.Contains("Every Monday, 10 times") && text.Contains("15 minutes before"), "how it repeats and the reminder");
+                await Capture(main.View, "A repeating calendar item");
+                await ShowRow(main, "meeting with attachments (jpg, pdf, text)");
+                text = await main.View.PageText();
+                Expect(text.Contains("home office") && text.Contains("accepted") && text.Contains("Organiser"), "where, the organiser and the replies");
+                await Capture(main.View, "A meeting");
+                ShowAndClose(new ExportWindow(main));
+
+                var ics = Path.Combine(_temp, "calendar.ics");
+                var r = await Export(main, main.FolderItems(calendar, false), new ExportOptions { Format = ExportFormat.Ics, Destination = ics });
+                Expect(r.Exported == main.Rows.Count && r.Problems.Count == 0, $"every item saved as .ics ({r.Exported} of {main.Rows.Count}; {string.Join("; ", r.Problems)})");
+                var cal = File.ReadAllText(ics);
+                Expect(cal.Contains("RRULE:FREQ=WEEKLY;BYDAY=MO;WKST=SU;COUNT=10") && cal.Contains("BEGIN:VTIMEZONE"), "the .ics file");
             });
         }
 

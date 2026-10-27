@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Kudupst.Controls;
@@ -62,6 +63,12 @@ namespace Kudupst.Views
         private List<MailRow> _folderItems = new List<MailRow>();
         private bool _searching;
         private int _loadGeneration;
+
+        /// <summary>What the list shows: emails, contacts (sorted by name) or calendar items (by date, under month headings).</summary>
+        public enum ListKind { Mail, Contacts, Calendar }
+
+        public ListKind Kind { get; private set; } = ListKind.Mail;
+        private bool _settingKind;
 
         public MainWindow()
         {
@@ -194,10 +201,13 @@ namespace Kudupst.Views
             _filters.Children.Add(filterRow);
             _searchArea = WrapInGrid(Ui.Column(searchRow, _filters));
 
-            foreach (var s in new[] { "Newest first", "Oldest first", "From", "Subject", "Largest first" }) _sort.Items.Add(s);
+            foreach (var s in MailSorts) _sort.Items.Add(s);
             _sort.SelectedIndex = 0;
             _sort.ToolTip = "Sort the list";
-            _sort.SelectionChanged += (s, e) => Resort();
+            _sort.SelectionChanged += (s, e) =>
+            {
+                if (!_settingKind) Resort();
+            };
             var titleRow = Ui.Columns(Ui.Star(), Ui.Auto);
             _listTitle.TextTrimming = TextTrimming.CharacterEllipsis;
             titleRow.Children.Add(_listTitle.At(0, 0));
@@ -207,6 +217,8 @@ namespace Kudupst.Views
             _list = new ListBox { ItemsSource = _mailRows, ItemTemplate = Templates.Mail, SelectionMode = SelectionMode.Extended }.Styled("TableList");
             VirtualizingPanel.SetIsVirtualizing(_list, true);
             VirtualizingPanel.SetVirtualizationMode(_list, VirtualizationMode.Recycling);
+            VirtualizingPanel.SetIsVirtualizingWhenGrouping(_list, true);
+            _list.GroupStyle.Add(new GroupStyle { HeaderTemplate = Templates.MonthHeading });
             System.Windows.Automation.AutomationProperties.SetName(_list, "Emails");
             _list.SelectionChanged += async (s, e) => await ShowSelected();
             _list.MouseDoubleClick += (s, e) =>
@@ -474,9 +486,10 @@ namespace Kudupst.Views
                 _searchArea.Visibility = Visibility.Collapsed;
                 _indexStatus.Text = string.Empty;
                 _folderItems = new List<MailRow> { MailRow.Of(source.Single) };
+                SetKind(ListKind.Mail);
                 _mailRows.Replace(_folderItems);
-                _listTitle.Text = source.Kind == SourceKind.Msg ? "Outlook email (.msg)" : "Email (.eml)";
-                _status.Text = "1 email";
+                _listTitle.Text = source.Kind == SourceKind.Msg ? "Outlook item (.msg)" : "Email (.eml)";
+                _status.Text = source.Single.Kind == ItemKind.Email ? "1 email" : "1 " + ItemKinds.Name(source.Single.Kind).ToLowerInvariant();
                 _list.SelectedIndex = 0;
             }
             return true;
@@ -610,6 +623,7 @@ namespace Kudupst.Views
             if (generation != _loadGeneration || _source?.Store != store) return;
             _folderItems = rows;
             _searching = false;
+            SetKind(KindOf(folder, rows));
             _mailRows.Replace(Sorted(rows));
             _status.Text = folder.IsSearchFolder
                 ? "A search folder: Outlook keeps its results elsewhere, so it has nothing to show here."
@@ -698,6 +712,7 @@ namespace Kudupst.Views
             if (generation != _loadGeneration) return;
             _searching = true;
             _folderItems = rows;
+            SetKind(ListKind.Mail);
             _mailRows.Replace(Sorted(rows));
             _listTitle.Text = "Search results";
             var where = query.Folders != null ? " in " + _currentFolder.Name : string.Empty;
@@ -707,8 +722,59 @@ namespace Kudupst.Views
             else _view.Clear();
         }
 
+        private static readonly string[] MailSorts = { "Newest first", "Oldest first", "From", "Subject", "Largest first" };
+        private static readonly string[] ContactSorts = { "Name", "Company" };
+        private static readonly string[] CalendarSorts = { "Oldest first", "Newest first" };
+
+        /// <summary>Contacts and calendar folders are listed their own way; any other folder as emails.</summary>
+        public static ListKind KindOf(PstFolder folder, IList<MailRow> rows)
+        {
+            var c = folder.ContainerClass.ToUpperInvariant();
+            if (c.StartsWith("IPF.APPOINTMENT")) return ListKind.Calendar;
+            if (c.StartsWith("IPF.CONTACT")) return ListKind.Contacts;
+            if (c.Length == 0 && rows.Count > 0)
+            {
+                if (rows.All(r => r.IsCalendar)) return ListKind.Calendar;
+                if (rows.All(r => r.IsContact)) return ListKind.Contacts;
+            }
+            return ListKind.Mail;
+        }
+
+        private void SetKind(ListKind kind)
+        {
+            if (kind == Kind) return;
+            var view = CollectionViewSource.GetDefaultView(_mailRows);
+            Kind = kind;
+            _settingKind = true;
+            try
+            {
+                _sort.Items.Clear();
+                foreach (var s in kind == ListKind.Contacts ? ContactSorts : kind == ListKind.Calendar ? CalendarSorts : MailSorts) _sort.Items.Add(s);
+                _sort.SelectedIndex = 0;
+            }
+            finally
+            {
+                _settingKind = false;
+            }
+            view.GroupDescriptions.Clear();
+            if (kind == ListKind.Calendar) view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(MailRow.MonthText)));
+            System.Windows.Automation.AutomationProperties.SetName(_list, kind == ListKind.Contacts ? "Contacts" : kind == ListKind.Calendar ? "Calendar" : "Emails");
+        }
+
         private IEnumerable<MailRow> Sorted(IEnumerable<MailRow> rows)
         {
+            if (Kind == ListKind.Contacts)
+            {
+                return _sort.SelectedIndex == 1
+                    ? rows.OrderBy(r => r.Company.Length == 0).ThenBy(r => r.Company, StringComparer.CurrentCultureIgnoreCase).ThenBy(r => r.SortName, StringComparer.CurrentCultureIgnoreCase)
+                    : rows.OrderBy(r => r.SortName, StringComparer.CurrentCultureIgnoreCase);
+            }
+            if (Kind == ListKind.Calendar)
+            {
+                return _sort.SelectedIndex == 1
+                    ? rows.OrderByDescending(r => r.When ?? DateTime.MinValue)
+                    : rows.OrderBy(r => r.When ?? DateTime.MaxValue);
+            }
             switch (_sort.SelectedIndex)
             {
                 case 1: return rows.OrderBy(r => r.Date ?? DateTime.MaxValue);

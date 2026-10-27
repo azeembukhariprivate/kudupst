@@ -16,14 +16,15 @@ namespace Kudupst.Views
     public enum ExportScope { Selected, Listed, Folder, FolderAndSubfolders, WholeFile }
 
     /// <summary>
-    /// Export: what to save it as (email files, PDF, attachments only, a CSV list), which emails, and where. Then the
-    /// progress, and what happened.
+    /// Export: what to save it as (email files, PDF, attachments only, a CSV list; contacts as .vcf or an import CSV;
+    /// calendar items as .ics), which items, and where. Then the progress, and what happened.
     /// </summary>
     public sealed class ExportWindow : Window
     {
         private readonly MainWindow _main;
         private readonly StackPanel _root = new StackPanel { Margin = new Thickness(26, 22, 26, 22) };
         private ExportFormat _format = ExportFormat.Eml;
+        private readonly MainWindow.ListKind _kind;
         private ExportScope _scope;
         private readonly TextBox _destination = new TextBox { MinHeight = 34, VerticalContentAlignment = VerticalAlignment.Center };
         private readonly CheckBox _keepFolders = new CheckBox { Content = "Keep the folder structure (a folder for each Outlook folder)", IsChecked = true };
@@ -49,6 +50,8 @@ namespace Kudupst.Views
             ResizeMode = ResizeMode.NoResize;
             ShowInTaskbar = false;
             Dialogs.Prepare(this, "Export · KUDUPST", main);
+            _kind = KindOf(main);
+            _format = _kind == MainWindow.ListKind.Contacts ? ExportFormat.Vcard : _kind == MainWindow.ListKind.Calendar ? ExportFormat.Ics : ExportFormat.Eml;
             _scope = scope ?? (main.SelectedRows.Count > 1 ? ExportScope.Selected : main.Source.IsDataFile ? ExportScope.Folder : ExportScope.Selected);
             _destination.Text = Settings.LastExportFolder.Length > 0 && Directory.Exists(Settings.LastExportFolder)
                 ? Settings.LastExportFolder
@@ -57,6 +60,20 @@ namespace Kudupst.Views
             ShowChoices();
             Closing += (s, e) => _cancel?.Cancel();
         }
+
+        /// <summary>Contacts and calendar folders (or a single contact or calendar item) get their own formats too.</summary>
+        private static MainWindow.ListKind KindOf(MainWindow main)
+        {
+            if (main.Source.IsDataFile) return main.Kind;
+            var single = main.Source.Single;
+            if (single?.Contact != null || single?.Group != null) return MainWindow.ListKind.Contacts;
+            if (single != null && IcsWriter.IsEvent(single)) return MainWindow.ListKind.Calendar;
+            return MainWindow.ListKind.Mail;
+        }
+
+        private static bool OneFile(ExportFormat f) => f == ExportFormat.Csv || f == ExportFormat.Vcard || f == ExportFormat.ContactsCsv || f == ExportFormat.Ics;
+
+        private string Noun => _kind == MainWindow.ListKind.Contacts ? "contacts" : _kind == MainWindow.ListKind.Calendar ? "calendar items" : "emails";
 
         // ================================================================== choices
 
@@ -67,13 +84,22 @@ namespace Kudupst.Views
 
             _root.Children.Add(Ui.Heading("Save as", 14).Margin(0, 0, 0, 8));
             var formats = new WrapPanel();
-            foreach (var (format, text, tip) in new[]
+            var choices = new List<(ExportFormat, string, string)>();
+            if (_kind == MainWindow.ListKind.Contacts)
+            {
+                choices.Add((ExportFormat.Vcard, "Contacts (.vcf)", "All the contacts in one vCard file, for phones, Google Contacts, Apple Contacts, Thunderbird and Outlook."));
+                choices.Add((ExportFormat.ContactsCsv, "Contacts list (CSV)", "A CSV file with the columns Outlook and Google Contacts use when importing contacts."));
+            }
+            if (_kind == MainWindow.ListKind.Calendar)
+                choices.Add((ExportFormat.Ics, "Calendar (.ics)", "All the calendar items in one file, for Google Calendar, Apple Calendar, Thunderbird and Outlook. Repeating items keep their pattern."));
+            choices.AddRange(new[]
                      {
                          (ExportFormat.Eml, "Email files (.eml)", "One file per email, with its attachments inside. Opens in Outlook, Thunderbird, Windows Mail and other mail programs."),
                          (ExportFormat.Pdf, "PDF", "Each email as a PDF, looking as it does on screen, with a list of its attachments."),
                          (ExportFormat.Attachments, "Attachments only", "The attached files, without the emails."),
                          (ExportFormat.Csv, "List (CSV)", "A list of the emails for Excel: date, from, to, subject, size and attachment names.")
-                     })
+                     });
+            foreach (var (format, text, tip) in choices)
             {
                 var f = format;
                 var chip = new RadioButton { Content = text, GroupName = "format", IsChecked = _format == f, ToolTip = tip }.Styled("ChipRadio");
@@ -88,13 +114,14 @@ namespace Kudupst.Views
             var formatNote = Ui.Subtle(string.Empty, 12).Margin(0, 6, 0, 0);
             _root.Children.Add(formatNote);
 
-            _root.Children.Add(Ui.Heading("Which emails", 14).Margin(0, 16, 0, 6));
+            _root.Children.Add(Ui.Heading("Which " + Noun, 14).Margin(0, 16, 0, 6));
             var scopes = new StackPanel();
             var main = _main;
             var selected = main.SelectedRows.Count;
             var listed = main.ListedRows.Count;
             var options = new List<(ExportScope, string)>();
-            if (selected > 0) options.Add((ExportScope.Selected, selected == 1 ? "The selected email" : $"The {selected:N0} selected emails"));
+            var one = Noun == "calendar items" ? "calendar item" : Noun.TrimEnd('s');
+            if (selected > 0) options.Add((ExportScope.Selected, selected == 1 ? "The selected " + one : $"The {selected:N0} selected {Noun}"));
             if (main.Source.IsDataFile)
             {
                 if (main.IsSearching) options.Add((ExportScope.Listed, $"The search results ({listed:N0})"));
@@ -105,7 +132,7 @@ namespace Kudupst.Views
                 }
                 options.Add((ExportScope.WholeFile, "Everything in the file"));
             }
-            else if (options.Count == 0) options.Add((ExportScope.Listed, "This email"));
+            else if (options.Count == 0) options.Add((ExportScope.Listed, "This " + one));
             if (!options.Any(o => o.Item1 == _scope)) _scope = options[0].Item1;
             foreach (var (scope, text) in options)
             {
@@ -144,6 +171,9 @@ namespace Kudupst.Views
                     case ExportFormat.Eml: formatNote.Text = "One .eml file per email, named by date and subject. Attachments stay inside each email."; break;
                     case ExportFormat.Pdf: formatNote.Text = PdfMaker.Available ? "Pictures from the internet are left out, as in the reading pane." : "Saving as PDF needs Microsoft Edge WebView2, which isn't installed (it's free from Microsoft)."; break;
                     case ExportFormat.Attachments: formatNote.Text = "Files with the same name are numbered: \"report (2).pdf\". Attached emails are saved as .eml files."; break;
+                    case ExportFormat.Vcard: formatNote.Text = "One .vcf file with every contact, photos included. Contact groups are kept with their members."; break;
+                    case ExportFormat.ContactsCsv: formatNote.Text = "One row per contact, ready to import into Outlook or Google Contacts. Group members are listed in the notes."; break;
+                    case ExportFormat.Ics: formatNote.Text = "One .ics file with every calendar item: repeats, skipped and moved times, reminders, attendees and time zones are kept."; break;
                     default: formatNote.Text = "One row per email. Opens in Excel and other spreadsheet programs."; break;
                 }
             }
@@ -155,7 +185,7 @@ namespace Kudupst.Views
 
         private void UpdateOptions()
         {
-            _keepFolders.Visibility = _format == ExportFormat.Csv || _format == ExportFormat.Pdf && _combine.IsChecked == true ? Visibility.Collapsed : Visibility.Visible;
+            _keepFolders.Visibility = OneFile(_format) || _format == ExportFormat.Pdf && _combine.IsChecked == true ? Visibility.Collapsed : Visibility.Visible;
             _combine.Visibility = _format == ExportFormat.Pdf ? Visibility.Visible : Visibility.Collapsed;
             _inline.Visibility = _format == ExportFormat.Attachments ? Visibility.Visible : Visibility.Collapsed;
             _combine.Click -= CombineClicked;
@@ -194,7 +224,7 @@ namespace Kudupst.Views
                 case ExportScope.FolderAndSubfolders: return _main.CurrentFolder?.Name ?? "Emails";
                 case ExportScope.WholeFile: return Path.GetFileNameWithoutExtension(_main.Source.Path);
                 case ExportScope.Listed: return "Search results";
-                default: return _main.SelectedRows.Count == 1 ? _main.SelectedRows[0].Subject : "Emails";
+                default: return _main.SelectedRows.Count == 1 ? _main.SelectedRows[0].Subject : char.ToUpperInvariant(Noun[0]) + Noun.Substring(1);
             }
         }
 
@@ -230,7 +260,7 @@ namespace Kudupst.Views
             }
             if (items.Count == 0)
             {
-                ShowError("There are no emails there to export.");
+                ShowError("There's nothing there to export.");
                 return;
             }
             var options = new ExportOptions
@@ -241,7 +271,12 @@ namespace Kudupst.Views
                 CombinePdf = _combine.IsChecked == true,
                 IncludeInlinePictures = _inline.IsChecked == true
             };
-            if (_format == ExportFormat.Csv) options.Destination = UniquePath(Path.Combine(destination, Exporter.Clean(BaseName()) + ".csv"));
+            if (OneFile(_format))
+            {
+                var extension = _format == ExportFormat.Vcard ? ".vcf" : _format == ExportFormat.Ics ? ".ics" : ".csv";
+                options.Destination = UniquePath(Path.Combine(destination, Exporter.Clean(BaseName()) + extension));
+                options.KeepFolders = false;
+            }
             Result = await Run(items, options);
             ShowDone(Result, options);
         }
@@ -360,6 +395,8 @@ namespace Kudupst.Views
             return result;
         }
 
+        private static string Count(int n, string word) => n == 1 ? "1 " + word : $"{n:N0} {word}s";
+
         private static string BookmarkTitle(MailItem item)
         {
             var date = item.Date.HasValue ? item.Date.Value.ToLocalTime().ToString("yyyy-MM-dd") + " " : string.Empty;
@@ -376,6 +413,9 @@ namespace Kudupst.Views
             {
                 case ExportFormat.Attachments: what = $"{result.Files:N0} attachments saved from {result.Exported:N0} emails."; break;
                 case ExportFormat.Csv: what = $"{result.Exported:N0} emails listed in {Path.GetFileName(options.Destination)}."; break;
+                case ExportFormat.Vcard: what = Count(result.Exported, "contact") + $" saved in {Path.GetFileName(options.Destination)}."; break;
+                case ExportFormat.ContactsCsv: what = Count(result.Exported, "contact") + $" listed in {Path.GetFileName(options.Destination)}."; break;
+                case ExportFormat.Ics: what = Count(result.Exported, "calendar item") + $" saved in {Path.GetFileName(options.Destination)}."; break;
                 case ExportFormat.Pdf when options.CombinePdf: what = $"{result.Exported:N0} emails saved in one PDF."; break;
                 default: what = $"{result.Exported:N0} emails saved."; break;
             }
@@ -393,7 +433,7 @@ namespace Kudupst.Views
             var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 20, 0, 0) };
             if (result.FirstFile != null)
             {
-                var folder = options.Format == ExportFormat.Csv ? Path.GetDirectoryName(options.Destination) : options.Destination;
+                var folder = OneFile(options.Format) ? Path.GetDirectoryName(options.Destination) : options.Destination;
                 buttons.Children.Add(Ui.Button("Show in File Explorer", "IconFolder", "SecondaryButton", (s, e) => AppInfo.OpenFolder(folder, result.FirstFile)));
             }
             var close = Ui.Button("Close", null, "PrimaryButton", (s, e) => Close());

@@ -30,6 +30,8 @@ namespace Kudupst.Core.Mail
             {
                 if (Address.Length == 0) return Name;
                 if (Name.Length == 0 || string.Equals(Name, Address, StringComparison.OrdinalIgnoreCase)) return Address;
+                // Outlook often names contacts "Name (address)": no need to say the address twice.
+                if (Name.IndexOf(Address, StringComparison.OrdinalIgnoreCase) >= 0) return Name;
                 return $"{Name} <{Address}>";
             }
         }
@@ -44,6 +46,14 @@ namespace Kudupst.Core.Mail
     {
         public MailAddress Address { get; set; } = new MailAddress();
         public RecipientKind Kind { get; set; } = RecipientKind.To;
+
+        /// <summary>For meetings: required (1), optional (2) or a room or equipment (3).</summary>
+        public int MeetingType { get; set; } = 1;
+
+        /// <summary>For meetings: the attendee's reply (0 none, 1 organiser, 2 tentative, 3 accepted, 4 declined, 5 no reply).</summary>
+        public int Response { get; set; }
+
+        public bool IsOrganizer { get; set; }
     }
 
     public sealed class Attachment
@@ -59,6 +69,9 @@ namespace Kudupst.Core.Mail
 
         /// <summary>Hidden by the sender's mail program (signature logos and the like).</summary>
         public bool Hidden { get; set; }
+
+        /// <summary>A contact's photo.</summary>
+        public bool IsContactPhoto { get; set; }
 
         /// <summary>Reads the attachment's contents. Null for an attached email (see <see cref="Embedded"/>).</summary>
         public Func<byte[]> Load { get; set; }
@@ -110,6 +123,21 @@ namespace Kudupst.Core.Mail
         /// <summary>The internet headers it arrived with, if they were kept.</summary>
         public string Headers { get; set; } = string.Empty;
 
+        /// <summary>A contact's details, when the item is a contact.</summary>
+        public ContactInfo Contact { get; set; }
+
+        /// <summary>A contact group's members, when the item is a contact group.</summary>
+        public GroupInfo Group { get; set; }
+
+        /// <summary>When, where and who, when the item is an appointment or a meeting.</summary>
+        public AppointmentInfo Appointment { get; set; }
+
+        /// <summary>The categories (coloured labels) given in Outlook.</summary>
+        public string[] Categories { get; set; } = new string[0];
+
+        /// <summary>Private (2) or confidential (3); 0 when normal.</summary>
+        public int Sensitivity { get; set; }
+
         public Func<MailBody> LoadBody { get; set; }
         public Func<List<Attachment>> LoadAttachments { get; set; }
 
@@ -118,7 +146,7 @@ namespace Kudupst.Core.Mail
         public List<Attachment> Attachments => _attachments ?? (_attachments = LoadAttachments?.Invoke() ?? new List<Attachment>());
 
         /// <summary>The attachments to list (not the pictures that are part of the body).</summary>
-        public IEnumerable<Attachment> VisibleAttachments => Attachments.Where(a => !a.Inline && !a.Hidden);
+        public IEnumerable<Attachment> VisibleAttachments => Attachments.Where(a => !a.Inline && !a.Hidden && !a.IsContactPhoto);
 
         public IEnumerable<MailAddress> To => Recipients.Where(r => r.Kind == RecipientKind.To).Select(r => r.Address);
         public IEnumerable<MailAddress> Cc => Recipients.Where(r => r.Kind == RecipientKind.Cc).Select(r => r.Address);

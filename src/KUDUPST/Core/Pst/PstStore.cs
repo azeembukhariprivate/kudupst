@@ -36,6 +36,18 @@ namespace Kudupst.Core.Pst
         public bool HasAttachments { get; set; }
         public int Importance { get; set; } = 1;
 
+        // Calendar items: when and where (UTC).
+        public DateTime? Start { get; set; }
+        public DateTime? End { get; set; }
+        public bool AllDay { get; set; }
+        public bool Recurring { get; set; }
+        public string Location { get; set; } = string.Empty;
+
+        // Contacts: how they're filed, their company and first email address.
+        public string FileAs { get; set; } = string.Empty;
+        public string Company { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+
         public ItemKind Kind => ItemKinds.Of(MessageClass);
     }
 
@@ -47,6 +59,7 @@ namespace Kudupst.Core.Pst
     {
         public const uint StoreNid = 0x21;
         public const uint RootFolderNid = 0x122;
+        private const uint NameMapNid = 0x61;
         private const uint RecipientTableNid = 0x692;
         private const uint AttachmentTableNid = 0x671;
 
@@ -61,6 +74,30 @@ namespace Kudupst.Core.Pst
         public bool HasPassword => PasswordCrc != 0 && !File.IsOst;
         public uint TopNid { get; }
         public Encoding Ansi { get; }
+        private NameMap _names;
+
+        /// <summary>The file's table of named properties (contact and calendar fields).</summary>
+        public NameMap Names
+        {
+            get
+            {
+                if (_names != null) return _names;
+                var names = NameMap.Empty;
+                try
+                {
+                    if (File.TryGetNode(NameMapNid, out var node))
+                    {
+                        var pc = new PropertyContext(NodeData.Of(File, node));
+                        names = NameMap.Parse(pc.Raw(PropId.NameIdGuids), pc.Raw(PropId.NameIdEntries), pc.Raw(PropId.NameIdStrings));
+                    }
+                }
+                catch (PstException)
+                {
+                    // Without it, contacts and calendar items show only their basic fields.
+                }
+                return _names = names;
+            }
+        }
 
         public PstStore(PstFile file)
         {
@@ -252,9 +289,70 @@ namespace Kudupst.Core.Pst
                     HasAttachments = (flags & 0x10) != 0,
                     Importance = table.Get(i, PropId.Importance) is int imp ? imp : 1
                 };
+                if (item.Kind == ItemKind.Appointment || item.Kind == ItemKind.Meeting || item.Kind == ItemKind.Contact || item.Kind == ItemKind.DistributionList)
+                    AddDetails(item, table, i);
                 list.Add(item);
             }
             return list;
+        }
+
+        /// <summary>
+        /// The calendar and contact fields to list, from the folder's table when Outlook keeps them there (it usually
+        /// does), else from the item itself.
+        /// </summary>
+        private void AddDetails(ItemSummary item, TableContext table, int row)
+        {
+            var calendar = item.Kind == ItemKind.Appointment || item.Kind == ItemKind.Meeting;
+            object Column(Guid set, int lid)
+            {
+                var id = Names.Id(set, lid);
+                return id != 0 && table.HasColumn(id) ? table.Get(row, id) : null;
+            }
+            var hasColumns = calendar
+                ? Names.Id(PropSet.Appointment, Lid.AppointmentStartWhole) is var startId && startId != 0 && table.HasColumn(startId)
+                : item.Kind == ItemKind.DistributionList || Names.Id(PropSet.Address, Lid.Email1EmailAddress) is var emailId && emailId != 0 && table.HasColumn(emailId);
+            if (hasColumns)
+            {
+                if (calendar)
+                {
+                    item.Start = Column(PropSet.Appointment, Lid.AppointmentStartWhole) as DateTime?;
+                    item.End = Column(PropSet.Appointment, Lid.AppointmentEndWhole) as DateTime?;
+                    item.AllDay = Column(PropSet.Appointment, Lid.AppointmentSubType) is bool allDay && allDay;
+                    item.Recurring = Column(PropSet.Appointment, Lid.Recurring) is bool recurring && recurring;
+                    item.Location = Column(PropSet.Appointment, Lid.Location) as string ?? string.Empty;
+                }
+                else
+                {
+                    item.FileAs = Column(PropSet.Address, Lid.FileUnder) as string ?? string.Empty;
+                    item.Company = table.Get(row, 0x3A16) as string ?? string.Empty;
+                    item.Email = Column(PropSet.Address, Lid.Email1EmailAddress) as string ?? string.Empty;
+                    if (table.Get(row, PropId.DisplayName) is string name && name.Length > 0) item.Subject = name;
+                }
+                return;
+            }
+            try
+            {
+                var full = ReadItem(item.Nid);
+                if (full.Appointment != null)
+                {
+                    item.Start = full.Appointment.Start;
+                    item.End = full.Appointment.End;
+                    item.AllDay = full.Appointment.AllDay;
+                    item.Recurring = full.Appointment.Recurring;
+                    item.Location = full.Appointment.Location;
+                }
+                if (full.Contact != null)
+                {
+                    item.FileAs = full.Contact.FileAs;
+                    item.Company = full.Contact.Company;
+                    item.Email = full.Contact.Emails.FirstOrDefault()?.Address ?? string.Empty;
+                    if (full.Contact.Name.Length > 0) item.Subject = full.Contact.Name;
+                }
+            }
+            catch (PstException)
+            {
+                // Listed with what the table has.
+            }
         }
 
         /// <summary>
@@ -293,7 +391,47 @@ namespace Kudupst.Core.Pst
             item.Recipients = ReadRecipients(data, pc.Ansi);
             item.LoadBody = () => Body(pc, codePage);
             item.LoadAttachments = () => ReadAttachments(data, pc.Ansi);
+            Details(item, new Props(pc, Names), ContactAddress);
             return item;
+        }
+
+        /// <summary>A group member that's a contact in this file: the contact's first email address.</summary>
+        private MailAddress ContactAddress(uint nid)
+        {
+            try
+            {
+                if (!File.TryGetNode(nid, out var node)) return null;
+                var pc = new PropertyContext(NodeData.Of(File, node)) { Ansi = Ansi };
+                var p = new Props(pc, Names);
+                var address = p.String(PropSet.Address, Lid.Email1EmailAddress);
+                var name = p.String(PropSet.Address, Lid.Email1DisplayName);
+                if (name.Length == 0) name = p.String(PropId.DisplayName);
+                return new MailAddress(name, address);
+            }
+            catch (PstException)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>The fields that need the named-property table: categories, and contact, group and calendar details.</summary>
+        public static void Details(MailItem item, Props p, Func<uint, MailAddress> contactByNid)
+        {
+            item.Categories = p.Strings(PropSet.PublicStrings, "Keywords");
+            item.Sensitivity = p.Source.Int(PropId.Sensitivity);
+            switch (item.Kind)
+            {
+                case ItemKind.Contact:
+                    item.Contact = ContactInfo.Read(p, item.Attachments);
+                    break;
+                case ItemKind.DistributionList:
+                    item.Group = GroupInfo.Read(p, contactByNid);
+                    break;
+                case ItemKind.Appointment:
+                case ItemKind.Meeting:
+                    item.Appointment = AppointmentInfo.Read(p, item);
+                    break;
+            }
         }
 
         /// <summary>The fields of an item that work the same in PST and MSG files.</summary>
@@ -402,6 +540,9 @@ namespace Kudupst.Core.Pst
                 list.Add(new Recipient
                 {
                     Kind = type == 2 ? RecipientKind.Cc : type == 3 ? RecipientKind.Bcc : RecipientKind.To,
+                    MeetingType = type,
+                    Response = table.Get(i, PropId.RecipientTrackStatus) is int status ? status : 0,
+                    IsOrganizer = table.Get(i, PropId.RecipientFlags) is int rf && (rf & 0x2) != 0,
                     Address = Address(table.Get(i, PropId.DisplayName) as string, table.Get(i, PropId.SmtpAddress) as string,
                         table.Get(i, PropId.EmailAddress) as string, table.Get(i, PropId.AddrType) as string)
                 });
@@ -454,6 +595,7 @@ namespace Kudupst.Core.Pst
                 ContentLocation = p.String(PropId.AttachContentLocation) ?? string.Empty,
                 Size = p.Long(PropId.AttachSize),
                 Hidden = p.Bool(PropId.AttachmentHidden),
+                IsContactPhoto = p.Bool(PropId.AttachmentContactPhoto),
                 Inline = (flags & 0x04) != 0
             };
             if (method == 5)

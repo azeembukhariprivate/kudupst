@@ -110,6 +110,12 @@ namespace Kudupst.Core.Pst
         public const ushort LtpRowId = 0x67F2;
         public const ushort PstPassword = 0x67FF;
         public const ushort AttachmentHidden = 0x7FFE;
+        public const ushort AttachmentContactPhoto = 0x7FFF;
+        public const ushort RecipientFlags = 0x5FFD;
+        public const ushort RecipientTrackStatus = 0x5FFF;
+        public const ushort NameIdGuids = 0x0002;
+        public const ushort NameIdEntries = 0x0003;
+        public const ushort NameIdStrings = 0x0004;
     }
 
     /// <summary>Anything that has MAPI properties: a PST item, or an item read from an .msg file.</summary>
