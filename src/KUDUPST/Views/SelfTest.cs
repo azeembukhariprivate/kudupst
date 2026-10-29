@@ -230,6 +230,7 @@ namespace Kudupst.Views
                 Expect(File.ReadAllLines(csv).Length == items.Count + 1, "a row per email");
                 var att = await Export(main, items, new ExportOptions { Format = ExportFormat.Attachments, Destination = Path.Combine(_temp, "att"), KeepFolders = false });
                 Expect(att.Problems.Count == 0, "attachments: " + string.Join("; ", att.Problems));
+                Expect(att.FirstFile != null && Core.ZoneMark.Has(att.FirstFile), "saved attachments are marked as from the internet, like Outlook's");
             });
             await Step("Export window", () =>
             {

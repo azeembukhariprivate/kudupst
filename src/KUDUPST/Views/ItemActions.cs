@@ -16,12 +16,6 @@ namespace Kudupst.Views
     /// <summary>What can be done with one email: open its attachments, save it, print it, see its headers.</summary>
     public static class ItemActions
     {
-        private static readonly HashSet<string> Risky = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ".exe", ".com", ".bat", ".cmd", ".scr", ".pif", ".msi", ".msp", ".ps1", ".psm1", ".vbs", ".vbe", ".js", ".jse", ".wsf", ".wsh",
-            ".hta", ".cpl", ".jar", ".lnk", ".reg", ".inf", ".application", ".appref-ms", ".gadget", ".msc", ".scf", ".url", ".iso", ".img", ".vhd", ".vhdx", ".docm", ".xlsm", ".pptm"
-        };
-
         public static string TempFolder => Path.Combine(Path.GetTempPath(), "KUDUPST");
 
         /// <summary>Opens an attachment: an attached email in its own window, anything else with its program (after a warning for programs).</summary>
@@ -37,13 +31,14 @@ namespace Kudupst.Views
                     return;
                 }
                 var name = Exporter.Clean(a.FileName);
-                if (Risky.Contains(Path.GetExtension(name)) &&
+                if (ZoneMark.IsRisky(name) &&
                     !Dialogs.Confirm(owner, $"\"{a.FileName}\" can run programs on your computer. Only open it if you trust who sent it.\n\nOpen it anyway?"))
                     return;
                 var folder = Path.Combine(TempFolder, Guid.NewGuid().ToString("N").Substring(0, 8));
                 Directory.CreateDirectory(folder);
                 var path = Path.Combine(folder, name);
                 File.WriteAllBytes(path, a.Data());
+                ZoneMark.Apply(path);
                 File.SetAttributes(path, FileAttributes.ReadOnly);
                 AppInfo.OpenFile(path);
             }
@@ -85,6 +80,7 @@ namespace Kudupst.Views
                     if (inner != null) File.WriteAllBytes(path, EmlWriter.Write(inner));
                 }
                 else File.WriteAllBytes(path, a.Data());
+                ZoneMark.Apply(path);
             }
             catch (Exception ex) when (Exporter.IsReadProblem(ex))
             {

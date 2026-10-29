@@ -118,6 +118,7 @@ namespace Kudupst.Core.Export
                         {
                             File.WriteAllBytes(path, a.Data());
                         }
+                        ZoneMark.Apply(path); // from someone else's email: Windows and Office treat it as from the internet
                         result.Files++;
                         result.FirstFile = result.FirstFile ?? path;
                         any = true;
