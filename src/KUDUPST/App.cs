@@ -12,8 +12,8 @@ namespace Kudupst
     public static class Program
     {
         /// <summary>
-        /// KUDUPST.exe                       open
-        /// KUDUPST.exe file.pst              open a file (.pst, .ost, .msg or .eml)
+        /// KUDUPST.exe                       open, with the files that were open last time
+        /// KUDUPST.exe file.pst              open a file (.pst, .ost, .msg or .eml) as well
         /// KUDUPST.exe --register-shell      "Open with KUDUPST" on the right-click menu (used by the installer)
         /// KUDUPST.exe --register-open       open these files with a double-click (used by the installer)
         /// KUDUPST.exe --unregister          remove both (used when uninstalling)
@@ -73,6 +73,16 @@ namespace Kudupst
                 MainWindow = main;
                 main.Show();
                 ShellIntegration.Refresh();
+                // The files open last time come back. A double-click on one email opens just that email, in a
+                // window that leaves the saved set alone.
+                var single = false;
+                if (!string.IsNullOrEmpty(file) && File.Exists(file))
+                {
+                    try { single = MailSource.Detect(file) != SourceKind.DataFile; }
+                    catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) { }
+                }
+                if (single) main.DontRemember();
+                else main.RestoreSession();
                 if (!string.IsNullOrEmpty(file)) main.OpenFile(file);
                 // Tidy up in the background: old copies of opened attachments, indexes of files that are gone.
                 System.Threading.Tasks.Task.Run(() =>

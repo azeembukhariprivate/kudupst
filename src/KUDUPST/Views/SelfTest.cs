@@ -85,8 +85,10 @@ namespace Kudupst.Views
                 await DeletedRound(main);
                 await PasswordRound(main);
                 await SingleFilesRound(main);
+                await SeveralFilesRound(main);
                 await Step("Dark theme", async () =>
                 {
+                    main.CloseAll();
                     main.OpenFile(Sample("enron.pst"));
                     main.ExpandAll();
                     var group = main.FolderRows.Select(r => r.Folder).First(f => f.Name == "TW-Commercial Group");
@@ -141,6 +143,7 @@ namespace Kudupst.Views
             PstFolder group = null;
             await Step("Open a PST file", async () =>
             {
+                main.CloseAll();
                 Expect(main.OpenFile(Sample("enron.pst")), "opened");
                 Expect(main.Source.IsDataFile && main.FolderRows.Count > 0, "folders listed");
                 Expect(main.FolderRows.Any(r => r.Folder.Name == "lokay-m"), "lokay-m listed");
@@ -247,6 +250,7 @@ namespace Kudupst.Views
         {
             await Step("Open an OST file (Outlook 2013 and later)", async () =>
             {
+                main.CloseAll();
                 Expect(main.OpenFile(Sample("mtnman1965@outlook.com.ost")), "opened without asking for a password");
                 Expect(main.Source.Store.Top.Name == "IPM_SUBTREE", "the mailbox's folders");
                 var inbox = main.FolderRows.First(r => r.Folder.Name == "Inbox").Folder;
@@ -277,6 +281,7 @@ namespace Kudupst.Views
         {
             await Step("Contacts and contact groups", async () =>
             {
+                main.CloseAll();
                 Expect(main.OpenFile(Sample("mtnman1965@outlook.com.ost")), "opened");
                 var contacts = main.FolderRows.First(r => r.Folder.Name == "Contacts").Folder;
                 main.SelectFolder(contacts);
@@ -306,6 +311,7 @@ namespace Kudupst.Views
             });
             await Step("Calendar by month", async () =>
             {
+                main.CloseAll();
                 Expect(main.OpenFile(Sample("pstextractortest@outlook.com.ost")), "opened");
                 var calendar = main.FolderRows.First(r => r.Folder.Name == "Calendar").Folder;
                 main.SelectFolder(calendar);
@@ -343,6 +349,7 @@ namespace Kudupst.Views
         {
             await Step("Deleted items found inside a file", async () =>
             {
+                main.CloseAll();
                 Expect(main.OpenFile(Sample("example-2013.ost")), "opened");
                 await Wait(() => main.FolderRows.Any(r => r.Folder.Nid == Recovery.FolderNid), 60, "the \"Found deleted items\" folder");
                 var found = main.FolderRows.First(r => r.Folder.Nid == Recovery.FolderNid);
@@ -371,6 +378,7 @@ namespace Kudupst.Views
                 main.SetSearch("Test1");
                 await Wait(() => main.IsSearching && main.Rows.Any(r => r.Subject == "Test1" && r.Deleted), 30, "the deleted email in search results");
                 main.ClearSearch();
+                main.CloseAll();
                 Expect(main.OpenFile(Sample("example-2013.ost")), "opened again");
                 await Wait(() => main.Source.Store.Found != null && main.Source.Store.Found.Deep, 30, "the deeper look remembered");
             });
@@ -382,6 +390,7 @@ namespace Kudupst.Views
         {
             await Step("A file with a password", async () =>
             {
+                main.CloseAll();
                 PasswordWindow.AutoAnswer = () => "not the password";
                 Expect(!main.OpenFile(Sample("passworded.pst")), "a wrong password doesn't open it");
                 PasswordWindow.AutoAnswer = () => null;
@@ -400,6 +409,7 @@ namespace Kudupst.Views
         {
             await Step("Open an .msg email", async () =>
             {
+                main.CloseAll();
                 Expect(main.OpenFile(Sample("multi-to.msg")), "opened");
                 Expect(!main.Source.IsDataFile && main.Rows.Count == 1, "one email");
                 await ShownNow(main.View);
@@ -424,6 +434,112 @@ namespace Kudupst.Views
                 main.View.ShowPictures();
                 await shown;
                 Expect(!main.View.PicturesBlocked && main.View.AllowRemote, "shown when asked");
+            });
+        }
+
+        // ================================================================== several files at once
+
+        private static async Task SeveralFilesRound(MainWindow main)
+        {
+            OpenedFile enron = null, ost = null;
+            await Step("Several files at once", async () =>
+            {
+                main.CloseAll();
+                Expect(main.OpenFile(Sample("enron.pst")), "the PST opened");
+                Expect(main.OpenFile(Sample("mtnman1965@outlook.com.ost")), "the OST opened too");
+                Expect(main.OpenFile(Sample("multi-to.msg")), "an email opened too");
+                Expect(main.Files.Count == 3, "three files open, got " + main.Files.Count);
+                enron = main.Files.First(f => f.Path.EndsWith("enron.pst"));
+                ost = main.Files.First(f => f.Path.EndsWith(".ost"));
+                Expect(main.FolderRows.Count(r => r.IsFile) == 2, "each data file has its own entry in the folder list");
+                Expect(main.FolderRows.Any(r => r.File == enron && r.Folder.Name == "lokay-m") && main.FolderRows.Any(r => r.File == ost && r.Folder.Name == "Inbox"), "each with its folders");
+                var singles = main.FolderRows.LastOrDefault();
+                Expect(singles != null && singles.IsSingles && singles.Count == 1, "the email under \"Single emails\", at the end");
+                Expect(main.Title.StartsWith("3 files"), "the title says 3 files: " + main.Title);
+
+                // Opening a file that's open already just goes to it.
+                main.GoTo(ost);
+                Expect(main.OpenFile(Sample("enron.pst")), "opened again");
+                Expect(main.Files.Count == 3 && main.Shown == enron, "not twice, and shown");
+
+                // The OST's contacts are in its own entry.
+                var contacts = main.FolderRows.First(r => r.File == ost && r.Folder.Name == "Contacts").Folder;
+                main.SelectFolder(contacts);
+                await Wait(() => main.Shown == ost && main.Kind == MainWindow.ListKind.Contacts && main.Rows.Count > 0, 30, "the OST's contacts");
+                Screenshots.All("Several files at once");
+            });
+            await Step("Search all open files", async () =>
+            {
+                await Wait(() => main.Files.Where(f => f.IsDataFile).All(f => f.Index != null && f.Index.Complete), 240, "both search indexes");
+                main.GoTo(enron);
+                main.SetSearch("rickroll");
+                await Wait(() => main.IsSearching && main.Rows.Count > 0, 30, "results from the other file");
+                Expect(main.Rows.All(r => r.File == ost), "rickroll is only in the OST");
+                Expect(main.Rows.All(r => r.FolderName.StartsWith(ost.Name)), "each result says which file it's from");
+                main.SetSearch("Burlington");
+                await Wait(() => main.IsSearching && main.Rows.Count > 0 && main.Rows.All(r => r.File == enron), 30, "results from the PST");
+                main.SetSearch("multiple recipients");
+                await Wait(() => main.IsSearching && main.Rows.Any(r => r.Item != null && r.Item.Subject.StartsWith("Test: multiple To")), 30, "the single email found too");
+                Expect(main.Rows.First(r => r.Item != null).FolderName.StartsWith("Single emails"), "it says it's a single email");
+                await ShowRow(main, main.Rows.First(r => r.Item != null).Subject);
+                Screenshots.All("Search all open files");
+
+                // "This file": only the PST shown.
+                main.SetSearch("rickroll", 1);
+                await Wait(() => main.IsSearching && main.Rows.Count == 0, 30, "nothing in this file");
+                main.SetSearch("rickroll", 0);
+                await Wait(() => main.IsSearching && main.Rows.Count > 0, 30, "found again in all files");
+                var items = main.ListedRows.Select(main.ToExport).ToList();
+                Expect(items.All(i => i.FolderPath.StartsWith(ost.Name)), "exported results keep their file's name in their folder");
+                var result = await Export(main, items, new ExportOptions { Format = ExportFormat.Csv, Destination = Path.Combine(_temp, "across") });
+                Expect(result.Exported == items.Count && result.Problems.Count == 0, "search results from another file exported");
+                main.ClearSearch();
+            });
+            await Step("Export everything in all open files", () =>
+            {
+                var all = main.AllFilesItems();
+                var inPst = main.FolderItems(enron, enron.Store.Top, true).Count;
+                Expect(inPst > 0 && all.Count(i => i.FolderPath.StartsWith(enron.Name)) == inPst, "every item of the PST, under its name");
+                Expect(all.Any(i => i.FolderPath.StartsWith(ost.Name)), "items of the OST");
+                Expect(all.Count(i => i.FolderPath == "Single emails") == 1, "and the single email");
+                var w = new ExportWindow(main);
+                OffScreen(w);
+                w.Show();
+                Pump();
+                Screenshots.One(w, "Export with several files open");
+                w.Close();
+                return Task.CompletedTask;
+            });
+            await Step("Close one file", async () =>
+            {
+                main.SetSearch("rickroll", 0);
+                await Wait(() => main.IsSearching && main.Rows.Count > 0, 30, "results");
+                main.CloseFile(ost);
+                Expect(main.Files.Count == 2 && !main.Files.Contains(ost), "two files left");
+                Expect(main.FolderRows.All(r => r.File != ost), "its folders are gone");
+                await Wait(() => main.IsSearching && main.Rows.All(r => r.File != ost), 30, "its results are gone");
+                Expect(ost.Closed, "the file was let go");
+                main.ClearSearch();
+            });
+            await Step("The open files come back next time", async () =>
+            {
+                var gone = Path.Combine(_temp, "moved away.pst");
+                var saved = OpenFiles.Save(main.Files.Select(f => f.Path).Concat(new[] { gone, Sample("passworded.pst") }));
+                main.CloseAll();
+                Expect(main.Files.Count == 0, "all closed");
+                PasswordWindow.AutoAnswer = () => string.Empty;
+                var asked = 0;
+                var answer = PasswordWindow.AutoAnswer;
+                PasswordWindow.AutoAnswer = () => { asked++; return answer(); };
+                var note = main.RestoreSession(saved);
+                PasswordWindow.AutoAnswer = null;
+                Expect(main.Files.Count == 3, "the PST, the email and the file with a password are back: " + string.Join(", ", main.Files.Select(f => f.Name)));
+                Expect(asked == 1, "the file with a password asked again");
+                Expect(note != null && note.Contains("moved away.pst"), "a note about the file that isn't there: " + note);
+                Expect(main.Shown != null, "a file is shown");
+                await Wait(() => main.Rows.Count > 0 || main.CurrentFolder != null, 30, "its folder");
+                Screenshots.All("Open files came back");
+                main.CloseAll();
             });
         }
 

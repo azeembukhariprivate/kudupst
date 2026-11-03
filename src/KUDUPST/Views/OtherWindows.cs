@@ -76,7 +76,7 @@ namespace Kudupst.Views
                 try
                 {
                     foreach (Window w in Application.Current.Windows)
-                        if (w is MainWindow m) m.CloseFile();
+                        if (w is MainWindow m) m.CloseAll();
                     if (Directory.Exists(MailIndex.IndexRoot)) Directory.Delete(MailIndex.IndexRoot, true);
                 }
                 catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)

@@ -35,15 +35,29 @@ namespace Kudupst.Views
         public static Geometry Res(string key) => Application.Current?.TryFindResource(key) as Geometry;
     }
 
-    /// <summary>A folder in the folder tree.</summary>
+    /// <summary>What a row of the folder list is: a folder, an open file (above its folders), or the single emails.</summary>
+    public enum FolderRowKind { Folder, File, Singles }
+
+    /// <summary>A row in the folder list.</summary>
     public sealed class FolderRow : RowBase
     {
         public PstFolder Folder { get; set; }
         public int Depth { get; set; }
         public bool Expanded { get; set; }
         public bool CanExpand { get; set; }
+        public FolderRowKind Type { get; set; }
 
-        public string Name => Folder.Name.Length > 0 ? Folder.Name : "(no name)";
+        /// <summary>The open file the row belongs to (none for "Single emails").</summary>
+        public OpenedFile File { get; set; }
+
+        /// <summary>For "Single emails": how many.</summary>
+        public int Count { get; set; }
+
+        public bool IsFile => Type == FolderRowKind.File;
+        public bool IsSingles => Type == FolderRowKind.Singles;
+
+        public string Name => IsFile ? File.Name : IsSingles ? "Single emails" : Folder.Name.Length > 0 ? Folder.Name : "(no name)";
+        public FontWeight NameWeight => IsFile || IsSingles ? FontWeights.SemiBold : FontWeights.Normal;
         public Thickness Indent => new Thickness(4 + Depth * 16, 0, 0, 0);
         public string Expander => CanExpand ? (Expanded ? "▾" : "▸") : string.Empty;
         public Geometry Icon => Res(IconKey);
@@ -52,6 +66,8 @@ namespace Kudupst.Views
         {
             get
             {
+                if (IsFile) return "IconFile";
+                if (IsSingles) return "IconMail";
                 var c = Folder.ContainerClass.ToUpperInvariant();
                 if (Folder.Nid == Recovery.FolderNid) return "IconTrash";
                 if (c.StartsWith("IPF.APPOINTMENT")) return "IconCalendar";
@@ -62,9 +78,9 @@ namespace Kudupst.Views
             }
         }
 
-        public string CountText => Folder.UnreadCount > 0 ? Folder.UnreadCount.ToString("N0", CultureInfo.CurrentCulture) : Folder.ItemCount > 0 ? Folder.ItemCount.ToString("N0", CultureInfo.CurrentCulture) : string.Empty;
+        public string CountText => IsSingles ? Count.ToString("N0", CultureInfo.CurrentCulture) : IsFile ? string.Empty : Folder.UnreadCount > 0 ? Folder.UnreadCount.ToString("N0", CultureInfo.CurrentCulture) : Folder.ItemCount > 0 ? Folder.ItemCount.ToString("N0", CultureInfo.CurrentCulture) : string.Empty;
         public FontWeight CountWeight => Folder.UnreadCount > 0 ? FontWeights.SemiBold : FontWeights.Normal;
-        public string Tip => Folder.UnreadCount > 0 ? $"{Folder.ItemCount:N0} items, {Folder.UnreadCount:N0} not read" : $"{Folder.ItemCount:N0} items";
+        public string Tip => IsFile ? File.Path : IsSingles ? ".msg and .eml files open on their own" : Folder.UnreadCount > 0 ? $"{Folder.ItemCount:N0} items, {Folder.UnreadCount:N0} not read" : $"{Folder.ItemCount:N0} items";
     }
 
     /// <summary>An item in the mail list.</summary>
@@ -98,6 +114,9 @@ namespace Kudupst.Views
 
         /// <summary>For a single .msg or .eml file.</summary>
         public MailItem Item { get; set; }
+
+        /// <summary>The open file the item is in.</summary>
+        public OpenedFile File { get; set; }
 
         public static MailRow Of(ItemSummary s) => new MailRow
         {
@@ -256,7 +275,7 @@ namespace Kudupst.Views
             "<StackPanel Orientation=\"Horizontal\" Margin=\"{Binding Indent}\">" +
             "<TextBlock x:Name=\"Exp\" Text=\"{Binding Expander}\" Width=\"16\" FontSize=\"12\" Foreground=\"{DynamicResource SubtleText}\" VerticalAlignment=\"Center\" TextAlignment=\"Center\" Cursor=\"Hand\" Background=\"Transparent\"/>" +
             Icon("Icon", "SubtleText") +
-            "<TextBlock Text=\"{Binding Name}\" Margin=\"8,0,0,0\" VerticalAlignment=\"Center\" TextTrimming=\"CharacterEllipsis\"/></StackPanel>" +
+            "<TextBlock Text=\"{Binding Name}\" FontWeight=\"{Binding NameWeight}\" Margin=\"8,0,0,0\" VerticalAlignment=\"Center\" TextTrimming=\"CharacterEllipsis\"/></StackPanel>" +
             "<TextBlock Grid.Column=\"1\" Text=\"{Binding CountText}\" FontWeight=\"{Binding CountWeight}\" FontSize=\"12\" Margin=\"6,0,10,0\" VerticalAlignment=\"Center\" Foreground=\"{DynamicResource SubtleText}\"/>" +
             "</Grid></DataTemplate>");
 

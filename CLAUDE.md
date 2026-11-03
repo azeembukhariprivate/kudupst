@@ -73,3 +73,10 @@ The build fails when a copy differs from kudu-common. App-specific details go in
   Old copies of items that are still in a folder never count as deleted. Results are saved next to the search index
   (`found-quick.bin`, `found-deep.bin`) and shown in a made-up "Found deleted items" folder (`Recovery.FolderNid`).
   Tests build files with deleted items via `tests/KUDUPST.Tests/PstWriter.cs` (`Forget`, `Damage`, `DeletedNode`).
+- Several files at once (1.3): `Views/OpenedFile.cs` is one open file (its `MailSource`, search index, look for deleted
+  items). `MainWindow` keeps `_files`; the folder list has a row per data file (`FolderRowKind.File`, its folders below at
+  depth 1+) and a "Single emails" row for .msg/.eml files; every `FolderRow` and `MailRow` knows its `File`, so reading,
+  exporting and folder names use the right file. `_file` is the file shown. Search scopes are All open files / This file /
+  This folder; `Core/OpenFiles.cs` merges the index results (`Search`), checks single emails (`Matches`), names files
+  with the same name (`Names`) and keeps the set for next time (`Settings.OpenFiles`, `Save`/`Restore`). A window started
+  by a double-click on one .msg/.eml doesn't restore or change the saved set (`DontRemember`).

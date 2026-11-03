@@ -111,5 +111,12 @@ namespace Kudupst.Core
         }
 
         public static void ClearRecent() => Set("Recent", string.Empty);
+
+        /// <summary>The files open when KUDUPST was last used (one path per line), opened again at the next start.</summary>
+        public static string OpenFiles
+        {
+            get => Get("OpenFiles", string.Empty);
+            set => Set("OpenFiles", value);
+        }
     }
 }

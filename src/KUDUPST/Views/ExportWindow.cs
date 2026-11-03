@@ -13,7 +13,7 @@ using Kudupst.Core.Mail;
 
 namespace Kudupst.Views
 {
-    public enum ExportScope { Selected, Listed, Folder, FolderAndSubfolders, WholeFile }
+    public enum ExportScope { Selected, Listed, Folder, FolderAndSubfolders, WholeFile, AllFiles }
 
     /// <summary>
     /// Export: what to save it as (email files, PDF, attachments only, a CSV list; contacts as .vcf or an import CSV;
@@ -130,9 +130,12 @@ namespace Kudupst.Views
                     options.Add((ExportScope.Folder, $"The folder \"{main.CurrentFolder.Name}\" ({main.CurrentFolder.ItemCount:N0})"));
                     if (main.CurrentFolder.HasSubfolders) options.Add((ExportScope.FolderAndSubfolders, $"\"{main.CurrentFolder.Name}\" and the folders in it"));
                 }
-                options.Add((ExportScope.WholeFile, "Everything in the file"));
+                options.Add((ExportScope.WholeFile, main.Files.Count > 1 ? $"Everything in \"{main.Shown?.Name}\"" : "Everything in the file"));
             }
+            else if (main.IsSearching) options.Add((ExportScope.Listed, $"The search results ({listed:N0})"));
+            else if (listed > 1) options.Add((ExportScope.Listed, $"All {listed:N0} single emails"));
             else if (options.Count == 0) options.Add((ExportScope.Listed, "This " + one));
+            if (main.Files.Count > 1) options.Add((ExportScope.AllFiles, $"Everything in all {main.Files.Count} open files"));
             if (!options.Any(o => o.Item1 == _scope)) _scope = options[0].Item1;
             foreach (var (scope, text) in options)
             {
@@ -212,6 +215,7 @@ namespace Kudupst.Views
                 case ExportScope.Listed: return main.ListedRows.Select(main.ToExport).ToList();
                 case ExportScope.Folder: return main.FolderItems(main.CurrentFolder, false);
                 case ExportScope.FolderAndSubfolders: return main.FolderItems(main.CurrentFolder, true);
+                case ExportScope.AllFiles: return main.AllFilesItems();
                 default: return main.FolderItems(main.Source.Store.Top, true);
             }
         }
@@ -223,7 +227,8 @@ namespace Kudupst.Views
                 case ExportScope.Folder:
                 case ExportScope.FolderAndSubfolders: return _main.CurrentFolder?.Name ?? "Emails";
                 case ExportScope.WholeFile: return Path.GetFileNameWithoutExtension(_main.Source.Path);
-                case ExportScope.Listed: return "Search results";
+                case ExportScope.Listed: return _main.IsSearching ? "Search results" : "Emails";
+                case ExportScope.AllFiles: return "All open files";
                 default: return _main.SelectedRows.Count == 1 ? _main.SelectedRows[0].Subject : char.ToUpperInvariant(Noun[0]) + Noun.Substring(1);
             }
         }
