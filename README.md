@@ -12,6 +12,12 @@
   <sub>The installer for Windows 10 and 11, always the latest version · <a href="https://github.com/azeembukhariprivate/kudupst/releases/latest">portable zip and what's new</a></sub>
 </p>
 
+<p align="center">
+  <img src="docs/screenshot-1.png" alt="KUDUPST showing the folders of an Outlook file, the list of emails and one email open" width="820">
+  <br><br>
+  <img src="docs/screenshot-2.png" alt="KUDUPST in its dark look, reading an email with attachments" width="820">
+</p>
+
 ---
 
 ## Features
