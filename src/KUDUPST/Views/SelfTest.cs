@@ -219,7 +219,7 @@ namespace Kudupst.Views
                     var folders = copy.AllFolders(copy.Top).ToList();
                     Expect(folders.Sum(f => copy.Items(f).Count) == items.Count, "the new file lists every item");
                     var folder = folders.First(f => f.Name == "TW-Commercial Group");
-                    var mail = copy.ReadItem(copy.Items(folder).First(i => i.Subject.Contains("I_B Link Capacity")).Nid);
+                    var mail = copy.ReadItem(copy.Items(folder).First(i => i.Subject.Contains("Link Capacity")).Nid);
                     Expect(mail.From.Address == "JReames@br-inc.com" && mail.Body.PlainText.Length > 0, "an email in the new file reads back");
                 }
                 Note($"{items.Count} items in a new .pst of {new FileInfo(pst).Length / 1024:N0} KB");
