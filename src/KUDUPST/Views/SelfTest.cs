@@ -207,6 +207,23 @@ namespace Kudupst.Views
                 var back = EmlReader.Read(files.First(f => f.Contains("I_B Link Capacity")));
                 Expect(back.From.Address == "JReames@br-inc.com", "an exported email reads back");
             });
+            await Step("Save as a new Outlook file", async () =>
+            {
+                var items = main.FolderItems(main.Source.Store.Top, true);
+                var pst = Path.Combine(_temp, "copy.pst");
+                var result = await Export(main, items, new ExportOptions { Format = ExportFormat.Pst, Destination = pst, KeepFolders = true });
+                Expect(result.Exported == items.Count && result.Problems.Count == 0 && result.Files == 1, $"all {items.Count} saved ({result.Exported}, problems: {string.Join("; ", result.Problems)})");
+                Expect(File.Exists(pst) && !File.Exists(pst + ".unfinished"), "the file is there under its own name");
+                using (var copy = Core.Pst.PstStore.Open(pst))
+                {
+                    var folders = copy.AllFolders(copy.Top).ToList();
+                    Expect(folders.Sum(f => copy.Items(f).Count) == items.Count, "the new file lists every item");
+                    var folder = folders.First(f => f.Name == "TW-Commercial Group");
+                    var mail = copy.ReadItem(copy.Items(folder).First(i => i.Subject.Contains("I_B Link Capacity")).Nid);
+                    Expect(mail.From.Address == "JReames@br-inc.com" && mail.Body.PlainText.Length > 0, "an email in the new file reads back");
+                }
+                Note($"{items.Count} items in a new .pst of {new FileInfo(pst).Length / 1024:N0} KB");
+            });
             await Step("Export as PDF", async () =>
             {
                 main.SelectFolder(group);

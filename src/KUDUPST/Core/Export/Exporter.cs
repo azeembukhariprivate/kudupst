@@ -9,7 +9,7 @@ using Kudupst.Core.Mail;
 
 namespace Kudupst.Core.Export
 {
-    public enum ExportFormat { Eml, Pdf, Attachments, Csv, Vcard, ContactsCsv, Ics }
+    public enum ExportFormat { Eml, Pdf, Attachments, Csv, Vcard, ContactsCsv, Ics, Pst }
 
     /// <summary>An item to export: how to read it, and the folder it's in (for keeping the folder structure).</summary>
     public sealed class ExportItem
@@ -18,6 +18,10 @@ namespace Kudupst.Core.Export
         public string FolderPath { get; set; } = string.Empty;
         public string Subject { get; set; } = string.Empty;
         public DateTime? Date { get; set; }
+
+        /// <summary>For an item in a PST or OST file: the file and the item's number there, so it can be copied whole into a new PST file.</summary>
+        public Pst.PstStore Store { get; set; }
+        public uint Nid { get; set; }
     }
 
     public sealed class ExportOptions
@@ -55,6 +59,7 @@ namespace Kudupst.Core.Export
                 case ExportFormat.Vcard:
                 case ExportFormat.ContactsCsv:
                 case ExportFormat.Ics: return OneFile(items, options.Format, options.Destination, progress, cancel);
+                case ExportFormat.Pst: return Pst(items, options, progress, cancel);
                 default: throw new NotSupportedException("PDF is saved by the app window.");
             }
         }
@@ -229,6 +234,83 @@ namespace Kudupst.Core.Export
             File.WriteAllText(path, text, new UTF8Encoding(format == ExportFormat.ContactsCsv));
             result.Files = 1;
             result.FirstFile = path;
+            progress?.Invoke(items.Count, null);
+            return result;
+        }
+
+        /// <summary>The folder that items with no folder of their own go into, in a new PST file.</summary>
+        public const string LooseFolder = "Exported items";
+
+        /// <summary>
+        /// Everything into one new Outlook data file (.pst), in the folders the items were in. Items from a PST or OST
+        /// file are copied whole; single emails are written from what was read. The file is made under another name and
+        /// only gets its own name when it's complete.
+        /// </summary>
+        public static ExportResult Pst(IList<ExportItem> items, ExportOptions options, Action<int, string> progress, CancellationToken cancel)
+        {
+            var result = new ExportResult();
+            var path = options.Destination;
+            var dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+            var unfinished = path + ".unfinished";
+            var done = false;
+            try
+            {
+                using (var stream = new FileStream(unfinished, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 1 << 16))
+                using (var writer = new Pst.PstStoreWriter(stream, Path.GetFileNameWithoutExtension(path)))
+                {
+                    for (var i = 0; i < items.Count; i++)
+                    {
+                        if (cancel.IsCancellationRequested) { result.Cancelled = true; break; }
+                        var e = items[i];
+                        progress?.Invoke(i, e.Subject);
+                        try
+                        {
+                            var names = options.KeepFolders && !string.IsNullOrEmpty(e.FolderPath)
+                                ? e.FolderPath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+                                : new[] { LooseFolder };
+                            // The item is read first: a folder is only made once there's something to put in it.
+                            if (e.Store != null)
+                            {
+                                var data = e.Store.ItemData(e.Nid);
+                                writer.AddCopy(writer.FolderAt(names), e.Store, data);
+                            }
+                            else
+                            {
+                                var item = e.Load();
+                                writer.Add(writer.FolderAt(names), item);
+                            }
+                            result.Exported++;
+                        }
+                        catch (Exception ex) when (IsReadProblem(ex))
+                        {
+                            result.Problems.Add($"{Describe(e)}: {ex.Message}");
+                        }
+                    }
+                    if (!result.Cancelled)
+                    {
+                        writer.Finish();
+                        stream.Flush(true);
+                        done = true;
+                    }
+                }
+                if (done)
+                {
+                    if (File.Exists(path)) File.Delete(path);
+                    File.Move(unfinished, path);
+                    result.Files = 1;
+                    result.FirstFile = path;
+                }
+            }
+            finally
+            {
+                if (!done)
+                {
+                    try { File.Delete(unfinished); }
+                    catch (IOException) { /* left behind; it has another name, so nothing mistakes it for a finished file */ }
+                    catch (UnauthorizedAccessException) { }
+                }
+            }
             progress?.Invoke(items.Count, null);
             return result;
         }

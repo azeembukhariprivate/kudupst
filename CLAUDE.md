@@ -1,7 +1,8 @@
 # KUDUPST
 
 View, search and export Outlook data files (PST, OST) and single emails (.msg, .eml) on Windows, without Outlook: emails,
-contacts and contact groups (export .vcf and import CSV), the calendar (export .ics), and deleted items still inside a file.
+contacts and contact groups (export .vcf and import CSV), the calendar (export .ics), deleted items still inside a file,
+and saving any of it as a new PST file.
 Part of the KUDU family of free, open-source (MIT) Windows apps by Azeem Bukhari.
 
 ## Working with Azeem (the owner)
@@ -59,7 +60,7 @@ The build fails when a copy differs from kudu-common. App-specific details go in
 - The PST/OST reader (`Core/Pst`) is the app's own code from Microsoft's published MS-PST specification: node database
   (`PstFile`: ANSI, Unicode, Outlook 2013+ 4K pages with zlib blocks, both encryptions), heaps, property and table contexts
   (`Ltp`), and the mail layer (`PstStore`). `.msg` is `Core/Mail/Msg.cs` (compound files), `.eml` is `Core/Mail/Mime.cs`.
-- Files are only ever read. Never write to a user's PST/OST/MSG/EML file.
+- Files are only ever read. Never write to a user's PST/OST/MSG/EML file (saving as PST makes a new file).
 - Emails are shown with WebView2 (`Views/MailView.cs`): scripts off, every request served by the app, internet content
   blocked until the user clicks "Show pictures". Keep it that way.
 - The search index (`Core/Search/MailIndex.cs`) lives in `%LocalAppData%\KUDUPST\Index`, never next to the user's file.
@@ -80,3 +81,13 @@ The build fails when a copy differs from kudu-common. App-specific details go in
   This folder; `Core/OpenFiles.cs` merges the index results (`Search`), checks single emails (`Matches`), names files
   with the same name (`Names`) and keeps the set for next time (`Settings.OpenFiles`, `Save`/`Restore`). A window started
   by a double-click on one .msg/.eml doesn't restore or change the saved set (`DontRemember`).
+- Save as a new PST (1.4): `Core/Pst/PstBuilder.cs` writes the file's lowest layer (header, maps of used space, blocks,
+  lists of blocks, sub-node lists, the two indexes), `PstLtpWriter.cs` heaps, property lists and tables, and
+  `PstStoreWriter.cs` the folders and items: the nodes every Outlook file has (laid out like the Outlook-made
+  `dist-list.pst` sample), a new table of named properties (`NameMapWriter`), items from a PST/OST copied property by
+  property (`AddCopy`: old one-byte text becomes Unicode, named properties get the new file's IDs, attached emails are
+  copied the same way) and single .msg/.eml emails written from their `MailItem` (`Add`). `Exporter.Pst` writes to
+  "name.pst.unfinished" and renames when done; `ExportItem.Store`/`Nid` say where an item can be copied from.
+  Microsoft's document can't be reached from the build container and Outlook can't be run in tests, so the checks are:
+  our own reader, plus `readpst` and `pffexport` by hand. The map pages for files over about 32 MB (and 2 GB) are placed
+  as the specification was remembered; no Outlook-made file that big was at hand to compare.

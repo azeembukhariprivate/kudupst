@@ -108,6 +108,7 @@ namespace Kudupst.Core.Pst
         public const ushort SenderSmtpAddress = 0x5D01;
         public const ushort SentRepresentingSmtpAddress = 0x5D02;
         public const ushort LtpRowId = 0x67F2;
+        public const ushort LtpRowVer = 0x67F3;
         public const ushort PstPassword = 0x67FF;
         public const ushort AttachmentHidden = 0x7FFE;
         public const ushort AttachmentContactPhoto = 0x7FFF;

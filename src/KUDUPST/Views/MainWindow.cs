@@ -1427,7 +1427,7 @@ namespace Kudupst.Views
             var file = row.File ?? _file;
             var store = file.Store;
             var nid = row.Nid;
-            return new ExportItem { Load = () => store.ReadItem(nid), FolderPath = FolderPathOf(file, row.FolderNid), Subject = row.Subject, Date = row.Date };
+            return new ExportItem { Load = () => store.ReadItem(nid), FolderPath = FolderPathOf(file, row.FolderNid), Subject = row.Subject, Date = row.Date, Store = store, Nid = nid };
         }
 
         /// <summary>Every item in a folder of the file shown (and, when asked, its sub-folders).</summary>
@@ -1447,7 +1447,7 @@ namespace Kudupst.Views
                 foreach (var s in items)
                 {
                     var nid = s.Nid;
-                    list.Add(new ExportItem { Load = () => store.ReadItem(nid), FolderPath = path, Subject = s.Subject, Date = s.Date });
+                    list.Add(new ExportItem { Load = () => store.ReadItem(nid), FolderPath = path, Subject = s.Subject, Date = s.Date, Store = store, Nid = nid });
                 }
             }
             return list;

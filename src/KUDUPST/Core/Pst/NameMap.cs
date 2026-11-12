@@ -84,6 +84,7 @@ namespace Kudupst.Core.Pst
     {
         private readonly Dictionary<(Guid, int), ushort> _byLid = new Dictionary<(Guid, int), ushort>();
         private readonly Dictionary<(Guid, string), ushort> _byName = new Dictionary<(Guid, string), ushort>();
+        private readonly Dictionary<ushort, (Guid Set, int Lid, string Name)> _byId = new Dictionary<ushort, (Guid, int, string)>();
 
         public static readonly NameMap Empty = new NameMap();
 
@@ -115,10 +116,12 @@ namespace Kudupst.Core.Pst
                     if (length < 0 || id + 4 + length > strings.Length) continue;
                     var name = Encoding.Unicode.GetString(strings, (int)id + 4, length);
                     map._byName[(set, name)] = propId;
+                    map._byId[propId] = (set, 0, name);
                 }
                 else
                 {
                     map._byLid[(set, (int)id)] = propId;
+                    map._byId[propId] = (set, (int)id, null);
                 }
             }
             return map;
@@ -128,6 +131,16 @@ namespace Kudupst.Core.Pst
         public ushort Id(Guid set, int lid) => _byLid.TryGetValue((set, lid), out var id) ? id : (ushort)0;
 
         public ushort Id(Guid set, string name) => _byName.TryGetValue((set, name), out var id) ? id : (ushort)0;
+
+        /// <summary>What a property ID of this file stands for: its set and its number, or its name (then <paramref name="name"/> isn't null).</summary>
+        public bool TryGetName(ushort id, out Guid set, out int lid, out string name)
+        {
+            var found = _byId.TryGetValue(id, out var n);
+            set = n.Set;
+            lid = n.Lid;
+            name = n.Name;
+            return found;
+        }
     }
 
     /// <summary>An item's properties together with its file's name table, to read named properties by name.</summary>

@@ -449,6 +449,14 @@ namespace Kudupst.Core.Pst
 
         public bool Exists(uint nid) => FoundById(nid) != null || File.TryGetNode(nid, out _);
 
+        /// <summary>Where an item's data is in the file (also for a deleted item that was found): for copying it as it is.</summary>
+        public NodeData ItemData(uint nid)
+        {
+            var found = FoundById(nid);
+            if (found != null) return new NodeData(File, found.DataBid, found.SubBid) { Lenient = found.Partial };
+            return NodeData.Of(File, File.GetNode(nid));
+        }
+
         /// <summary>Reads a whole item. The body and attachment contents are read when first asked for.</summary>
         public MailItem ReadItem(uint nid)
         {

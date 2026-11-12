@@ -95,6 +95,7 @@ namespace Kudupst.Views
             choices.AddRange(new[]
                      {
                          (ExportFormat.Eml, "Email files (.eml)", "One file per email, with its attachments inside. Opens in Outlook, Thunderbird, Windows Mail and other mail programs."),
+                         (ExportFormat.Pst, "Outlook file (.pst)", "One new Outlook data file with the folders and everything in them. The file you opened isn't changed."),
                          (ExportFormat.Pdf, "PDF", "Each email as a PDF, looking as it does on screen, with a list of its attachments."),
                          (ExportFormat.Attachments, "Attachments only", "The attached files, without the emails."),
                          (ExportFormat.Csv, "List (CSV)", "A list of the emails for Excel: date, from, to, subject, size and attachment names.")
@@ -172,6 +173,7 @@ namespace Kudupst.Views
                 switch (_format)
                 {
                     case ExportFormat.Eml: formatNote.Text = "One .eml file per email, named by date and subject. Attachments stay inside each email."; break;
+                    case ExportFormat.Pst: formatNote.Text = "One new .pst file with the folders, emails with their attachments, contacts and calendar items. In Outlook: File, Open & Export, Open Outlook Data File."; break;
                     case ExportFormat.Pdf: formatNote.Text = PdfMaker.Available ? "Pictures from the internet are left out, as in the reading pane." : "Saving as PDF needs Microsoft Edge WebView2, which isn't installed (it's free from Microsoft)."; break;
                     case ExportFormat.Attachments: formatNote.Text = "Files with the same name are numbered: \"report (2).pdf\". Attached emails are saved as .eml files."; break;
                     case ExportFormat.Vcard: formatNote.Text = "One .vcf file with every contact, photos included. Contact groups are kept with their members."; break;
@@ -276,7 +278,12 @@ namespace Kudupst.Views
                 CombinePdf = _combine.IsChecked == true,
                 IncludeInlinePictures = _inline.IsChecked == true
             };
-            if (OneFile(_format))
+            if (_format == ExportFormat.Pst)
+            {
+                options.Destination = UniquePath(Path.Combine(destination, Exporter.Clean(BaseName()) + ".pst"));
+                options.KeepFolders = _keepFolders.IsChecked == true;
+            }
+            else if (OneFile(_format))
             {
                 var extension = _format == ExportFormat.Vcard ? ".vcf" : _format == ExportFormat.Ics ? ".ics" : ".csv";
                 options.Destination = UniquePath(Path.Combine(destination, Exporter.Clean(BaseName()) + extension));
@@ -421,6 +428,7 @@ namespace Kudupst.Views
                 case ExportFormat.Vcard: what = Count(result.Exported, "contact") + $" saved in {Path.GetFileName(options.Destination)}."; break;
                 case ExportFormat.ContactsCsv: what = Count(result.Exported, "contact") + $" listed in {Path.GetFileName(options.Destination)}."; break;
                 case ExportFormat.Ics: what = Count(result.Exported, "calendar item") + $" saved in {Path.GetFileName(options.Destination)}."; break;
+                case ExportFormat.Pst: what = Count(result.Exported, "item") + (result.Files > 0 ? $" saved in {Path.GetFileName(options.Destination)}." : " read; no file was made."); break;
                 case ExportFormat.Pdf when options.CombinePdf: what = $"{result.Exported:N0} emails saved in one PDF."; break;
                 default: what = $"{result.Exported:N0} emails saved."; break;
             }
