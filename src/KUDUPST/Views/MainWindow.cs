@@ -847,8 +847,9 @@ namespace Kudupst.Views
             if (found.Deep)
             {
                 file.DeletedNote = found.Items.Count == 0
-                    ? "Looked through the whole file: no deleted items left in it."
-                    : $"Looked through the whole file: {Plural(found.Items.Count, "deleted item")} found" + (partial > 0 ? $" ({partial:N0} only partly)." : ".");
+                    ? Lang.T("Looked through the whole file: no deleted items left in it.")
+                    : Lang.T(partial > 0 ? "Looked through the whole file: {0} found ({1} only partly)." : "Looked through the whole file: {0} found.",
+                        Format.Count(found.Items.Count, "deleted item"), partial.ToString("N0"));
             }
             if (store.FoundFolder != null)
             {
@@ -868,7 +869,6 @@ namespace Kudupst.Views
             if (_file == file) RefreshDeletedPanel();
         }
 
-        private static string Plural(int n, string word) => n == 1 ? "1 " + word : $"{n:N0} {word}s";
 
         // ================================================================== folders
 
@@ -1110,12 +1110,11 @@ namespace Kudupst.Views
             _mailRows.Replace(Sorted(rows));
             _status.Text = folder.IsSearchFolder
                 ? "A search folder: Outlook keeps its results elsewhere, so it has nothing to show here."
-                : Count(rows.Count) + " in " + _listTitle.Text + (_files.Count > 1 ? " (" + file.Name + ")" : string.Empty);
+                : _files.Count > 1 ? Lang.T("{0} in {1} ({2})", Format.Count(rows.Count, "item"), _listTitle.Text, file.Name) : Lang.T("{0} in {1}", Format.Count(rows.Count, "item"), _listTitle.Text);
             if (rows.Count > 0) _list.SelectedIndex = 0;
             else _view.Clear();
         }
 
-        private static string Count(int n) => n == 1 ? "1 item" : $"{n:N0} items";
 
         // ================================================================== search
 
@@ -1232,13 +1231,15 @@ namespace Kudupst.Views
             SetKind(ListKind.Mail);
             _mailRows.Replace(Sorted(rows));
             _listTitle.Text = "Search results";
+            // Whole sentences, so they can be put into the language in use.
             string where;
-            if (inFolder) where = " in " + _currentFolder.Name;
-            else if (scope == 0) where = _files.Count > 1 ? $" in all {_files.Count} open files" : string.Empty;
-            else where = _file != null ? (_files.Count > 1 ? " in " + _file.Name : string.Empty) : " in the single emails";
+            if (inFolder) where = _currentFolder.Name;
+            else if (scope == 0) where = _files.Count > 1 ? Lang.T("all {0} open files", _files.Count) : string.Empty;
+            else where = _file != null ? (_files.Count > 1 ? _file.Name : string.Empty) : Lang.T("the single emails");
             var building = files.Any(f => f.Index != null && !f.Index.Complete);
-            _status.Text = (rows.Count == 0 ? "Nothing found" : rows.Count == 1 ? "1 item found" : $"{rows.Count:N0} items found") + where +
-                           (building ? " so far (the search index is still being made)" : string.Empty);
+            var found = rows.Count == 0 ? Lang.T("Nothing found") : rows.Count == 1 ? Lang.T("1 item found") : Lang.T("{0} items found", rows.Count.ToString("N0"));
+            _status.Text = (where.Length > 0 ? Lang.T("{0} in {1}", found, where) : found) +
+                           (building ? " " + Lang.T("so far (the search index is still being made)") : string.Empty);
             if (rows.Count > 0) _list.SelectedIndex = 0;
             else _view.Clear();
         }

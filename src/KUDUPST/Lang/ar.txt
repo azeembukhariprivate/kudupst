@@ -1,0 +1,583 @@
+Something went wrong:\n\n{0}	حدث خطأ ما:\n\n{0}
+Azeem Bukhari	Azeem Bukhari
+less than a second	أقل من ثانية
+{0} h {1} min	{0} س {1} د
+{0} min {1} s	{0} د {1} ث
+This email file is too big to open (over 300 MB).	ملف البريد هذا أكبر من أن يُفتح (أكثر من 300 ميغابايت).
+"{0}" was open last time but isn't there now, so it was left out.	كان "{0}" مفتوحًا في المرة الماضية لكنه لم يعد موجودًا، لذلك تُرك.
+{0} files open last time aren't there now, so they were left out: {1}	{0} ملفات كانت مفتوحة في المرة الماضية لم تعد موجودة، لذلك تُركت: {1}
+Theme	المظهر
+Recent	الأخيرة
+Outlook data file	ملف بيانات Outlook
+Outlook offline data file	ملف بيانات Outlook دون اتصال
+Outlook email	بريد Outlook
+Email message	رسالة بريد
+Open with KUDUPST	فتح باستخدام KUDUPST
+Missing theme resource {0}	Missing theme resource {0}
+Light	فاتح
+Styles	Styles
+Dark	داكن
+Application	Application
+,PREF	,PREF
+WORK	WORK
+HOME	HOME
+POSTAL	POSTAL
+Contact group members:\n{0}	Contact group members:\n{0}
+Title	Title
+First Name	First Name
+Middle Name	Middle Name
+Last Name	Last Name
+Suffix	Suffix
+Nickname	اللقب
+Company	الشركة
+Department	القسم
+Job Title	Job Title
+Office Location	Office Location
+Manager's Name	Manager's Name
+Assistant's Name	Assistant's Name
+Business Street	Business Street
+Business City	Business City
+Business State	Business State
+Business Postal Code	Business Postal Code
+Business Country/Region	Business Country/Region
+Home Street	Home Street
+Home City	Home City
+Home State	Home State
+Home Postal Code	Home Postal Code
+Home Country/Region	Home Country/Region
+Other Street	Other Street
+Other City	Other City
+Other State	Other State
+Other Postal Code	Other Postal Code
+Other Country/Region	Other Country/Region
+Assistant's Phone	Assistant's Phone
+Business Fax	Business Fax
+Business Phone	Business Phone
+Business Phone 2	Business Phone 2
+Car Phone	Car Phone
+Company Main Phone	Company Main Phone
+Home Fax	Home Fax
+Home Phone	Home Phone
+Home Phone 2	Home Phone 2
+Mobile Phone	Mobile Phone
+Other Phone	Other Phone
+Pager	Pager
+Primary Phone	Primary Phone
+E-mail Address	E-mail Address
+E-mail Display Name	E-mail Display Name
+E-mail 2 Address	E-mail 2 Address
+E-mail 2 Display Name	E-mail 2 Display Name
+E-mail 3 Address	E-mail 3 Address
+E-mail 3 Display Name	E-mail 3 Display Name
+Anniversary	ذكرى الزواج
+Birthday	تاريخ الميلاد
+Spouse	Spouse
+Web Page	Web Page
+Personal Web Page	Personal Web Page
+Categories	الفئات
+Notes	ملاحظات
+Contact group members: {0}	Contact group members: {0}
+Work	العمل
+Business	العمل
+Home	المنزل
+Other	أخرى
+{0} Street	{0} Street
+{0} City	{0} City
+{0} State	{0} State
+{0} Postal Code	{0} Postal Code
+E-mail{0} Address	E-mail{0} Address
+E-mail{0} Display Name	E-mail{0} Display Name
+EXDATE{0}	EXDATE{0}
+TRANSPARENT	TRANSPARENT
+OPAQUE	OPAQUE
+FREE	FREE
+TENTATIVE	TENTATIVE
+OOF	OOF
+WORKINGELSEWHERE	WORKINGELSEWHERE
+BUSY	BUSY
+PRIVATE	PRIVATE
+CONFIDENTIAL	CONFIDENTIAL
+PUBLIC	PUBLIC
+OPT-PARTICIPANT	OPT-PARTICIPANT
+NON-PARTICIPANT	NON-PARTICIPANT
+REQ-PARTICIPANT	REQ-PARTICIPANT
+ACCEPTED	ACCEPTED
+DECLINED	DECLINED
+NEEDS-ACTION	NEEDS-ACTION
+Reminder	التذكير
+mailto:{0}	mailto:{0}
+Time zone	المنطقة الزمنية
+PDF is saved by the app window.	PDF is saved by the app window.
+{0}.eml	{0}.eml
+Folder	المجلد
+Date	التاريخ
+From	من
+From address	عنوان المرسل
+To	إلى
+Cc	نسخة
+Subject	الموضوع
+Size (KB)	الحجم (كيلوبايت)
+Attachments	المرفقات
+Read	مقروء
+Type	النوع
+Yes	نعم
+No	لا
+Exported items	Exported items
+{0}.unfinished	{0}.unfinished
+(no subject)	(بلا موضوع)
+Free	متاح
+Tentative	مبدئي
+Away	خارج المكتب
+Working elsewhere	يعمل في مكان آخر
+Busy	مشغول
+Organiser	المنظّم
+Accepted	قُبل
+Declined	رُفض
+No reply	لا رد
+Optional	اختياري
+Room or equipment	غرفة أو معدات
+Required	مطلوب
+Sunday	الأحد
+Monday	الاثنين
+Tuesday	الثلاثاء
+Wednesday	الأربعاء
+Thursday	الخميس
+Friday	الجمعة
+Saturday	السبت
+{0} and {1}	{0} and {1}
+Every {0}	Every {0}
+Every {0} {1}	Every {0} {1}
+first	first
+Every weekday	Every weekday
+Every {0} weeks on {1}	Every {0} weeks on {1}
+{1} on day {0}	{1} on day {0}
+{3} on the {0} {1} of {2}	{3} on the {0} {1} of {2}
+{2} on the {0} {1}	{2} on the {0} {1}
+{1} on the last day of {0}	{1} on the last day of {0}
+{0} on the last day	{0} on the last day
+Repeats	يتكرر
+, once	, once
+, {0} times	, {0} times
+, until {0}	, until {0}
+The repeat details are damaged.	تفاصيل التكرار تالفة.
+Mobile	الجوال
+Business 2	العمل 2
+Home 2	المنزل 2
+Business fax	فاكس العمل
+Home fax	فاكس المنزل
+Car	السيارة
+Primary	الرئيسي
+Company main	الرقم الرئيسي للشركة
+Assistant	المساعد
+Keywords	الكلمات المفتاحية
+Bcc	Bcc
+Sender	Sender
+ddd, dd MMM yyyy HH:mm:ss '+0000'	ddd, dd MMM yyyy HH:mm:ss '+0000'
+References	References
+Importance	الأهمية
+high	high
+low	low
+This is a message in MIME format.	This is a message in MIME format.
+Content-Transfer-Encoding: quoted-printable	Content-Transfer-Encoding: quoted-printable
+Content-Type: message/rfc822	Content-Type: message/rfc822
+Content-Disposition: attachment	Content-Disposition: attachment
+Content-Transfer-Encoding: base64	Content-Transfer-Encoding: base64
+inline	inline
+attachment	attachment
+Content-ID: <	Content-ID: <
+(\\r?\\n[ \\t]*){3,}	(\\r?\\n[ \\t]*){3,}
+default-src 'none'; img-src * data: blob:; style-src * 'unsafe-inline'; font-src * data:; media-src *	default-src 'none'; img-src * data: blob:; style-src * 'unsafe-inline'; font-src * data:; media-src *
+default-src 'none'; img-src data: blob: {0}; style-src 'unsafe-inline' {1}; font-src data:	default-src 'none'; img-src data: blob: {0}; style-src 'unsafe-inline' {1}; font-src data:
+Deleted	محذوف
+Found inside the file (it was in {0}).	وُجد داخل الملف (كان في {0}).
+Found inside the file.	وُجد داخل الملف.
+Only part of it is left: some text, recipients or attachments may be missing.	لم يبقَ منه إلا جزء: قد يكون بعض النص أو المستلمين أو المرفقات مفقودًا.
+1 member	عضو واحد
+{0} members	{0} أعضاء
+Sent by	أُرسل نيابة عن
+Sent	أُرسل
+High	عالية
+Sensitivity	الخصوصية
+Private	خاص
+Confidential	سري
+" title="Open">	" title="Open">
+Full name	الاسم الكامل
+File as	الحفظ باسم
+Job title	المسمى الوظيفي
+Office	المكتب
+Profession	المهنة
+Email	البريد الإلكتروني
+{0} phone	هاتف {0}
+{0} address	عنوان {0}
+Web page	صفحة الويب
+Chat address	عنوان الدردشة
+Partner	الشريك
+Manager	المدير
+When	متى
+Where	أين
+Attendees	الحضور
+None	لا شيء
+Show as	الظهور كـ
+{0}, all day	{0}، طوال اليوم
+When it starts	عند البدء
+1 week before	قبل أسبوع
+{0} weeks before	قبل {0} أسابيع
+1 day before	قبل يوم
+{0} days before	قبل {0} أيام
+1 hour before	قبل ساعة
+{0} hours before	قبل {0} ساعات
+1 minute before	قبل دقيقة
+{0} minutes before	قبل {0} دقائق
+{0} bytes	{0} بايت
+Meeting request	طلب اجتماع
+Appointment	موعد
+Contact	جهة اتصال
+Contact group	مجموعة جهات اتصال
+Task	مهمة
+Note	ملاحظة
+Journal entry	إدخال يومية
+Delivery report	تقرير تسليم
+Item	عنصر
+Received	استُلم
+Attached email	بريد مرفق
+This isn't an Outlook .msg file.	هذا ليس ملف .msg من Outlook.
+This .msg file is damaged.	ملف .msg هذا تالف.
+This Outlook data file is damaged: an item's contents are unreadable.	ملف بيانات Outlook هذا تالف: تعذّرت قراءة محتوى أحد العناصر.
+This Outlook data file is damaged: an index inside an item is unreadable.	ملف بيانات Outlook هذا تالف: تعذّرت قراءة فهرس داخل أحد العناصر.
+This Outlook data file is damaged: an item's properties are unreadable.	ملف بيانات Outlook هذا تالف: تعذّرت قراءة خصائص أحد العناصر.
+This Outlook data file is damaged: a list of items is unreadable.	ملف بيانات Outlook هذا تالف: تعذّرت قراءة قائمة عناصر.
+A block holds 1 to 8176 bytes.	A block holds 1 to 8176 bytes.
+This item is too big to save in an Outlook data file.	هذا العنصر أكبر من أن يُحفظ في ملف بيانات Outlook.
+This item has too many parts to save in an Outlook data file.	لهذا العنصر أجزاء أكثر من أن يُحفظ في ملف بيانات Outlook.
+This file is too small to be an Outlook data file.	هذا الملف أصغر من أن يكون ملف بيانات Outlook.
+This isn't an Outlook data file (.pst or .ost).	هذا ليس ملف بيانات Outlook (.pst أو .ost).
+This Outlook data file uses a format KUDUPST doesn't know (version {0}).	يستخدم ملف بيانات Outlook هذا صيغة لا يعرفها KUDUPST (الإصدار {0}).
+This Outlook data file uses an unknown kind of encryption.	يستخدم ملف بيانات Outlook هذا نوع تشفير غير معروف.
+This Outlook data file is damaged: its index is missing.	ملف بيانات Outlook هذا تالف: فهرسه مفقود.
+This Outlook data file is damaged: an index page is outside the file.	ملف بيانات Outlook هذا تالف: إحدى صفحات الفهرس خارج الملف.
+This Outlook data file is cut short.	ملف بيانات Outlook هذا ناقص.
+This Outlook data file is damaged: an index page is unreadable.	ملف بيانات Outlook هذا تالف: تعذّرت قراءة إحدى صفحات الفهرس.
+This Outlook data file is damaged: its index is too deep.	ملف بيانات Outlook هذا تالف: فهرسه عميق جدًا.
+This Outlook data file is damaged: item {0} is missing.	ملف بيانات Outlook هذا تالف: العنصر {0} مفقود.
+This Outlook data file is damaged: block {0} is missing.	ملف بيانات Outlook هذا تالف: الكتلة {0} مفقودة.
+This Outlook data file is damaged: a block is outside the file.	ملف بيانات Outlook هذا تالف: إحدى الكتل خارج الملف.
+This Outlook data file is damaged: a compressed block is unreadable.	ملف بيانات Outlook هذا تالف: تعذّرت قراءة كتلة مضغوطة.
+This Outlook data file is damaged: a block list is unreadable.	ملف بيانات Outlook هذا تالف: تعذّرت قراءة قائمة كتل.
+This Outlook data file is damaged: a list of item parts is unreadable.	ملف بيانات Outlook هذا تالف: تعذّرت قراءة قائمة أجزاء عنصر.
+Too big for a heap: {0}	Too big for a heap: {0}
+Replace keeps the length.	Replace keeps the length.
+Found deleted items	العناصر المحذوفة التي وُجدت
+Personal Folders	Personal Folders
+Top of Personal Folders	Top of Personal Folders
+Search Root	Search Root
+Deleted Items	Deleted Items
+The file is already finished.	The file is already finished.
+SMTP	SMTP
+Attachment	مرفق
+{0}.tmp	{0}.tmp
+Not an index file.	ليس ملف فهرس.
+The search index is damaged.	فهرس البحث تالف.
+Index	Index
+KUDUPST index	KUDUPST index
+KUDUPST index (found items)	KUDUPST index (found items)
+Indexing for search… {0:P0}	Indexing for search… {0:P0}
+Indexing for search…	جارٍ تجهيز البحث…
+Error message shown: {0}	Error message shown: {0}
+All files	كل الملفات
+Save	حفظ
+Cancel	إلغاء
+Keep the folder structure (a folder for each Outlook folder)	الإبقاء على بنية المجلدات (مجلد لكل مجلد في Outlook)
+Put all emails in one PDF file (with a bookmark for each)	وضع كل الرسائل في ملف PDF واحد (مع إشارة مرجعية لكل منها)
+Also save pictures that are part of the email text (logos and the like)	حفظ الصور التي هي جزء من نص الرسالة أيضًا (الشعارات وما شابه)
+Export · KUDUPST	تصدير · KUDUPST
+contacts	جهات الاتصال
+calendar items	عناصر التقويم
+emails	الرسائل
+Export	تصدير
+Save as	الحفظ كـ
+Contacts (.vcf)	جهات الاتصال (.vcf)
+All the contacts in one vCard file, for phones, Google Contacts, Apple Contacts, Thunderbird and Outlook.	كل جهات الاتصال في ملف vCard واحد، للهواتف وGoogle Contacts وApple Contacts وThunderbird وOutlook.
+Contacts list (CSV)	قائمة جهات الاتصال (CSV)
+A CSV file with the columns Outlook and Google Contacts use when importing contacts.	ملف CSV بالأعمدة التي يستخدمها Outlook وGoogle Contacts عند استيراد جهات الاتصال.
+Calendar (.ics)	التقويم (.ics)
+All the calendar items in one file, for Google Calendar, Apple Calendar, Thunderbird and Outlook. Repeating items keep their pattern.	كل عناصر التقويم في ملف واحد، لـ Google Calendar وApple Calendar وThunderbird وOutlook. العناصر المتكررة تحتفظ بنمطها.
+Email files (.eml)	ملفات بريد (.eml)
+One file per email, with its attachments inside. Opens in Outlook, Thunderbird, Windows Mail and other mail programs.	ملف لكل رسالة، ومرفقاتها بداخله. يُفتح في Outlook وThunderbird وWindows Mail وبرامج البريد الأخرى.
+Outlook file (.pst)	ملف Outlook (.pst)
+One new Outlook data file with the folders and everything in them. The file you opened isn't changed.	ملف بيانات Outlook جديد بالمجلدات وكل ما فيها. الملف الذي فتحته لا يتغير.
+Each email as a PDF, looking as it does on screen, with a list of its attachments.	كل رسالة كملف PDF، كما تظهر على الشاشة، مع قائمة بمرفقاتها.
+Attachments only	المرفقات فقط
+The attached files, without the emails.	الملفات المرفقة، دون الرسائل.
+List (CSV)	قائمة (CSV)
+A list of the emails for Excel: date, from, to, subject, size and attachment names.	قائمة بالرسائل لبرنامج Excel: التاريخ والمرسل والمستلم والموضوع والحجم وأسماء المرفقات.
+Which {0}	أي {0}
+calendar item	عنصر تقويم
+contact	جهة الاتصال
+email	الرسالة
+The selected {0}	{0} المحدد
+The {0} selected {1}	الـ {0} {1} المحددة
+The search results ({0})	نتائج البحث ({0})
+The folder "{0}" ({1})	المجلد "{0}" ({1})
+"{0}" and the folders in it	"{0}" والمجلدات التي بداخله
+Everything in "{0}"	كل ما في "{0}"
+Everything in the file	كل ما في الملف
+All {0} single emails	كل الرسائل المنفردة الـ {0}
+This {0}	هذا الـ {0}
+Everything in all {0} open files	كل ما في الملفات المفتوحة الـ {0}
+Choose…	اختيار…
+One .eml file per email, named by date and subject. Attachments stay inside each email.	ملف .eml لكل رسالة، مسمّى بالتاريخ والموضوع. تبقى المرفقات داخل كل رسالة.
+One new .pst file with the folders, emails with their attachments, contacts and calendar items. In Outlook: File, Open & Export, Open Outlook Data File.	ملف .pst جديد بالمجلدات والرسائل مع مرفقاتها وجهات الاتصال وعناصر التقويم. في Outlook: ملف، فتح وتصدير، فتح ملف بيانات Outlook.
+Pictures from the internet are left out, as in the reading pane.	تُستبعد الصور من الإنترنت، كما في جزء القراءة.
+Saving as PDF needs Microsoft Edge WebView2, which isn't installed (it's free from Microsoft).	الحفظ كملف PDF يحتاج إلى Microsoft Edge WebView2، وهو غير مثبّت (مجاني من Microsoft).
+Files with the same name are numbered: "report (2).pdf". Attached emails are saved as .eml files.	الملفات ذات الاسم نفسه تُرقَّم: "report (2).pdf". الرسائل المرفقة تُحفظ كملفات .eml.
+One .vcf file with every contact, photos included. Contact groups are kept with their members.	ملف .vcf واحد بكل جهات الاتصال، مع الصور. تُحفظ مجموعات جهات الاتصال مع أعضائها.
+One row per contact, ready to import into Outlook or Google Contacts. Group members are listed in the notes.	صف لكل جهة اتصال، جاهز للاستيراد في Outlook أو Google Contacts. أعضاء المجموعات مذكورون في الملاحظات.
+One .ics file with every calendar item: repeats, skipped and moved times, reminders, attendees and time zones are kept.	ملف .ics واحد بكل عناصر التقويم: يُحتفظ بالتكرارات والأوقات المتخطاة والمنقولة والتذكيرات والحضور والمناطق الزمنية.
+One row per email. Opens in Excel and other spreadsheet programs.	صف لكل رسالة. يُفتح في Excel وبرامج الجداول الأخرى.
+Choose where to save	اختر مكان الحفظ
+Emails	الرسائل
+Search results	نتائج البحث
+All open files	كل الملفات المفتوحة
+Choose where to save.	اختر مكان الحفظ.
+Saving as PDF needs Microsoft Edge WebView2. It's free from Microsoft: {0}	الحفظ كملف PDF يحتاج إلى Microsoft Edge WebView2. إنه مجاني من Microsoft: {0}
+That folder can't be used: {0}	لا يمكن استخدام ذلك المجلد: {0}
+The emails couldn't be listed: {0}	تعذّر سرد الرسائل: {0}
+There's nothing there to export.	لا يوجد شيء هناك للتصدير.
+{0}.pst	{0}.pst
+.vcf	.vcf
+.ics	.ics
+.csv	.csv
+Stop	إيقاف
+Exporting…	جارٍ التصدير…
+{0} items to {1}	{0} عناصر إلى {1}
+{0} of {1}: {2}	{0} من {1}: {2}
+{0}.pdf	{0}.pdf
+{0}: the PDF couldn't be made.	{0}: تعذّر إنشاء ملف PDF.
+The PDF files couldn't be joined: {0}: {1}	تعذّر دمج ملفات PDF: {0}: {1}
+Export stopped	توقف التصدير
+Export finished	انتهى التصدير
+Export finished, with problems	انتهى التصدير، مع مشكلات
+{0} attachments saved from {1} emails.	حُفظ {0} مرفقات من {1} رسائل.
+{0} emails listed in {1}.	سُردت {0} رسائل في {1}.
+{0} saved in {1}.	حُفظ {0} في {1}.
+{0} listed in {1}.	سُرد {0} في {1}.
+{0} read; no file was made.	قُرئ {0}؛ لم يُنشأ أي ملف.
+{0} emails saved in one PDF.	حُفظت {0} رسائل في ملف PDF واحد.
+{0} emails saved.	حُفظت {0} رسائل.
+{0} couldn't be saved:	تعذّر حفظ {0}:
+Show in File Explorer	إظهار في مستكشف الملفات
+Close	إغلاق
+This attached email couldn't be read.	تعذّرت قراءة هذه الرسالة المرفقة.
+"{0}" can run programs on your computer. Only open it if you trust who sent it.\n\nOpen it anyway?	قد يشغّل "{0}" برامج على جهازك. افتحه فقط إذا كنت تثق بمن أرسله.\n\nهل تريد فتحه على أي حال؟
+Couldn't open the attachment.\n\n{0}	تعذّر فتح المرفق.\n\n{0}
+Save the attachment	حفظ المرفق
+Couldn't save the attachment.\n\n{0}	تعذّر حفظ المرفق.\n\n{0}
+Choose a folder for the attachments	اختر مجلدًا للمرفقات
+Save as an email file	الحفظ كملف بريد
+Email file	ملف بريد
+Couldn't save the email.\n\n{0}	تعذّر حفظ الرسالة.\n\n{0}
+Saving as PDF needs Microsoft Edge WebView2, which isn't installed. It's free from Microsoft.	الحفظ كملف PDF يحتاج إلى Microsoft Edge WebView2، وهو غير مثبّت. إنه مجاني من Microsoft.
+Save as PDF	الحفظ كملف PDF
+PDF file	ملف PDF
+Couldn't save the PDF.	تعذّر حفظ ملف PDF.
+Subject: {0}	الموضوع: {0}
+From: {0}	من: {0}
+Sent by: {0}	أُرسل نيابة عن: {0}
+Sent: {0}	أُرسل: {0}
+Received: {0}	استُلم: {0}
+Message ID: {0}	معرّف الرسالة: {0}
+Type: {0}	النوع: {0}
+Size: {0}	الحجم: {0}
+This item has no internet headers (it may have been written in Outlook, or come from Exchange).	ليس لهذا العنصر ترويسات إنترنت (ربما كُتب في Outlook أو جاء من Exchange).
+Details	التفاصيل
+Where the email came from and how it travelled, as its mail servers recorded it.	من أين جاءت الرسالة وكيف انتقلت، كما سجّلتها خوادم البريد.
+Copy	نسخ
+Details · KUDUPST	التفاصيل · KUDUPST
+Open	فتح
+Save as…	الحفظ كـ…
+No attachments	لا مرفقات
+Save all attachments…	حفظ كل المرفقات…
+Open this email in its own window	فتح هذه الرسالة في نافذتها الخاصة
+Save this email as an email file (.eml) or a PDF	حفظ هذه الرسالة كملف بريد (.eml) أو PDF
+Email file (.eml)…	ملف بريد (.eml)…
+PDF…	PDF…
+Open or save this email's attachments	فتح مرفقات هذه الرسالة أو حفظها
+Print	طباعة
+Print this email	طباعة هذه الرسالة
+The internet headers and other details of this email	ترويسات الإنترنت والتفاصيل الأخرى لهذه الرسالة
+{0} - KUDUPST	{0} - KUDUPST
+OK	OK
+Not Found	Not Found
+Blocked	Blocked
+Open this link in your web browser?\n\n{0}	هل تريد فتح هذا الرابط في متصفحك؟\n\n{0}
+Show pictures	إظهار الصور
+Choose an email to read it here.	اختر رسالة لقراءتها هنا.
+Install Microsoft Edge WebView2 (free, from Microsoft) to see emails as they were designed. Showing the text only.	ثبّت Microsoft Edge WebView2 (مجاني، من Microsoft) لرؤية الرسائل كما صُممت. يُعرض النص فقط.
+Pictures from the internet are blocked, so the sender can't tell you've opened this email.	الصور من الإنترنت محجوبة، فلا يستطيع المرسل معرفة أنك فتحت هذه الرسالة.
+From:	من:
+Date:	التاريخ:
+To:	إلى:
+Cc:	نسخة:
+Attachment:	مرفق:
+document.body ? document.body.innerText : ''	document.body ? document.body.innerText : ''
+KUDUPST PDF	KUDUPST PDF
+Search emails	البحث في الرسائل
+With attachments	بها مرفقات
+Show system folders	إظهار مجلدات النظام
+Look deeper for deleted items	البحث بعمق أكبر عن العناصر المحذوفة
+Open…	فتح…
+Open a .pst, .ost, .msg or .eml file, as well as the ones open now (Ctrl+O)	فتح ملف .pst أو .ost أو .msg أو .eml، مع الملفات المفتوحة الآن (Ctrl+O)
+Save emails as email files, PDF, attachments only, or a list for Excel	حفظ الرسائل كملفات بريد أو PDF أو المرفقات فقط أو قائمة لبرنامج Excel
+Settings	الإعدادات
+About	حول
+Folders	المجلدات
+Reads the whole file for what's left of deleted items. Takes longer on big files; some may be only partly there.	يقرأ الملف كله بحثًا عمّا تبقّى من العناصر المحذوفة. يستغرق وقتًا أطول مع الملفات الكبيرة؛ وقد يكون بعضها جزئيًا فقط.
+Close this file	إغلاق هذا الملف
+Close the file shown (the others stay open)	إغلاق الملف المعروض (تبقى الملفات الأخرى مفتوحة)
+Close all	إغلاق الكل
+Close every open file	إغلاق كل ملف مفتوح
+Words to look for in the emails: subject, sender, recipients, text and attachment names	كلمات للبحث عنها في الرسائل: الموضوع والمرسل والمستلمون والنص وأسماء المرفقات
+Search	بحث
+This file	هذا الملف
+This folder	هذا المجلد
+Where to look	أين تبحث
+Everything	كل شيء
+What to look in	فيمَ تبحث
+Dates and attachments	التواريخ والمرفقات
+Filters	عوامل التصفية
+to	إلى
+Clear	مسح
+Sort the list	ترتيب القائمة
+{0} {1} is available	يتوفر {0} {1}
+Open an Outlook data file	فتح ملف بيانات Outlook
+PST and OST files, and single emails saved as .msg or .eml. Outlook isn't needed, and the file is only read, never changed.	ملفات PST وOST، ورسائل منفردة محفوظة بصيغة .msg أو .eml. لا حاجة إلى Outlook، ويُقرأ الملف فقط، دون أن يتغير أبدًا.
+Open a file…	فتح ملف…
+or drop it on this window	أو أفلته على هذه النافذة
+Opened recently	المفتوحة مؤخرًا
+Nothing opened yet	لم يُفتح شيء بعد
+Clear this list	مسح هذه القائمة
+Open an Outlook data file or an email	فتح ملف بيانات Outlook أو رسالة
+Outlook files and emails	ملفات Outlook والرسائل
+Outlook data files (*.pst, *.ost)	ملفات بيانات Outlook (*.pst, *.ost)
+Emails (*.msg, *.eml)	رسائل (*.msg, *.eml)
+That's a folder. Choose a .pst, .ost, .msg or .eml file.	هذا مجلد. اختر ملف .pst أو .ost أو .msg أو .eml.
+Couldn't open "{0}".\n\n{1}	تعذّر فتح "{0}".\n\n{1}
+{0} files	{0} ملفات
+{0} files open	{0} ملفات مفتوحة
+Close "{0}"	إغلاق "{0}"
+Close the single emails	إغلاق الرسائل المنفردة
+Close all files	إغلاق كل الملفات
+Search is limited: the search index of {0} couldn't be made ({1})	البحث محدود: تعذّر إنشاء فهرس البحث لـ {0} ({1})
+Couldn't finish the search index: {0}	تعذّر إكمال فهرس البحث: {0}
+Search ready · {0} items · still making the index of {1}	البحث جاهز · {0} عناصر · لا يزال فهرس {1} قيد الإنشاء
+Search ready · {0} items here, {1} in all open files	البحث جاهز · {0} عناصر هنا، و{1} في كل الملفات المفتوحة
+Search ready · {0} items	البحث جاهز · {0} عناصر
+Making the search index of {0}	جارٍ إنشاء فهرس البحث لـ {0}
+Looking through the whole file…	جارٍ فحص الملف كله…
+Looking through the whole file… {0}	جارٍ فحص الملف كله… {0}
+Stopped looking.	توقف البحث.
+Couldn't look through the whole file: {0}	تعذّر فحص الملف كله: {0}
+Stop looking	إيقاف البحث
+Looked through the whole file: no deleted items left in it.	فُحص الملف كله: لم يبقَ فيه أي عنصر محذوف.
+Looked through the whole file: {0} found ({1} only partly).	فُحص الملف كله: وُجد {0} ({1} جزئيًا فقط).
+Looked through the whole file: {0} found.	فُحص الملف كله: وُجد {0}.
+deleted item	عنصر محذوف
+Some folders of {0} couldn't be read: {1}	تعذّرت قراءة بعض مجلدات {0}: {1}
+Single emails	رسائل منفردة
+1 email file	ملف بريد واحد
+{0} email files	{0} ملفات بريد
+Reading the folder…	جارٍ قراءة المجلد…
+This folder couldn't be read: {0}	تعذّرت قراءة هذا المجلد: {0}
+A search folder: Outlook keeps its results elsewhere, so it has nothing to show here.	مجلد بحث: يحتفظ Outlook بنتائجه في مكان آخر، لذا لا يوجد ما يُعرض هنا.
+{0} in {1} ({2})	{0} في {1} ({2})
+{0} in {1}	{0} في {1}
+Searching…	جارٍ البحث…
+Single emails › {0}	رسائل منفردة › {0}
+The search didn't work: {0}	لم ينجح البحث: {0}
+all {0} open files	كل الملفات المفتوحة الـ {0}
+the single emails	الرسائل المنفردة
+Nothing found	لم يُعثر على شيء
+1 item found	وُجد عنصر واحد
+{0} items found	وُجد {0} عناصر
+so far (the search index is still being made)	حتى الآن (لا يزال فهرس البحث قيد الإنشاء)
+Newest first	الأحدث أولًا
+Oldest first	الأقدم أولًا
+Largest first	الأكبر أولًا
+Name	الاسم
+Contacts	جهات الاتصال
+Calendar	التقويم
+{0} selected	{0} محددة
+This item couldn't be read: {0}	تعذّرت قراءة هذا العنصر: {0}
+This item couldn't be read.\n\n{0}	تعذّرت قراءة هذا العنصر.\n\n{0}
+Open in its own window	فتح في نافذته الخاصة
+Export the {0} selected…	تصدير الـ {0} المحددة…
+Export…	تصدير…
+Settings · KUDUPST	الإعدادات · KUDUPST
+Appearance	المظهر
+Same as Windows	مثل Windows
+Language	اللغة
+Privacy	الخصوصية
+Always show pictures from the internet in emails	إظهار الصور من الإنترنت في الرسائل دائمًا
+Off: they're blocked until you click "Show pictures", so senders can't tell you opened their email.	متوقف: تُحجب حتى تنقر "إظهار الصور"، فلا يعرف المرسلون أنك فتحت رسائلهم.
+File Explorer	مستكشف الملفات
+Add "Open with KUDUPST" to the right-click menu of .pst, .ost, .msg and .eml files	إضافة "Open with KUDUPST" إلى قائمة النقر بزر الماوس الأيمن لملفات .pst و.ost و.msg و.eml
+Open these files in KUDUPST when they're double-clicked	فتح هذه الملفات في KUDUPST عند النقر عليها مرتين
+For your Windows account only. If you chose another program in Windows' "Open with", Windows keeps that choice. On Windows 11 the menu is under "Show more options".	لحسابك في Windows فقط. إذا اخترت برنامجًا آخر في "فتح باستخدام" في Windows، يحتفظ Windows بذلك الاختيار. في Windows 11 تجدها تحت "إظهار المزيد من الخيارات".
+Search indexes use {0} in your AppData folder. They're never stored next to your files.	تستخدم فهارس البحث {0} في مجلد AppData. لا تُحفظ أبدًا بجانب ملفاتك.
+Delete all search indexes	حذف كل فهارس البحث
+Delete the search indexes? They're made again when you next open a file.	هل تريد حذف فهارس البحث؟ ستُنشأ من جديد عندما تفتح ملفًا في المرة القادمة.
+Some indexes are in use and weren't deleted.\n\n{0}	بعض الفهارس قيد الاستخدام ولم تُحذف.\n\n{0}
+Updates	التحديثات
+Check for a new KUDUPST version when it starts	البحث عن إصدار جديد من KUDUPST عند البدء
+Only asks GitHub for the latest version number. Nothing is downloaded without asking.	يسأل GitHub فقط عن رقم أحدث إصدار. لا يُنزَّل شيء دون أن يسألك.
+About KUDUPST	حول KUDUPST
+Password	كلمة المرور
+That's not the password.	هذه ليست كلمة المرور.
+Forgot the password?	نسيت كلمة المرور؟
+Outlook's password only stops Outlook from opening the file; the emails in it aren't locked with it, so KUDUPST can read them anyway.\n\nOnly do this with your own files, or files you're allowed to read.\n\nOpen it without the password?	كلمة مرور Outlook تمنع Outlook فقط من فتح الملف؛ الرسائل فيه غير مقفلة بها، لذا يستطيع KUDUPST قراءتها دونها. استخدم هذا لملفاتك فقط.
+This file has a password	لهذا الملف كلمة مرور
+"{0}" was given a password in Outlook. Type it to open the file.	أُعطي "{0}" كلمة مرور في Outlook. اكتبها لفتح الملف.
+Password · KUDUPST	كلمة المرور · KUDUPST
+KUDUPST	KUDUPST
+Version {0} · Read, search and export Outlook files	الإصدار {0} · قراءة ملفات Outlook والبحث فيها وتصديرها
+Azeem, with Claude and	Azeem, with Claude and
+Made by	Made by
+Licence	الترخيص
+MIT · free and open source	MIT · مجاني ومفتوح المصدر
+View	عرض
+Source code	الشيفرة المصدرية
+Reading files	قراءة الملفات
+Its own reader for Outlook PST and OST files, .msg and .eml emails	قارئه الخاص لملفات Outlook PST وOST، ورسائل .msg و.eml
+Showing emails	عرض الرسائل
+Microsoft Edge WebView2 {0}	Microsoft Edge WebView2 {0}
+Text only (Microsoft Edge WebView2 isn't installed)	نص فقط (Microsoft Edge WebView2 غير مثبّت)
+Third-party	أطراف أخرى
+Third-party notices	إشعارات الأطراف الأخرى
+KUDUPST only reads your files; it never changes them. Search indexes are kept in your AppData folder. Nothing is sent anywhere.	يقرأ KUDUPST ملفاتك فقط؛ ولا يغيّرها أبدًا. تُحفظ فهارس البحث في مجلد AppData. لا يُرسل شيء إلى أي مكان.
+Check for updates	البحث عن تحديثات
+Couldn't find any published version yet.	لم يُعثر على أي إصدار منشور بعد.
+KUDUPST {0} is available. Open the download page?	يتوفر KUDUPST {0}. هل تريد فتح صفحة التنزيل؟
+You have the latest version.	لديك أحدث إصدار.
+Couldn't check for updates. Check your internet connection and try again.	تعذّر البحث عن تحديثات. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.
+Count	العدد
+(no name)	(بلا اسم)
+.msg and .eml files open on their own	ملفات .msg و.eml المفتوحة منفردة
+{0} items, {1} not read	{0} عناصر، {1} غير مقروءة
+All day, {0} days	طوال اليوم، {0} أيام
+All day	طوال اليوم
+Partial	جزئي
+(no sender)	(بلا مرسل)
+(repeats)	(يتكرر)
+In: {0}	في: {0}
+Deleted, and only partly found	محذوف، ووُجد جزئيًا فقط
+Deleted (found inside the file)	محذوف (وُجد داخل الملف)
+Was in {0}	كان في {0}
+{0} ran into a problem it couldn't get past, and has to close.	واجه {0} مشكلة لم يستطع تجاوزها، ويجب أن يُغلق.
+{0} contact	{0} جهة اتصال
+{0} contacts	{0} جهات اتصال
+{0} calendar item	{0} عنصر تقويم
+{0} calendar items	{0} عناصر تقويم
+{0} item	{0} عنصر
+{0} items	{0} عناصر
+{0} deleted item	{0} عنصر محذوف
+{0} deleted items	{0} عناصر محذوفة

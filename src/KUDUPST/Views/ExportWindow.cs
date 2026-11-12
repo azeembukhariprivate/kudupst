@@ -115,14 +115,14 @@ namespace Kudupst.Views
             var formatNote = Ui.Subtle(string.Empty, 12).Margin(0, 6, 0, 0);
             _root.Children.Add(formatNote);
 
-            _root.Children.Add(Ui.Heading("Which " + Noun, 14).Margin(0, 16, 0, 6));
+            _root.Children.Add(Ui.Heading(Lang.T("Which {0}", Lang.T(Noun)), 14).Margin(0, 16, 0, 6));
             var scopes = new StackPanel();
             var main = _main;
             var selected = main.SelectedRows.Count;
             var listed = main.ListedRows.Count;
             var options = new List<(ExportScope, string)>();
-            var one = Noun == "calendar items" ? "calendar item" : Noun.TrimEnd('s');
-            if (selected > 0) options.Add((ExportScope.Selected, selected == 1 ? "The selected " + one : $"The {selected:N0} selected {Noun}"));
+            var one = Noun == "calendar items" ? "calendar item" : Noun == "contacts" ? "contact" : "email";
+            if (selected > 0) options.Add((ExportScope.Selected, selected == 1 ? Lang.T("The selected {0}", Lang.T(one)) : Lang.T("The {0} selected {1}", selected.ToString("N0"), Lang.T(Noun))));
             if (main.Source.IsDataFile)
             {
                 if (main.IsSearching) options.Add((ExportScope.Listed, $"The search results ({listed:N0})"));
@@ -135,7 +135,7 @@ namespace Kudupst.Views
             }
             else if (main.IsSearching) options.Add((ExportScope.Listed, $"The search results ({listed:N0})"));
             else if (listed > 1) options.Add((ExportScope.Listed, $"All {listed:N0} single emails"));
-            else if (options.Count == 0) options.Add((ExportScope.Listed, "This " + one));
+            else if (options.Count == 0) options.Add((ExportScope.Listed, Lang.T("This {0}", Lang.T(one))));
             if (main.Files.Count > 1) options.Add((ExportScope.AllFiles, $"Everything in all {main.Files.Count} open files"));
             if (!options.Any(o => o.Item1 == _scope)) _scope = options[0].Item1;
             foreach (var (scope, text) in options)
@@ -407,7 +407,6 @@ namespace Kudupst.Views
             return result;
         }
 
-        private static string Count(int n, string word) => n == 1 ? "1 " + word : $"{n:N0} {word}s";
 
         private static string BookmarkTitle(MailItem item)
         {
@@ -425,10 +424,10 @@ namespace Kudupst.Views
             {
                 case ExportFormat.Attachments: what = $"{result.Files:N0} attachments saved from {result.Exported:N0} emails."; break;
                 case ExportFormat.Csv: what = $"{result.Exported:N0} emails listed in {Path.GetFileName(options.Destination)}."; break;
-                case ExportFormat.Vcard: what = Count(result.Exported, "contact") + $" saved in {Path.GetFileName(options.Destination)}."; break;
-                case ExportFormat.ContactsCsv: what = Count(result.Exported, "contact") + $" listed in {Path.GetFileName(options.Destination)}."; break;
-                case ExportFormat.Ics: what = Count(result.Exported, "calendar item") + $" saved in {Path.GetFileName(options.Destination)}."; break;
-                case ExportFormat.Pst: what = Count(result.Exported, "item") + (result.Files > 0 ? $" saved in {Path.GetFileName(options.Destination)}." : " read; no file was made."); break;
+                case ExportFormat.Vcard: what = Lang.T("{0} saved in {1}.", Format.Count(result.Exported, "contact"), Path.GetFileName(options.Destination)); break;
+                case ExportFormat.ContactsCsv: what = Lang.T("{0} listed in {1}.", Format.Count(result.Exported, "contact"), Path.GetFileName(options.Destination)); break;
+                case ExportFormat.Ics: what = Lang.T("{0} saved in {1}.", Format.Count(result.Exported, "calendar item"), Path.GetFileName(options.Destination)); break;
+                case ExportFormat.Pst: what = result.Files > 0 ? Lang.T("{0} saved in {1}.", Format.Count(result.Exported, "item"), Path.GetFileName(options.Destination)) : Lang.T("{0} read; no file was made.", Format.Count(result.Exported, "item")); break;
                 case ExportFormat.Pdf when options.CombinePdf: what = $"{result.Exported:N0} emails saved in one PDF."; break;
                 default: what = $"{result.Exported:N0} emails saved."; break;
             }

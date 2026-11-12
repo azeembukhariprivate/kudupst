@@ -1,0 +1,583 @@
+Something went wrong:\n\n{0}	എന്തോ കുഴപ്പം സംഭവിച്ചു:\n\n{0}
+Azeem Bukhari	Azeem Bukhari
+less than a second	ഒരു സെക്കൻഡിൽ താഴെ
+{0} h {1} min	{0} മണി {1} മിനിറ്റ്
+{0} min {1} s	{0} മിനിറ്റ് {1} സെ
+This email file is too big to open (over 300 MB).	ഈ ഇമെയിൽ ഫയൽ തുറക്കാൻ കഴിയാത്തത്ര വലുതാണ് (300 MB-ൽ കൂടുതൽ).
+"{0}" was open last time but isn't there now, so it was left out.	"{0}" കഴിഞ്ഞ തവണ തുറന്നിരുന്നു, പക്ഷേ ഇപ്പോൾ അവിടെയില്ല, അതിനാൽ ഒഴിവാക്കി.
+{0} files open last time aren't there now, so they were left out: {1}	കഴിഞ്ഞ തവണ തുറന്നിരുന്ന {0} ഫയലുകൾ ഇപ്പോൾ അവിടെയില്ല, അതിനാൽ ഒഴിവാക്കി: {1}
+Theme	തീം
+Recent	അടുത്തിടെ
+Outlook data file	Outlook ഡാറ്റ ഫയൽ
+Outlook offline data file	Outlook ഓഫ്‌ലൈൻ ഡാറ്റ ഫയൽ
+Outlook email	Outlook ഇമെയിൽ
+Email message	ഇമെയിൽ സന്ദേശം
+Open with KUDUPST	KUDUPST ഉപയോഗിച്ച് തുറക്കുക
+Missing theme resource {0}	Missing theme resource {0}
+Light	ലൈറ്റ്
+Styles	Styles
+Dark	ഡാർക്ക്
+Application	Application
+,PREF	,PREF
+WORK	WORK
+HOME	HOME
+POSTAL	POSTAL
+Contact group members:\n{0}	Contact group members:\n{0}
+Title	Title
+First Name	First Name
+Middle Name	Middle Name
+Last Name	Last Name
+Suffix	Suffix
+Nickname	വിളിപ്പേര്
+Company	കമ്പനി
+Department	വകുപ്പ്
+Job Title	Job Title
+Office Location	Office Location
+Manager's Name	Manager's Name
+Assistant's Name	Assistant's Name
+Business Street	Business Street
+Business City	Business City
+Business State	Business State
+Business Postal Code	Business Postal Code
+Business Country/Region	Business Country/Region
+Home Street	Home Street
+Home City	Home City
+Home State	Home State
+Home Postal Code	Home Postal Code
+Home Country/Region	Home Country/Region
+Other Street	Other Street
+Other City	Other City
+Other State	Other State
+Other Postal Code	Other Postal Code
+Other Country/Region	Other Country/Region
+Assistant's Phone	Assistant's Phone
+Business Fax	Business Fax
+Business Phone	Business Phone
+Business Phone 2	Business Phone 2
+Car Phone	Car Phone
+Company Main Phone	Company Main Phone
+Home Fax	Home Fax
+Home Phone	Home Phone
+Home Phone 2	Home Phone 2
+Mobile Phone	Mobile Phone
+Other Phone	Other Phone
+Pager	Pager
+Primary Phone	Primary Phone
+E-mail Address	E-mail Address
+E-mail Display Name	E-mail Display Name
+E-mail 2 Address	E-mail 2 Address
+E-mail 2 Display Name	E-mail 2 Display Name
+E-mail 3 Address	E-mail 3 Address
+E-mail 3 Display Name	E-mail 3 Display Name
+Anniversary	വിവാഹ വാർഷികം
+Birthday	ജന്മദിനം
+Spouse	Spouse
+Web Page	Web Page
+Personal Web Page	Personal Web Page
+Categories	വിഭാഗങ്ങൾ
+Notes	കുറിപ്പുകൾ
+Contact group members: {0}	Contact group members: {0}
+Work	ജോലി
+Business	ബിസിനസ്
+Home	വീട്
+Other	മറ്റുള്ളവ
+{0} Street	{0} Street
+{0} City	{0} City
+{0} State	{0} State
+{0} Postal Code	{0} Postal Code
+E-mail{0} Address	E-mail{0} Address
+E-mail{0} Display Name	E-mail{0} Display Name
+EXDATE{0}	EXDATE{0}
+TRANSPARENT	TRANSPARENT
+OPAQUE	OPAQUE
+FREE	FREE
+TENTATIVE	TENTATIVE
+OOF	OOF
+WORKINGELSEWHERE	WORKINGELSEWHERE
+BUSY	BUSY
+PRIVATE	PRIVATE
+CONFIDENTIAL	CONFIDENTIAL
+PUBLIC	PUBLIC
+OPT-PARTICIPANT	OPT-PARTICIPANT
+NON-PARTICIPANT	NON-PARTICIPANT
+REQ-PARTICIPANT	REQ-PARTICIPANT
+ACCEPTED	ACCEPTED
+DECLINED	DECLINED
+NEEDS-ACTION	NEEDS-ACTION
+Reminder	ഓർമ്മപ്പെടുത്തൽ
+mailto:{0}	mailto:{0}
+Time zone	സമയമേഖല
+PDF is saved by the app window.	PDF is saved by the app window.
+{0}.eml	{0}.eml
+Folder	ഫോൾഡർ
+Date	തീയതി
+From	അയച്ചത്
+From address	അയച്ചയാളുടെ വിലാസം
+To	സ്വീകർത്താവ്
+Cc	Cc
+Subject	വിഷയം
+Size (KB)	വലിപ്പം (KB)
+Attachments	അറ്റാച്ച്മെന്റുകൾ
+Read	വായിച്ചത്
+Type	തരം
+Yes	അതെ
+No	ഇല്ല
+Exported items	Exported items
+{0}.unfinished	{0}.unfinished
+(no subject)	(വിഷയമില്ല)
+Free	ഒഴിവ്
+Tentative	ഉറപ്പില്ല
+Away	പുറത്ത്
+Working elsewhere	മറ്റെവിടെയോ ജോലി ചെയ്യുന്നു
+Busy	തിരക്കിൽ
+Organiser	സംഘാടകൻ
+Accepted	സ്വീകരിച്ചു
+Declined	നിരസിച്ചു
+No reply	മറുപടിയില്ല
+Optional	ഐച്ഛികം
+Room or equipment	മുറി അല്ലെങ്കിൽ ഉപകരണം
+Required	ആവശ്യം
+Sunday	ഞായർ
+Monday	തിങ്കൾ
+Tuesday	ചൊവ്വ
+Wednesday	ബുധൻ
+Thursday	വ്യാഴം
+Friday	വെള്ളി
+Saturday	ശനി
+{0} and {1}	{0} and {1}
+Every {0}	Every {0}
+Every {0} {1}	Every {0} {1}
+first	first
+Every weekday	Every weekday
+Every {0} weeks on {1}	Every {0} weeks on {1}
+{1} on day {0}	{1} on day {0}
+{3} on the {0} {1} of {2}	{3} on the {0} {1} of {2}
+{2} on the {0} {1}	{2} on the {0} {1}
+{1} on the last day of {0}	{1} on the last day of {0}
+{0} on the last day	{0} on the last day
+Repeats	ആവർത്തിക്കുന്നു
+, once	, once
+, {0} times	, {0} times
+, until {0}	, until {0}
+The repeat details are damaged.	ആവർത്തന വിവരങ്ങൾ കേടായിരിക്കുന്നു.
+Mobile	മൊബൈൽ
+Business 2	ബിസിനസ് 2
+Home 2	വീട് 2
+Business fax	ബിസിനസ് ഫാക്സ്
+Home fax	വീട്ടിലെ ഫാക്സ്
+Car	വാഹനം
+Primary	പ്രധാനം
+Company main	കമ്പനി പ്രധാന നമ്പർ
+Assistant	സഹായി
+Keywords	കീവേഡുകൾ
+Bcc	Bcc
+Sender	Sender
+ddd, dd MMM yyyy HH:mm:ss '+0000'	ddd, dd MMM yyyy HH:mm:ss '+0000'
+References	References
+Importance	പ്രാധാന്യം
+high	high
+low	low
+This is a message in MIME format.	This is a message in MIME format.
+Content-Transfer-Encoding: quoted-printable	Content-Transfer-Encoding: quoted-printable
+Content-Type: message/rfc822	Content-Type: message/rfc822
+Content-Disposition: attachment	Content-Disposition: attachment
+Content-Transfer-Encoding: base64	Content-Transfer-Encoding: base64
+inline	inline
+attachment	attachment
+Content-ID: <	Content-ID: <
+(\\r?\\n[ \\t]*){3,}	(\\r?\\n[ \\t]*){3,}
+default-src 'none'; img-src * data: blob:; style-src * 'unsafe-inline'; font-src * data:; media-src *	default-src 'none'; img-src * data: blob:; style-src * 'unsafe-inline'; font-src * data:; media-src *
+default-src 'none'; img-src data: blob: {0}; style-src 'unsafe-inline' {1}; font-src data:	default-src 'none'; img-src data: blob: {0}; style-src 'unsafe-inline' {1}; font-src data:
+Deleted	ഇല്ലാതാക്കിയത്
+Found inside the file (it was in {0}).	ഫയലിനുള്ളിൽ കണ്ടെത്തി ({0}-ൽ ആയിരുന്നു).
+Found inside the file.	ഫയലിനുള്ളിൽ കണ്ടെത്തി.
+Only part of it is left: some text, recipients or attachments may be missing.	അതിന്റെ ഒരു ഭാഗം മാത്രമേ ബാക്കിയുള്ളൂ: ചില വാചകമോ സ്വീകർത്താക്കളോ അറ്റാച്ച്മെന്റുകളോ ഇല്ലാതിരിക്കാം.
+1 member	1 അംഗം
+{0} members	{0} അംഗങ്ങൾ
+Sent by	അയച്ചയാൾ (പകരം)
+Sent	അയച്ചത്
+High	ഉയർന്നത്
+Sensitivity	സ്വകാര്യതാ നില
+Private	സ്വകാര്യം
+Confidential	രഹസ്യം
+" title="Open">	" title="Open">
+Full name	മുഴുവൻ പേര്
+File as	ഫയൽ ചെയ്യുന്ന പേര്
+Job title	ജോലിപ്പേര്
+Office	ഓഫീസ്
+Profession	തൊഴിൽ
+Email	ഇമെയിൽ
+{0} phone	{0} ഫോൺ
+{0} address	{0} വിലാസം
+Web page	വെബ് പേജ്
+Chat address	ചാറ്റ് വിലാസം
+Partner	പങ്കാളി
+Manager	മാനേജർ
+When	എപ്പോൾ
+Where	എവിടെ
+Attendees	പങ്കെടുക്കുന്നവർ
+None	ഒന്നുമില്ല
+Show as	ഇങ്ങനെ കാണിക്കുക
+{0}, all day	{0}, ദിവസം മുഴുവൻ
+When it starts	തുടങ്ങുമ്പോൾ
+1 week before	1 ആഴ്ച മുമ്പ്
+{0} weeks before	{0} ആഴ്ച മുമ്പ്
+1 day before	1 ദിവസം മുമ്പ്
+{0} days before	{0} ദിവസം മുമ്പ്
+1 hour before	1 മണിക്കൂർ മുമ്പ്
+{0} hours before	{0} മണിക്കൂർ മുമ്പ്
+1 minute before	1 മിനിറ്റ് മുമ്പ്
+{0} minutes before	{0} മിനിറ്റ് മുമ്പ്
+{0} bytes	{0} ബൈറ്റ്
+Meeting request	മീറ്റിംഗ് ക്ഷണം
+Appointment	അപ്പോയിന്റ്മെന്റ്
+Contact	കോൺടാക്റ്റ്
+Contact group	കോൺടാക്റ്റ് ഗ്രൂപ്പ്
+Task	ജോലി
+Note	കുറിപ്പ്
+Journal entry	ജേണൽ എൻട്രി
+Delivery report	ഡെലിവറി റിപ്പോർട്ട്
+Item	ഇനം
+Received	ലഭിച്ചത്
+Attached email	ഘടിപ്പിച്ച ഇമെയിൽ
+This isn't an Outlook .msg file.	ഇത് ഒരു Outlook .msg ഫയൽ അല്ല.
+This .msg file is damaged.	ഈ .msg ഫയൽ കേടായിരിക്കുന്നു.
+This Outlook data file is damaged: an item's contents are unreadable.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ഒരു ഇനത്തിന്റെ ഉള്ളടക്കം വായിക്കാനാകുന്നില്ല.
+This Outlook data file is damaged: an index inside an item is unreadable.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ഒരു ഇനത്തിനുള്ളിലെ സൂചിക വായിക്കാനാകുന്നില്ല.
+This Outlook data file is damaged: an item's properties are unreadable.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ഒരു ഇനത്തിന്റെ ഗുണങ്ങൾ വായിക്കാനാകുന്നില്ല.
+This Outlook data file is damaged: a list of items is unreadable.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ഇനങ്ങളുടെ ഒരു പട്ടിക വായിക്കാനാകുന്നില്ല.
+A block holds 1 to 8176 bytes.	A block holds 1 to 8176 bytes.
+This item is too big to save in an Outlook data file.	ഈ ഇനം ഒരു Outlook ഡാറ്റ ഫയലിൽ സേവ് ചെയ്യാനാകാത്തത്ര വലുതാണ്.
+This item has too many parts to save in an Outlook data file.	ഈ ഇനത്തിന് ഒരു Outlook ഡാറ്റ ഫയലിൽ സേവ് ചെയ്യാനാകാത്തത്ര ഭാഗങ്ങളുണ്ട്.
+This file is too small to be an Outlook data file.	ഈ ഫയൽ ഒരു Outlook ഡാറ്റ ഫയലാകാൻ വളരെ ചെറുതാണ്.
+This isn't an Outlook data file (.pst or .ost).	ഇത് ഒരു Outlook ഡാറ്റ ഫയൽ (.pst അല്ലെങ്കിൽ .ost) അല്ല.
+This Outlook data file uses a format KUDUPST doesn't know (version {0}).	ഈ Outlook ഡാറ്റ ഫയൽ KUDUPST-ന് അറിയാത്ത ഒരു രീതിയിലാണ് (പതിപ്പ് {0}).
+This Outlook data file uses an unknown kind of encryption.	ഈ Outlook ഡാറ്റ ഫയൽ അറിയാത്ത ഒരു തരം എൻക്രിപ്ഷൻ ഉപയോഗിക്കുന്നു.
+This Outlook data file is damaged: its index is missing.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: അതിന്റെ സൂചിക കാണാനില്ല.
+This Outlook data file is damaged: an index page is outside the file.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ഒരു സൂചിക പേജ് ഫയലിന് പുറത്താണ്.
+This Outlook data file is cut short.	ഈ Outlook ഡാറ്റ ഫയൽ പൂർണ്ണമല്ല.
+This Outlook data file is damaged: an index page is unreadable.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ഒരു സൂചിക പേജ് വായിക്കാനാകുന്നില്ല.
+This Outlook data file is damaged: its index is too deep.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: അതിന്റെ സൂചിക വളരെ ആഴമുള്ളതാണ്.
+This Outlook data file is damaged: item {0} is missing.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ഇനം {0} കാണാനില്ല.
+This Outlook data file is damaged: block {0} is missing.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ബ്ലോക്ക് {0} കാണാനില്ല.
+This Outlook data file is damaged: a block is outside the file.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ഒരു ബ്ലോക്ക് ഫയലിന് പുറത്താണ്.
+This Outlook data file is damaged: a compressed block is unreadable.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ചുരുക്കിയ ഒരു ബ്ലോക്ക് വായിക്കാനാകുന്നില്ല.
+This Outlook data file is damaged: a block list is unreadable.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ഒരു ബ്ലോക്ക് പട്ടിക വായിക്കാനാകുന്നില്ല.
+This Outlook data file is damaged: a list of item parts is unreadable.	ഈ Outlook ഡാറ്റ ഫയൽ കേടായി: ഇനഭാഗങ്ങളുടെ ഒരു പട്ടിക വായിക്കാനാകുന്നില്ല.
+Too big for a heap: {0}	Too big for a heap: {0}
+Replace keeps the length.	Replace keeps the length.
+Found deleted items	കണ്ടെത്തിയ ഇല്ലാതാക്കിയ ഇനങ്ങൾ
+Personal Folders	Personal Folders
+Top of Personal Folders	Top of Personal Folders
+Search Root	Search Root
+Deleted Items	Deleted Items
+The file is already finished.	The file is already finished.
+SMTP	SMTP
+Attachment	അറ്റാച്ച്മെന്റ്
+{0}.tmp	{0}.tmp
+Not an index file.	ഇതൊരു സൂചിക ഫയലല്ല.
+The search index is damaged.	തിരയൽ സൂചിക കേടായിരിക്കുന്നു.
+Index	Index
+KUDUPST index	KUDUPST index
+KUDUPST index (found items)	KUDUPST index (found items)
+Indexing for search… {0:P0}	Indexing for search… {0:P0}
+Indexing for search…	തിരയലിനായി സൂചിക ഉണ്ടാക്കുന്നു…
+Error message shown: {0}	Error message shown: {0}
+All files	എല്ലാ ഫയലുകളും
+Save	സേവ് ചെയ്യുക
+Cancel	റദ്ദാക്കുക
+Keep the folder structure (a folder for each Outlook folder)	ഫോൾഡർ ഘടന നിലനിർത്തുക (ഓരോ Outlook ഫോൾഡറിനും ഒരു ഫോൾഡർ)
+Put all emails in one PDF file (with a bookmark for each)	എല്ലാ ഇമെയിലുകളും ഒരു PDF ഫയലിൽ ഇടുക (ഓരോന്നിനും ഒരു ബുക്ക്മാർക്കോടെ)
+Also save pictures that are part of the email text (logos and the like)	ഇമെയിൽ വാചകത്തിന്റെ ഭാഗമായ ചിത്രങ്ങളും സേവ് ചെയ്യുക (ലോഗോകളും മറ്റും)
+Export · KUDUPST	എക്സ്പോർട്ട് · KUDUPST
+contacts	കോൺടാക്റ്റുകൾ
+calendar items	കലണ്ടർ ഇനങ്ങൾ
+emails	ഇമെയിലുകൾ
+Export	എക്സ്പോർട്ട്
+Save as	ഇങ്ങനെ സേവ് ചെയ്യുക
+Contacts (.vcf)	കോൺടാക്റ്റുകൾ (.vcf)
+All the contacts in one vCard file, for phones, Google Contacts, Apple Contacts, Thunderbird and Outlook.	എല്ലാ കോൺടാക്റ്റുകളും ഒരു vCard ഫയലിൽ, ഫോണുകൾക്കും Google Contacts, Apple Contacts, Thunderbird, Outlook എന്നിവയ്ക്കും.
+Contacts list (CSV)	കോൺടാക്റ്റ് പട്ടിക (CSV)
+A CSV file with the columns Outlook and Google Contacts use when importing contacts.	കോൺടാക്റ്റുകൾ ഇമ്പോർട്ട് ചെയ്യുമ്പോൾ Outlook-ഉം Google Contacts-ഉം ഉപയോഗിക്കുന്ന കോളങ്ങളുള്ള ഒരു CSV ഫയൽ.
+Calendar (.ics)	കലണ്ടർ (.ics)
+All the calendar items in one file, for Google Calendar, Apple Calendar, Thunderbird and Outlook. Repeating items keep their pattern.	എല്ലാ കലണ്ടർ ഇനങ്ങളും ഒരു ഫയലിൽ, Google Calendar, Apple Calendar, Thunderbird, Outlook എന്നിവയ്ക്ക്. ആവർത്തിക്കുന്ന ഇനങ്ങൾ അവയുടെ രീതി നിലനിർത്തുന്നു.
+Email files (.eml)	ഇമെയിൽ ഫയലുകൾ (.eml)
+One file per email, with its attachments inside. Opens in Outlook, Thunderbird, Windows Mail and other mail programs.	ഓരോ ഇമെയിലിനും ഒരു ഫയൽ, അറ്റാച്ച്മെന്റുകൾ ഉള്ളിൽ. Outlook, Thunderbird, Windows Mail തുടങ്ങിയ മെയിൽ പ്രോഗ്രാമുകളിൽ തുറക്കും.
+Outlook file (.pst)	Outlook ഫയൽ (.pst)
+One new Outlook data file with the folders and everything in them. The file you opened isn't changed.	ഫോൾഡറുകളും അവയിലുള്ളതെല്ലാമുള്ള ഒരു പുതിയ Outlook ഡാറ്റ ഫയൽ. നിങ്ങൾ തുറന്ന ഫയൽ മാറ്റില്ല.
+Each email as a PDF, looking as it does on screen, with a list of its attachments.	ഓരോ ഇമെയിലും സ്ക്രീനിൽ കാണുന്നതുപോലെ ഒരു PDF ആയി, അറ്റാച്ച്മെന്റുകളുടെ പട്ടികയോടെ.
+Attachments only	അറ്റാച്ച്മെന്റുകൾ മാത്രം
+The attached files, without the emails.	ഇമെയിലുകളില്ലാതെ, ഘടിപ്പിച്ച ഫയലുകൾ മാത്രം.
+List (CSV)	പട്ടിക (CSV)
+A list of the emails for Excel: date, from, to, subject, size and attachment names.	Excel-നായി ഇമെയിലുകളുടെ ഒരു പട്ടിക: തീയതി, അയച്ചയാൾ, സ്വീകർത്താവ്, വിഷയം, വലിപ്പം, അറ്റാച്ച്മെന്റ് പേരുകൾ.
+Which {0}	ഏത് {0}
+calendar item	കലണ്ടർ ഇനം
+contact	കോൺടാക്റ്റ്
+email	ഇമെയിൽ
+The selected {0}	തിരഞ്ഞെടുത്ത {0}
+The {0} selected {1}	തിരഞ്ഞെടുത്ത {0} {1}
+The search results ({0})	തിരയൽ ഫലങ്ങൾ ({0})
+The folder "{0}" ({1})	"{0}" ഫോൾഡർ ({1})
+"{0}" and the folders in it	"{0}"-ഉം അതിനുള്ളിലെ ഫോൾഡറുകളും
+Everything in "{0}"	"{0}"-ലുള്ളതെല്ലാം
+Everything in the file	ഫയലിലുള്ളതെല്ലാം
+All {0} single emails	എല്ലാ {0} ഒറ്റ ഇമെയിലുകളും
+This {0}	ഈ {0}
+Everything in all {0} open files	തുറന്ന {0} ഫയലുകളിലുള്ളതെല്ലാം
+Choose…	തിരഞ്ഞെടുക്കുക…
+One .eml file per email, named by date and subject. Attachments stay inside each email.	ഓരോ ഇമെയിലിനും ഒരു .eml ഫയൽ, തീയതിയും വിഷയവും ചേർന്ന പേരിൽ. അറ്റാച്ച്മെന്റുകൾ ഓരോ ഇമെയിലിനുള്ളിലും ഉണ്ടാകും.
+One new .pst file with the folders, emails with their attachments, contacts and calendar items. In Outlook: File, Open & Export, Open Outlook Data File.	ഫോൾഡറുകൾ, അറ്റാച്ച്മെന്റുകളോടുകൂടിയ ഇമെയിലുകൾ, കോൺടാക്റ്റുകൾ, കലണ്ടർ ഇനങ്ങൾ എന്നിവയുള്ള ഒരു പുതിയ .pst ഫയൽ. Outlook-ൽ: File, Open & Export, Open Outlook Data File.
+Pictures from the internet are left out, as in the reading pane.	വായനാ പാളിയിലെന്നപോലെ, ഇന്റർനെറ്റിൽ നിന്നുള്ള ചിത്രങ്ങൾ ഒഴിവാക്കുന്നു.
+Saving as PDF needs Microsoft Edge WebView2, which isn't installed (it's free from Microsoft).	PDF ആയി സേവ് ചെയ്യാൻ Microsoft Edge WebView2 വേണം, അത് ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല (Microsoft-ൽ നിന്ന് സൗജന്യം).
+Files with the same name are numbered: "report (2).pdf". Attached emails are saved as .eml files.	ഒരേ പേരുള്ള ഫയലുകൾക്ക് നമ്പർ നൽകും: "report (2).pdf". ഘടിപ്പിച്ച ഇമെയിലുകൾ .eml ഫയലുകളായി സേവ് ചെയ്യും.
+One .vcf file with every contact, photos included. Contact groups are kept with their members.	ഫോട്ടോകൾ ഉൾപ്പെടെ എല്ലാ കോൺടാക്റ്റുകളുമുള്ള ഒരു .vcf ഫയൽ. കോൺടാക്റ്റ് ഗ്രൂപ്പുകൾ അംഗങ്ങളോടൊപ്പം സൂക്ഷിക്കും.
+One row per contact, ready to import into Outlook or Google Contacts. Group members are listed in the notes.	ഓരോ കോൺടാക്റ്റിനും ഒരു വരി, Outlook-ലേക്കോ Google Contacts-ലേക്കോ ഇമ്പോർട്ട് ചെയ്യാൻ തയ്യാർ. ഗ്രൂപ്പ് അംഗങ്ങൾ കുറിപ്പുകളിൽ.
+One .ics file with every calendar item: repeats, skipped and moved times, reminders, attendees and time zones are kept.	എല്ലാ കലണ്ടർ ഇനങ്ങളുമുള്ള ഒരു .ics ഫയൽ: ആവർത്തനങ്ങൾ, ഒഴിവാക്കിയതും മാറ്റിയതുമായ സമയങ്ങൾ, ഓർമ്മപ്പെടുത്തലുകൾ, പങ്കെടുക്കുന്നവർ, സമയമേഖലകൾ എല്ലാം നിലനിർത്തും.
+One row per email. Opens in Excel and other spreadsheet programs.	ഓരോ ഇമെയിലിനും ഒരു വരി. Excel-ലും മറ്റ് സ്പ്രെഡ്ഷീറ്റ് പ്രോഗ്രാമുകളിലും തുറക്കും.
+Choose where to save	എവിടെ സേവ് ചെയ്യണമെന്ന് തിരഞ്ഞെടുക്കുക
+Emails	ഇമെയിലുകൾ
+Search results	തിരയൽ ഫലങ്ങൾ
+All open files	തുറന്ന എല്ലാ ഫയലുകളും
+Choose where to save.	എവിടെ സേവ് ചെയ്യണമെന്ന് തിരഞ്ഞെടുക്കുക.
+Saving as PDF needs Microsoft Edge WebView2. It's free from Microsoft: {0}	PDF ആയി സേവ് ചെയ്യാൻ Microsoft Edge WebView2 വേണം. ഇത് Microsoft-ൽ നിന്ന് സൗജന്യമാണ്: {0}
+That folder can't be used: {0}	ആ ഫോൾഡർ ഉപയോഗിക്കാനാകില്ല: {0}
+The emails couldn't be listed: {0}	ഇമെയിലുകൾ പട്ടികപ്പെടുത്താനായില്ല: {0}
+There's nothing there to export.	അവിടെ എക്സ്പോർട്ട് ചെയ്യാൻ ഒന്നുമില്ല.
+{0}.pst	{0}.pst
+.vcf	.vcf
+.ics	.ics
+.csv	.csv
+Stop	നിർത്തുക
+Exporting…	എക്സ്പോർട്ട് ചെയ്യുന്നു…
+{0} items to {1}	{0} ഇനങ്ങൾ {1}-ലേക്ക്
+{0} of {1}: {2}	{1}-ൽ {0}: {2}
+{0}.pdf	{0}.pdf
+{0}: the PDF couldn't be made.	{0}: PDF ഉണ്ടാക്കാനായില്ല.
+The PDF files couldn't be joined: {0}: {1}	PDF ഫയലുകൾ കൂട്ടിച്ചേർക്കാനായില്ല: {0}: {1}
+Export stopped	എക്സ്പോർട്ട് നിർത്തി
+Export finished	എക്സ്പോർട്ട് കഴിഞ്ഞു
+Export finished, with problems	എക്സ്പോർട്ട് കഴിഞ്ഞു, ചില പ്രശ്നങ്ങളോടെ
+{0} attachments saved from {1} emails.	{1} ഇമെയിലുകളിൽ നിന്ന് {0} അറ്റാച്ച്മെന്റുകൾ സേവ് ചെയ്തു.
+{0} emails listed in {1}.	{0} ഇമെയിലുകൾ {1}-ൽ പട്ടികപ്പെടുത്തി.
+{0} saved in {1}.	{0} {1}-ൽ സേവ് ചെയ്തു.
+{0} listed in {1}.	{0} {1}-ൽ പട്ടികപ്പെടുത്തി.
+{0} read; no file was made.	{0} വായിച്ചു; ഫയലൊന്നും ഉണ്ടാക്കിയില്ല.
+{0} emails saved in one PDF.	{0} ഇമെയിലുകൾ ഒരു PDF-ൽ സേവ് ചെയ്തു.
+{0} emails saved.	{0} ഇമെയിലുകൾ സേവ് ചെയ്തു.
+{0} couldn't be saved:	{0} സേവ് ചെയ്യാനായില്ല:
+Show in File Explorer	File Explorer-ൽ കാണിക്കുക
+Close	അടയ്ക്കുക
+This attached email couldn't be read.	ഈ ഘടിപ്പിച്ച ഇമെയിൽ വായിക്കാനായില്ല.
+"{0}" can run programs on your computer. Only open it if you trust who sent it.\n\nOpen it anyway?	"{0}" നിങ്ങളുടെ കമ്പ്യൂട്ടറിൽ പ്രോഗ്രാമുകൾ പ്രവർത്തിപ്പിച്ചേക്കാം. അയച്ചയാളെ വിശ്വസിക്കുന്നുണ്ടെങ്കിൽ മാത്രം തുറക്കുക.\n\nഎന്നാലും തുറക്കണോ?
+Couldn't open the attachment.\n\n{0}	അറ്റാച്ച്മെന്റ് തുറക്കാനായില്ല.\n\n{0}
+Save the attachment	അറ്റാച്ച്മെന്റ് സേവ് ചെയ്യുക
+Couldn't save the attachment.\n\n{0}	അറ്റാച്ച്മെന്റ് സേവ് ചെയ്യാനായില്ല.\n\n{0}
+Choose a folder for the attachments	അറ്റാച്ച്മെന്റുകൾക്കായി ഒരു ഫോൾഡർ തിരഞ്ഞെടുക്കുക
+Save as an email file	ഇമെയിൽ ഫയലായി സേവ് ചെയ്യുക
+Email file	ഇമെയിൽ ഫയൽ
+Couldn't save the email.\n\n{0}	ഇമെയിൽ സേവ് ചെയ്യാനായില്ല.\n\n{0}
+Saving as PDF needs Microsoft Edge WebView2, which isn't installed. It's free from Microsoft.	PDF ആയി സേവ് ചെയ്യാൻ Microsoft Edge WebView2 വേണം, അത് ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല. ഇത് Microsoft-ൽ നിന്ന് സൗജന്യമാണ്.
+Save as PDF	PDF ആയി സേവ് ചെയ്യുക
+PDF file	PDF ഫയൽ
+Couldn't save the PDF.	PDF സേവ് ചെയ്യാനായില്ല.
+Subject: {0}	വിഷയം: {0}
+From: {0}	അയച്ചത്: {0}
+Sent by: {0}	അയച്ചയാൾ (പകരം): {0}
+Sent: {0}	അയച്ച സമയം: {0}
+Received: {0}	ലഭിച്ചത്: {0}
+Message ID: {0}	സന്ദേശ ID: {0}
+Type: {0}	തരം: {0}
+Size: {0}	വലിപ്പം: {0}
+This item has no internet headers (it may have been written in Outlook, or come from Exchange).	ഈ ഇനത്തിന് ഇന്റർനെറ്റ് ഹെഡറുകളില്ല (Outlook-ൽ എഴുതിയതോ Exchange-ൽ നിന്ന് വന്നതോ ആകാം).
+Details	വിശദാംശങ്ങൾ
+Where the email came from and how it travelled, as its mail servers recorded it.	മെയിൽ സെർവറുകൾ രേഖപ്പെടുത്തിയതുപോലെ, ഇമെയിൽ എവിടെനിന്ന് വന്നു, എങ്ങനെ സഞ്ചരിച്ചു.
+Copy	പകർത്തുക
+Details · KUDUPST	വിശദാംശങ്ങൾ · KUDUPST
+Open	തുറക്കുക
+Save as…	ഇങ്ങനെ സേവ് ചെയ്യുക…
+No attachments	അറ്റാച്ച്മെന്റുകളില്ല
+Save all attachments…	എല്ലാ അറ്റാച്ച്മെന്റുകളും സേവ് ചെയ്യുക…
+Open this email in its own window	ഈ ഇമെയിൽ സ്വന്തം ജാലകത്തിൽ തുറക്കുക
+Save this email as an email file (.eml) or a PDF	ഈ ഇമെയിൽ ഒരു ഇമെയിൽ ഫയലായോ (.eml) PDF ആയോ സേവ് ചെയ്യുക
+Email file (.eml)…	ഇമെയിൽ ഫയൽ (.eml)…
+PDF…	PDF…
+Open or save this email's attachments	ഈ ഇമെയിലിന്റെ അറ്റാച്ച്മെന്റുകൾ തുറക്കുക അല്ലെങ്കിൽ സേവ് ചെയ്യുക
+Print	പ്രിന്റ് ചെയ്യുക
+Print this email	ഈ ഇമെയിൽ പ്രിന്റ് ചെയ്യുക
+The internet headers and other details of this email	ഈ ഇമെയിലിന്റെ ഇന്റർനെറ്റ് ഹെഡറുകളും മറ്റ് വിശദാംശങ്ങളും
+{0} - KUDUPST	{0} - KUDUPST
+OK	OK
+Not Found	Not Found
+Blocked	Blocked
+Open this link in your web browser?\n\n{0}	ഈ ലിങ്ക് നിങ്ങളുടെ വെബ് ബ്രൗസറിൽ തുറക്കണോ?\n\n{0}
+Show pictures	ചിത്രങ്ങൾ കാണിക്കുക
+Choose an email to read it here.	ഇവിടെ വായിക്കാൻ ഒരു ഇമെയിൽ തിരഞ്ഞെടുക്കുക.
+Install Microsoft Edge WebView2 (free, from Microsoft) to see emails as they were designed. Showing the text only.	ഇമെയിലുകൾ രൂപകൽപ്പന ചെയ്തതുപോലെ കാണാൻ Microsoft Edge WebView2 ഇൻസ്റ്റാൾ ചെയ്യുക (സൗജന്യം, Microsoft-ൽ നിന്ന്). വാചകം മാത്രം കാണിക്കുന്നു.
+Pictures from the internet are blocked, so the sender can't tell you've opened this email.	ഇന്റർനെറ്റിൽ നിന്നുള്ള ചിത്രങ്ങൾ തടഞ്ഞിരിക്കുന്നു, അതിനാൽ നിങ്ങൾ ഈ ഇമെയിൽ തുറന്നോ എന്ന് അയച്ചയാൾക്ക് അറിയാനാകില്ല.
+From:	അയച്ചത്:
+Date:	തീയതി:
+To:	സ്വീകർത്താവ്:
+Cc:	Cc:
+Attachment:	അറ്റാച്ച്മെന്റ്:
+document.body ? document.body.innerText : ''	document.body ? document.body.innerText : ''
+KUDUPST PDF	KUDUPST PDF
+Search emails	ഇമെയിലുകളിൽ തിരയുക
+With attachments	അറ്റാച്ച്മെന്റുകളുള്ളവ
+Show system folders	സിസ്റ്റം ഫോൾഡറുകൾ കാണിക്കുക
+Look deeper for deleted items	ഇല്ലാതാക്കിയ ഇനങ്ങൾക്കായി കൂടുതൽ ആഴത്തിൽ നോക്കുക
+Open…	തുറക്കുക…
+Open a .pst, .ost, .msg or .eml file, as well as the ones open now (Ctrl+O)	ഇപ്പോൾ തുറന്നവയ്ക്കൊപ്പം ഒരു .pst, .ost, .msg അല്ലെങ്കിൽ .eml ഫയൽ തുറക്കുക (Ctrl+O)
+Save emails as email files, PDF, attachments only, or a list for Excel	ഇമെയിലുകൾ ഇമെയിൽ ഫയലുകളായോ PDF ആയോ, അറ്റാച്ച്മെന്റുകൾ മാത്രമായോ, Excel-നുള്ള പട്ടികയായോ സേവ് ചെയ്യുക
+Settings	ക്രമീകരണങ്ങൾ
+About	കുറിച്ച്
+Folders	ഫോൾഡറുകൾ
+Reads the whole file for what's left of deleted items. Takes longer on big files; some may be only partly there.	ഇല്ലാതാക്കിയ ഇനങ്ങളിൽ ബാക്കിയുള്ളതിനായി ഫയൽ മുഴുവൻ വായിക്കുന്നു. വലിയ ഫയലുകളിൽ കൂടുതൽ സമയമെടുക്കും; ചിലത് ഭാഗികമായി മാത്രമേ ഉണ്ടാകൂ.
+Close this file	ഈ ഫയൽ അടയ്ക്കുക
+Close the file shown (the others stay open)	കാണിക്കുന്ന ഫയൽ അടയ്ക്കുക (മറ്റുള്ളവ തുറന്നുതന്നെയിരിക്കും)
+Close all	എല്ലാം അടയ്ക്കുക
+Close every open file	തുറന്ന എല്ലാ ഫയലുകളും അടയ്ക്കുക
+Words to look for in the emails: subject, sender, recipients, text and attachment names	ഇമെയിലുകളിൽ തിരയേണ്ട വാക്കുകൾ: വിഷയം, അയച്ചയാൾ, സ്വീകർത്താക്കൾ, വാചകം, അറ്റാച്ച്മെന്റ് പേരുകൾ
+Search	തിരയുക
+This file	ഈ ഫയൽ
+This folder	ഈ ഫോൾഡർ
+Where to look	എവിടെ നോക്കണം
+Everything	എല്ലാം
+What to look in	എന്തിൽ നോക്കണം
+Dates and attachments	തീയതികളും അറ്റാച്ച്മെന്റുകളും
+Filters	അരിപ്പകൾ
+to	വരെ
+Clear	മായ്ക്കുക
+Sort the list	പട്ടിക ക്രമീകരിക്കുക
+{0} {1} is available	{0} {1} ലഭ്യമാണ്
+Open an Outlook data file	ഒരു Outlook ഡാറ്റ ഫയൽ തുറക്കുക
+PST and OST files, and single emails saved as .msg or .eml. Outlook isn't needed, and the file is only read, never changed.	PST, OST ഫയലുകളും .msg അല്ലെങ്കിൽ .eml ആയി സേവ് ചെയ്ത ഒറ്റ ഇമെയിലുകളും. Outlook വേണ്ട, ഫയൽ വായിക്കുക മാത്രം ചെയ്യും, ഒരിക്കലും മാറ്റില്ല.
+Open a file…	ഒരു ഫയൽ തുറക്കുക…
+or drop it on this window	അല്ലെങ്കിൽ ഈ ജാലകത്തിലേക്ക് വലിച്ചിടുക
+Opened recently	അടുത്തിടെ തുറന്നവ
+Nothing opened yet	ഇതുവരെ ഒന്നും തുറന്നിട്ടില്ല
+Clear this list	ഈ പട്ടിക മായ്ക്കുക
+Open an Outlook data file or an email	ഒരു Outlook ഡാറ്റ ഫയലോ ഇമെയിലോ തുറക്കുക
+Outlook files and emails	Outlook ഫയലുകളും ഇമെയിലുകളും
+Outlook data files (*.pst, *.ost)	Outlook ഡാറ്റ ഫയലുകൾ (*.pst, *.ost)
+Emails (*.msg, *.eml)	ഇമെയിലുകൾ (*.msg, *.eml)
+That's a folder. Choose a .pst, .ost, .msg or .eml file.	അതൊരു ഫോൾഡറാണ്. ഒരു .pst, .ost, .msg അല്ലെങ്കിൽ .eml ഫയൽ തിരഞ്ഞെടുക്കുക.
+Couldn't open "{0}".\n\n{1}	"{0}" തുറക്കാനായില്ല.\n\n{1}
+{0} files	{0} ഫയലുകൾ
+{0} files open	{0} ഫയലുകൾ തുറന്നിരിക്കുന്നു
+Close "{0}"	"{0}" അടയ്ക്കുക
+Close the single emails	ഒറ്റ ഇമെയിലുകൾ അടയ്ക്കുക
+Close all files	എല്ലാ ഫയലുകളും അടയ്ക്കുക
+Search is limited: the search index of {0} couldn't be made ({1})	തിരയൽ പരിമിതമാണ്: {0}-ന്റെ തിരയൽ സൂചിക ഉണ്ടാക്കാനായില്ല ({1})
+Couldn't finish the search index: {0}	തിരയൽ സൂചിക പൂർത്തിയാക്കാനായില്ല: {0}
+Search ready · {0} items · still making the index of {1}	തിരയൽ തയ്യാർ · {0} ഇനങ്ങൾ · {1}-ന്റെ സൂചിക ഇപ്പോഴും ഉണ്ടാക്കുന്നു
+Search ready · {0} items here, {1} in all open files	തിരയൽ തയ്യാർ · ഇവിടെ {0} ഇനങ്ങൾ, തുറന്ന എല്ലാ ഫയലുകളിലുമായി {1}
+Search ready · {0} items	തിരയൽ തയ്യാർ · {0} ഇനങ്ങൾ
+Making the search index of {0}	{0}-ന്റെ തിരയൽ സൂചിക ഉണ്ടാക്കുന്നു
+Looking through the whole file…	ഫയൽ മുഴുവൻ പരിശോധിക്കുന്നു…
+Looking through the whole file… {0}	ഫയൽ മുഴുവൻ പരിശോധിക്കുന്നു… {0}
+Stopped looking.	നോക്കുന്നത് നിർത്തി.
+Couldn't look through the whole file: {0}	ഫയൽ മുഴുവൻ പരിശോധിക്കാനായില്ല: {0}
+Stop looking	നോക്കുന്നത് നിർത്തുക
+Looked through the whole file: no deleted items left in it.	ഫയൽ മുഴുവൻ പരിശോധിച്ചു: ഇല്ലാതാക്കിയ ഇനങ്ങളൊന്നും ബാക്കിയില്ല.
+Looked through the whole file: {0} found ({1} only partly).	ഫയൽ മുഴുവൻ പരിശോധിച്ചു: {0} കണ്ടെത്തി ({1} ഭാഗികമായി മാത്രം).
+Looked through the whole file: {0} found.	ഫയൽ മുഴുവൻ പരിശോധിച്ചു: {0} കണ്ടെത്തി.
+deleted item	ഇല്ലാതാക്കിയ ഇനം
+Some folders of {0} couldn't be read: {1}	{0}-ലെ ചില ഫോൾഡറുകൾ വായിക്കാനായില്ല: {1}
+Single emails	ഒറ്റ ഇമെയിലുകൾ
+1 email file	1 ഇമെയിൽ ഫയൽ
+{0} email files	{0} ഇമെയിൽ ഫയലുകൾ
+Reading the folder…	ഫോൾഡർ വായിക്കുന്നു…
+This folder couldn't be read: {0}	ഈ ഫോൾഡർ വായിക്കാനായില്ല: {0}
+A search folder: Outlook keeps its results elsewhere, so it has nothing to show here.	ഒരു തിരയൽ ഫോൾഡർ: Outlook അതിന്റെ ഫലങ്ങൾ മറ്റൊരിടത്ത് സൂക്ഷിക്കുന്നു, അതിനാൽ ഇവിടെ കാണിക്കാൻ ഒന്നുമില്ല.
+{0} in {1} ({2})	{1}-ൽ {0} ({2})
+{0} in {1}	{1}-ൽ {0}
+Searching…	തിരയുന്നു…
+Single emails › {0}	ഒറ്റ ഇമെയിലുകൾ › {0}
+The search didn't work: {0}	തിരയൽ പ്രവർത്തിച്ചില്ല: {0}
+all {0} open files	തുറന്ന {0} ഫയലുകളും
+the single emails	ഒറ്റ ഇമെയിലുകൾ
+Nothing found	ഒന്നും കണ്ടെത്തിയില്ല
+1 item found	1 ഇനം കണ്ടെത്തി
+{0} items found	{0} ഇനങ്ങൾ കണ്ടെത്തി
+so far (the search index is still being made)	ഇതുവരെ (തിരയൽ സൂചിക ഇപ്പോഴും ഉണ്ടാക്കുന്നു)
+Newest first	പുതിയത് ആദ്യം
+Oldest first	പഴയത് ആദ്യം
+Largest first	വലുത് ആദ്യം
+Name	പേര്
+Contacts	കോൺടാക്റ്റുകൾ
+Calendar	കലണ്ടർ
+{0} selected	{0} തിരഞ്ഞെടുത്തു
+This item couldn't be read: {0}	ഈ ഇനം വായിക്കാനായില്ല: {0}
+This item couldn't be read.\n\n{0}	ഈ ഇനം വായിക്കാനായില്ല.\n\n{0}
+Open in its own window	സ്വന്തം ജാലകത്തിൽ തുറക്കുക
+Export the {0} selected…	തിരഞ്ഞെടുത്ത {0} എക്സ്പോർട്ട് ചെയ്യുക…
+Export…	എക്സ്പോർട്ട്…
+Settings · KUDUPST	ക്രമീകരണങ്ങൾ · KUDUPST
+Appearance	രൂപം
+Same as Windows	Windows-ന്റേത് പോലെ
+Language	ഭാഷ
+Privacy	സ്വകാര്യത
+Always show pictures from the internet in emails	ഇമെയിലുകളിൽ ഇന്റർനെറ്റിൽ നിന്നുള്ള ചിത്രങ്ങൾ എപ്പോഴും കാണിക്കുക
+Off: they're blocked until you click "Show pictures", so senders can't tell you opened their email.	ഓഫ്: "ചിത്രങ്ങൾ കാണിക്കുക" ക്ലിക്ക് ചെയ്യുന്നതുവരെ തടയും, അതിനാൽ നിങ്ങൾ ഇമെയിൽ തുറന്നോ എന്ന് അയച്ചവർക്ക് അറിയാനാകില്ല.
+File Explorer	File Explorer
+Add "Open with KUDUPST" to the right-click menu of .pst, .ost, .msg and .eml files	.pst, .ost, .msg, .eml ഫയലുകളുടെ റൈറ്റ്-ക്ലിക്ക് മെനുവിൽ "Open with KUDUPST" ചേർക്കുക
+Open these files in KUDUPST when they're double-clicked	ഈ ഫയലുകളിൽ ഇരട്ട-ക്ലിക്ക് ചെയ്യുമ്പോൾ KUDUPST-ൽ തുറക്കുക
+For your Windows account only. If you chose another program in Windows' "Open with", Windows keeps that choice. On Windows 11 the menu is under "Show more options".	നിങ്ങളുടെ Windows അക്കൗണ്ടിന് മാത്രം. Windows-ന്റെ "Open with"-ൽ മറ്റൊരു പ്രോഗ്രാം തിരഞ്ഞെടുത്തിട്ടുണ്ടെങ്കിൽ Windows ആ തിരഞ്ഞെടുപ്പ് നിലനിർത്തും. Windows 11-ൽ "Show more options"-ന് കീഴിലാണ്.
+Search indexes use {0} in your AppData folder. They're never stored next to your files.	തിരയൽ സൂചികകൾ നിങ്ങളുടെ AppData ഫോൾഡറിൽ {0} ഉപയോഗിക്കുന്നു. അവ ഒരിക്കലും നിങ്ങളുടെ ഫയലുകൾക്കരികിൽ സൂക്ഷിക്കില്ല.
+Delete all search indexes	എല്ലാ തിരയൽ സൂചികകളും ഇല്ലാതാക്കുക
+Delete the search indexes? They're made again when you next open a file.	തിരയൽ സൂചികകൾ ഇല്ലാതാക്കണോ? അടുത്ത തവണ ഒരു ഫയൽ തുറക്കുമ്പോൾ അവ വീണ്ടും ഉണ്ടാക്കും.
+Some indexes are in use and weren't deleted.\n\n{0}	ചില സൂചികകൾ ഉപയോഗത്തിലായതിനാൽ ഇല്ലാതാക്കിയില്ല.\n\n{0}
+Updates	അപ്ഡേറ്റുകൾ
+Check for a new KUDUPST version when it starts	തുടങ്ങുമ്പോൾ KUDUPST-ന്റെ പുതിയ പതിപ്പുണ്ടോ എന്ന് പരിശോധിക്കുക
+Only asks GitHub for the latest version number. Nothing is downloaded without asking.	ഏറ്റവും പുതിയ പതിപ്പിന്റെ നമ്പർ മാത്രം GitHub-നോട് ചോദിക്കുന്നു. ചോദിക്കാതെ ഒന്നും ഡൗൺലോഡ് ചെയ്യില്ല.
+About KUDUPST	KUDUPST-നെക്കുറിച്ച്
+Password	പാസ്‌വേഡ്
+That's not the password.	അതല്ല പാസ്‌വേഡ്.
+Forgot the password?	പാസ്‌വേഡ് മറന്നോ?
+Outlook's password only stops Outlook from opening the file; the emails in it aren't locked with it, so KUDUPST can read them anyway.\n\nOnly do this with your own files, or files you're allowed to read.\n\nOpen it without the password?	Outlook-ന്റെ പാസ്‌വേഡ് Outlook ഫയൽ തുറക്കുന്നത് മാത്രമേ തടയൂ; അതിലെ ഇമെയിലുകൾ അതുകൊണ്ട് പൂട്ടിയിട്ടില്ല, അതിനാൽ KUDUPST-ന് അവ പാസ്‌വേഡില്ലാതെ വായിക്കാം. നിങ്ങളുടെ സ്വന്തം ഫയലുകൾക്ക് മാത്രം ഇത് ഉപയോഗിക്കുക.
+This file has a password	ഈ ഫയലിന് പാസ്‌വേഡുണ്ട്
+"{0}" was given a password in Outlook. Type it to open the file.	"{0}"-ന് Outlook-ൽ പാസ്‌വേഡ് നൽകിയിട്ടുണ്ട്. ഫയൽ തുറക്കാൻ അത് ടൈപ്പ് ചെയ്യുക.
+Password · KUDUPST	പാസ്‌വേഡ് · KUDUPST
+KUDUPST	KUDUPST
+Version {0} · Read, search and export Outlook files	പതിപ്പ് {0} · Outlook ഫയലുകൾ വായിക്കുക, തിരയുക, എക്സ്പോർട്ട് ചെയ്യുക
+Azeem, with Claude and	Azeem, with Claude and
+Made by	Made by
+Licence	ലൈസൻസ്
+MIT · free and open source	MIT · സൗജന്യവും ഓപ്പൺ സോഴ്സും
+View	കാണുക
+Source code	സോഴ്സ് കോഡ്
+Reading files	ഫയലുകൾ വായിക്കൽ
+Its own reader for Outlook PST and OST files, .msg and .eml emails	Outlook PST, OST ഫയലുകൾക്കും .msg, .eml ഇമെയിലുകൾക്കുമുള്ള സ്വന്തം റീഡർ
+Showing emails	ഇമെയിലുകൾ കാണിക്കൽ
+Microsoft Edge WebView2 {0}	Microsoft Edge WebView2 {0}
+Text only (Microsoft Edge WebView2 isn't installed)	വാചകം മാത്രം (Microsoft Edge WebView2 ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല)
+Third-party	മൂന്നാം കക്ഷി
+Third-party notices	മൂന്നാം കക്ഷി അറിയിപ്പുകൾ
+KUDUPST only reads your files; it never changes them. Search indexes are kept in your AppData folder. Nothing is sent anywhere.	KUDUPST നിങ്ങളുടെ ഫയലുകൾ വായിക്കുക മാത്രം ചെയ്യുന്നു; ഒരിക്കലും മാറ്റില്ല. തിരയൽ സൂചികകൾ നിങ്ങളുടെ AppData ഫോൾഡറിൽ സൂക്ഷിക്കുന്നു. ഒന്നും എവിടേക്കും അയയ്ക്കുന്നില്ല.
+Check for updates	അപ്ഡേറ്റുകൾ പരിശോധിക്കുക
+Couldn't find any published version yet.	പ്രസിദ്ധീകരിച്ച പതിപ്പൊന്നും ഇതുവരെ കണ്ടെത്തിയില്ല.
+KUDUPST {0} is available. Open the download page?	KUDUPST {0} ലഭ്യമാണ്. ഡൗൺലോഡ് പേജ് തുറക്കണോ?
+You have the latest version.	നിങ്ങളുടെ കൈയിൽ ഏറ്റവും പുതിയ പതിപ്പാണ്.
+Couldn't check for updates. Check your internet connection and try again.	അപ്ഡേറ്റുകൾ പരിശോധിക്കാൻ കഴിഞ്ഞില്ല. ഇന്റർനെറ്റ് കണക്ഷൻ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.
+Count	എണ്ണം
+(no name)	(പേരില്ല)
+.msg and .eml files open on their own	.msg, .eml ഫയലുകൾ, ഒറ്റയ്ക്ക് തുറന്നവ
+{0} items, {1} not read	{0} ഇനങ്ങൾ, {1} വായിക്കാത്തവ
+All day, {0} days	ദിവസം മുഴുവൻ, {0} ദിവസം
+All day	ദിവസം മുഴുവൻ
+Partial	ഭാഗികം
+(no sender)	(അയച്ചയാളില്ല)
+(repeats)	(ആവർത്തിക്കുന്നു)
+In: {0}	ഇതിൽ: {0}
+Deleted, and only partly found	ഇല്ലാതാക്കി, ഭാഗികമായി മാത്രം കണ്ടെത്തി
+Deleted (found inside the file)	ഇല്ലാതാക്കി (ഫയലിനുള്ളിൽ കണ്ടെത്തി)
+Was in {0}	{0}-ൽ ആയിരുന്നു
+{0} ran into a problem it couldn't get past, and has to close.	{0}-ന് മറികടക്കാനാകാത്ത ഒരു പ്രശ്നം നേരിട്ടു, അതിനാൽ അടയ്ക്കേണ്ടി വരുന്നു.
+{0} contact	{0} കോൺടാക്റ്റ്
+{0} contacts	{0} കോൺടാക്റ്റുകൾ
+{0} calendar item	{0} കലണ്ടർ ഇനം
+{0} calendar items	{0} കലണ്ടർ ഇനങ്ങൾ
+{0} item	{0} ഇനം
+{0} items	{0} ഇനങ്ങൾ
+{0} deleted item	ഇല്ലാതാക്കിയ {0} ഇനം
+{0} deleted items	ഇല്ലാതാക്കിയ {0} ഇനങ്ങൾ

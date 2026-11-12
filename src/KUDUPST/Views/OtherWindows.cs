@@ -38,6 +38,9 @@ namespace Kudupst.Views
             }
             root.Children.Add(themes);
 
+            root.Children.Add(Ui.Heading("Language", 14).Margin(0, 16, 0, 6));
+            root.Children.Add(LangUi.Picker());
+
             root.Children.Add(Ui.Heading("Privacy", 14).Margin(0, 16, 0, 4));
             var pictures = new CheckBox { Content = "Always show pictures from the internet in emails", IsChecked = Settings.AlwaysShowPictures };
             pictures.Click += (s, e) => Settings.AlwaysShowPictures = pictures.IsChecked == true;

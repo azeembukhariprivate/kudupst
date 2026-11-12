@@ -91,3 +91,9 @@ The build fails when a copy differs from kudu-common. App-specific details go in
   Microsoft's document can't be reached from the build container and Outlook can't be run in tests, so the checks are:
   our own reader, plus `readpst` and `pffexport` by hand. The map pages for files over about 32 MB (and 2 GB) are placed
   as the specification was remembered; no Outlook-made file that big was at hand to compare.
+- Other languages (1.5): the shared `Lang`/`LangUi` (kudu-common) put each window into the chosen language as it's shown.
+  The list rows (`Views/Rows.cs`) and the email header (`MailHtml`: labels, reminder times, contact and meeting rows)
+  call `Lang.T` in code; export and search summaries are whole sentences. What goes into exported files for other programs
+  (CSV column names, vCard and iCalendar words, PST folder names) and the repeat descriptions of calendar items stay in
+  English. Texts are in `src/KUDUPST/Lang/<code>.txt`, made and checked with kudu-common's `tools/lang.py`; when adding or
+  changing a text, add it to every language file (`tools/lang.py check ../kudupst`).

@@ -1,0 +1,583 @@
+Something went wrong:\n\n{0}	कुछ गड़बड़ हो गई:\n\n{0}
+Azeem Bukhari	Azeem Bukhari
+less than a second	एक सेकंड से कम
+{0} h {1} min	{0} घं {1} मिनट
+{0} min {1} s	{0} मिनट {1} से
+This email file is too big to open (over 300 MB).	यह ईमेल फ़ाइल खोलने के लिए बहुत बड़ी है (300 MB से ज़्यादा)।
+"{0}" was open last time but isn't there now, so it was left out.	"{0}" पिछली बार खुली थी पर अब वहाँ नहीं है, इसलिए छोड़ दी गई।
+{0} files open last time aren't there now, so they were left out: {1}	पिछली बार खुली {0} फ़ाइलें अब वहाँ नहीं हैं, इसलिए छोड़ दी गईं: {1}
+Theme	थीम
+Recent	हाल की
+Outlook data file	Outlook डेटा फ़ाइल
+Outlook offline data file	Outlook ऑफ़लाइन डेटा फ़ाइल
+Outlook email	Outlook ईमेल
+Email message	ईमेल संदेश
+Open with KUDUPST	KUDUPST से खोलें
+Missing theme resource {0}	Missing theme resource {0}
+Light	हल्का
+Styles	Styles
+Dark	गहरा
+Application	Application
+,PREF	,PREF
+WORK	WORK
+HOME	HOME
+POSTAL	POSTAL
+Contact group members:\n{0}	Contact group members:\n{0}
+Title	Title
+First Name	First Name
+Middle Name	Middle Name
+Last Name	Last Name
+Suffix	Suffix
+Nickname	उपनाम
+Company	कंपनी
+Department	विभाग
+Job Title	Job Title
+Office Location	Office Location
+Manager's Name	Manager's Name
+Assistant's Name	Assistant's Name
+Business Street	Business Street
+Business City	Business City
+Business State	Business State
+Business Postal Code	Business Postal Code
+Business Country/Region	Business Country/Region
+Home Street	Home Street
+Home City	Home City
+Home State	Home State
+Home Postal Code	Home Postal Code
+Home Country/Region	Home Country/Region
+Other Street	Other Street
+Other City	Other City
+Other State	Other State
+Other Postal Code	Other Postal Code
+Other Country/Region	Other Country/Region
+Assistant's Phone	Assistant's Phone
+Business Fax	Business Fax
+Business Phone	Business Phone
+Business Phone 2	Business Phone 2
+Car Phone	Car Phone
+Company Main Phone	Company Main Phone
+Home Fax	Home Fax
+Home Phone	Home Phone
+Home Phone 2	Home Phone 2
+Mobile Phone	Mobile Phone
+Other Phone	Other Phone
+Pager	Pager
+Primary Phone	Primary Phone
+E-mail Address	E-mail Address
+E-mail Display Name	E-mail Display Name
+E-mail 2 Address	E-mail 2 Address
+E-mail 2 Display Name	E-mail 2 Display Name
+E-mail 3 Address	E-mail 3 Address
+E-mail 3 Display Name	E-mail 3 Display Name
+Anniversary	सालगिरह
+Birthday	जन्मदिन
+Spouse	Spouse
+Web Page	Web Page
+Personal Web Page	Personal Web Page
+Categories	श्रेणियाँ
+Notes	टिप्पणियाँ
+Contact group members: {0}	Contact group members: {0}
+Work	काम
+Business	व्यवसाय
+Home	घर
+Other	अन्य
+{0} Street	{0} Street
+{0} City	{0} City
+{0} State	{0} State
+{0} Postal Code	{0} Postal Code
+E-mail{0} Address	E-mail{0} Address
+E-mail{0} Display Name	E-mail{0} Display Name
+EXDATE{0}	EXDATE{0}
+TRANSPARENT	TRANSPARENT
+OPAQUE	OPAQUE
+FREE	FREE
+TENTATIVE	TENTATIVE
+OOF	OOF
+WORKINGELSEWHERE	WORKINGELSEWHERE
+BUSY	BUSY
+PRIVATE	PRIVATE
+CONFIDENTIAL	CONFIDENTIAL
+PUBLIC	PUBLIC
+OPT-PARTICIPANT	OPT-PARTICIPANT
+NON-PARTICIPANT	NON-PARTICIPANT
+REQ-PARTICIPANT	REQ-PARTICIPANT
+ACCEPTED	ACCEPTED
+DECLINED	DECLINED
+NEEDS-ACTION	NEEDS-ACTION
+Reminder	अनुस्मारक
+mailto:{0}	mailto:{0}
+Time zone	समय क्षेत्र
+PDF is saved by the app window.	PDF is saved by the app window.
+{0}.eml	{0}.eml
+Folder	फ़ोल्डर
+Date	तारीख़
+From	भेजने वाला
+From address	भेजने वाले का पता
+To	प्राप्तकर्ता
+Cc	Cc
+Subject	विषय
+Size (KB)	आकार (KB)
+Attachments	अटैचमेंट
+Read	पढ़ा गया
+Type	प्रकार
+Yes	हाँ
+No	नहीं
+Exported items	Exported items
+{0}.unfinished	{0}.unfinished
+(no subject)	(कोई विषय नहीं)
+Free	ख़ाली
+Tentative	अनिश्चित
+Away	बाहर
+Working elsewhere	कहीं और काम कर रहे हैं
+Busy	व्यस्त
+Organiser	आयोजक
+Accepted	स्वीकार किया
+Declined	अस्वीकार किया
+No reply	कोई जवाब नहीं
+Optional	वैकल्पिक
+Room or equipment	कमरा या उपकरण
+Required	आवश्यक
+Sunday	रविवार
+Monday	सोमवार
+Tuesday	मंगलवार
+Wednesday	बुधवार
+Thursday	गुरुवार
+Friday	शुक्रवार
+Saturday	शनिवार
+{0} and {1}	{0} and {1}
+Every {0}	Every {0}
+Every {0} {1}	Every {0} {1}
+first	first
+Every weekday	Every weekday
+Every {0} weeks on {1}	Every {0} weeks on {1}
+{1} on day {0}	{1} on day {0}
+{3} on the {0} {1} of {2}	{3} on the {0} {1} of {2}
+{2} on the {0} {1}	{2} on the {0} {1}
+{1} on the last day of {0}	{1} on the last day of {0}
+{0} on the last day	{0} on the last day
+Repeats	दोहराता है
+, once	, once
+, {0} times	, {0} times
+, until {0}	, until {0}
+The repeat details are damaged.	दोहराने की जानकारी ख़राब है।
+Mobile	मोबाइल
+Business 2	व्यवसाय 2
+Home 2	घर 2
+Business fax	व्यवसाय फ़ैक्स
+Home fax	घर का फ़ैक्स
+Car	कार
+Primary	मुख्य
+Company main	कंपनी का मुख्य नंबर
+Assistant	सहायक
+Keywords	कीवर्ड
+Bcc	Bcc
+Sender	Sender
+ddd, dd MMM yyyy HH:mm:ss '+0000'	ddd, dd MMM yyyy HH:mm:ss '+0000'
+References	References
+Importance	महत्व
+high	high
+low	low
+This is a message in MIME format.	This is a message in MIME format.
+Content-Transfer-Encoding: quoted-printable	Content-Transfer-Encoding: quoted-printable
+Content-Type: message/rfc822	Content-Type: message/rfc822
+Content-Disposition: attachment	Content-Disposition: attachment
+Content-Transfer-Encoding: base64	Content-Transfer-Encoding: base64
+inline	inline
+attachment	attachment
+Content-ID: <	Content-ID: <
+(\\r?\\n[ \\t]*){3,}	(\\r?\\n[ \\t]*){3,}
+default-src 'none'; img-src * data: blob:; style-src * 'unsafe-inline'; font-src * data:; media-src *	default-src 'none'; img-src * data: blob:; style-src * 'unsafe-inline'; font-src * data:; media-src *
+default-src 'none'; img-src data: blob: {0}; style-src 'unsafe-inline' {1}; font-src data:	default-src 'none'; img-src data: blob: {0}; style-src 'unsafe-inline' {1}; font-src data:
+Deleted	हटाया गया
+Found inside the file (it was in {0}).	फ़ाइल के अंदर मिला (यह {0} में था)।
+Found inside the file.	फ़ाइल के अंदर मिला।
+Only part of it is left: some text, recipients or attachments may be missing.	इसका केवल एक भाग बचा है: कुछ टेक्स्ट, प्राप्तकर्ता या अटैचमेंट ग़ायब हो सकते हैं।
+1 member	1 सदस्य
+{0} members	{0} सदस्य
+Sent by	की ओर से भेजा
+Sent	भेजा गया
+High	ऊँचा
+Sensitivity	गोपनीयता
+Private	निजी
+Confidential	गोपनीय
+" title="Open">	" title="Open">
+Full name	पूरा नाम
+File as	इस नाम से फ़ाइल करें
+Job title	पद
+Office	कार्यालय
+Profession	पेशा
+Email	ईमेल
+{0} phone	{0} फ़ोन
+{0} address	{0} पता
+Web page	वेब पेज
+Chat address	चैट पता
+Partner	जीवनसाथी
+Manager	प्रबंधक
+When	कब
+Where	कहाँ
+Attendees	उपस्थित लोग
+None	कोई नहीं
+Show as	ऐसे दिखाएँ
+{0}, all day	{0}, पूरा दिन
+When it starts	शुरू होते समय
+1 week before	1 हफ़्ता पहले
+{0} weeks before	{0} हफ़्ते पहले
+1 day before	1 दिन पहले
+{0} days before	{0} दिन पहले
+1 hour before	1 घंटा पहले
+{0} hours before	{0} घंटे पहले
+1 minute before	1 मिनट पहले
+{0} minutes before	{0} मिनट पहले
+{0} bytes	{0} बाइट
+Meeting request	मीटिंग अनुरोध
+Appointment	अपॉइंटमेंट
+Contact	संपर्क
+Contact group	संपर्क समूह
+Task	कार्य
+Note	नोट
+Journal entry	जर्नल प्रविष्टि
+Delivery report	डिलीवरी रिपोर्ट
+Item	आइटम
+Received	प्राप्त
+Attached email	संलग्न ईमेल
+This isn't an Outlook .msg file.	यह Outlook .msg फ़ाइल नहीं है।
+This .msg file is damaged.	यह .msg फ़ाइल ख़राब है।
+This Outlook data file is damaged: an item's contents are unreadable.	यह Outlook डेटा फ़ाइल ख़राब है: एक आइटम की सामग्री पढ़ी नहीं जा सकती।
+This Outlook data file is damaged: an index inside an item is unreadable.	यह Outlook डेटा फ़ाइल ख़राब है: एक आइटम के अंदर का इंडेक्स पढ़ा नहीं जा सकता।
+This Outlook data file is damaged: an item's properties are unreadable.	यह Outlook डेटा फ़ाइल ख़राब है: एक आइटम के गुण पढ़े नहीं जा सकते।
+This Outlook data file is damaged: a list of items is unreadable.	यह Outlook डेटा फ़ाइल ख़राब है: आइटमों की एक सूची पढ़ी नहीं जा सकती।
+A block holds 1 to 8176 bytes.	A block holds 1 to 8176 bytes.
+This item is too big to save in an Outlook data file.	यह आइटम Outlook डेटा फ़ाइल में सहेजने के लिए बहुत बड़ा है।
+This item has too many parts to save in an Outlook data file.	इस आइटम के इतने भाग हैं कि इसे Outlook डेटा फ़ाइल में सहेजा नहीं जा सकता।
+This file is too small to be an Outlook data file.	यह फ़ाइल Outlook डेटा फ़ाइल होने के लिए बहुत छोटी है।
+This isn't an Outlook data file (.pst or .ost).	यह Outlook डेटा फ़ाइल (.pst या .ost) नहीं है।
+This Outlook data file uses a format KUDUPST doesn't know (version {0}).	यह Outlook डेटा फ़ाइल ऐसे स्वरूप में है जिसे KUDUPST नहीं जानता (संस्करण {0})।
+This Outlook data file uses an unknown kind of encryption.	यह Outlook डेटा फ़ाइल अज्ञात तरह का एन्क्रिप्शन उपयोग करती है।
+This Outlook data file is damaged: its index is missing.	यह Outlook डेटा फ़ाइल ख़राब है: इसका इंडेक्स ग़ायब है।
+This Outlook data file is damaged: an index page is outside the file.	यह Outlook डेटा फ़ाइल ख़राब है: एक इंडेक्स पेज फ़ाइल के बाहर है।
+This Outlook data file is cut short.	यह Outlook डेटा फ़ाइल अधूरी है।
+This Outlook data file is damaged: an index page is unreadable.	यह Outlook डेटा फ़ाइल ख़राब है: एक इंडेक्स पेज पढ़ा नहीं जा सकता।
+This Outlook data file is damaged: its index is too deep.	यह Outlook डेटा फ़ाइल ख़राब है: इसका इंडेक्स बहुत गहरा है।
+This Outlook data file is damaged: item {0} is missing.	यह Outlook डेटा फ़ाइल ख़राब है: आइटम {0} ग़ायब है।
+This Outlook data file is damaged: block {0} is missing.	यह Outlook डेटा फ़ाइल ख़राब है: ब्लॉक {0} ग़ायब है।
+This Outlook data file is damaged: a block is outside the file.	यह Outlook डेटा फ़ाइल ख़राब है: एक ब्लॉक फ़ाइल के बाहर है।
+This Outlook data file is damaged: a compressed block is unreadable.	यह Outlook डेटा फ़ाइल ख़राब है: एक संपीड़ित ब्लॉक पढ़ा नहीं जा सकता।
+This Outlook data file is damaged: a block list is unreadable.	यह Outlook डेटा फ़ाइल ख़राब है: एक ब्लॉक सूची पढ़ी नहीं जा सकती।
+This Outlook data file is damaged: a list of item parts is unreadable.	यह Outlook डेटा फ़ाइल ख़राब है: आइटम भागों की एक सूची पढ़ी नहीं जा सकती।
+Too big for a heap: {0}	Too big for a heap: {0}
+Replace keeps the length.	Replace keeps the length.
+Found deleted items	मिले हुए हटाए गए आइटम
+Personal Folders	Personal Folders
+Top of Personal Folders	Top of Personal Folders
+Search Root	Search Root
+Deleted Items	Deleted Items
+The file is already finished.	The file is already finished.
+SMTP	SMTP
+Attachment	अटैचमेंट
+{0}.tmp	{0}.tmp
+Not an index file.	यह इंडेक्स फ़ाइल नहीं है।
+The search index is damaged.	खोज इंडेक्स ख़राब है।
+Index	Index
+KUDUPST index	KUDUPST index
+KUDUPST index (found items)	KUDUPST index (found items)
+Indexing for search… {0:P0}	Indexing for search… {0:P0}
+Indexing for search…	खोज के लिए इंडेक्स बन रहा है…
+Error message shown: {0}	Error message shown: {0}
+All files	सभी फ़ाइलें
+Save	सहेजें
+Cancel	रद्द करें
+Keep the folder structure (a folder for each Outlook folder)	फ़ोल्डर ढाँचा बनाए रखें (हर Outlook फ़ोल्डर के लिए एक फ़ोल्डर)
+Put all emails in one PDF file (with a bookmark for each)	सभी ईमेल एक PDF फ़ाइल में रखें (हर एक के लिए बुकमार्क के साथ)
+Also save pictures that are part of the email text (logos and the like)	ईमेल टेक्स्ट का हिस्सा चित्र भी सहेजें (लोगो वग़ैरह)
+Export · KUDUPST	निर्यात · KUDUPST
+contacts	संपर्क
+calendar items	कैलेंडर आइटम
+emails	ईमेल
+Export	निर्यात
+Save as	इस रूप में सहेजें
+Contacts (.vcf)	संपर्क (.vcf)
+All the contacts in one vCard file, for phones, Google Contacts, Apple Contacts, Thunderbird and Outlook.	सभी संपर्क एक vCard फ़ाइल में, फ़ोन, Google Contacts, Apple Contacts, Thunderbird और Outlook के लिए।
+Contacts list (CSV)	संपर्क सूची (CSV)
+A CSV file with the columns Outlook and Google Contacts use when importing contacts.	एक CSV फ़ाइल उन कॉलमों के साथ जो Outlook और Google Contacts संपर्क आयात करते समय उपयोग करते हैं।
+Calendar (.ics)	कैलेंडर (.ics)
+All the calendar items in one file, for Google Calendar, Apple Calendar, Thunderbird and Outlook. Repeating items keep their pattern.	सभी कैलेंडर आइटम एक फ़ाइल में, Google Calendar, Apple Calendar, Thunderbird और Outlook के लिए। दोहराए जाने वाले आइटम अपना ढर्रा बनाए रखते हैं।
+Email files (.eml)	ईमेल फ़ाइलें (.eml)
+One file per email, with its attachments inside. Opens in Outlook, Thunderbird, Windows Mail and other mail programs.	हर ईमेल के लिए एक फ़ाइल, अटैचमेंट अंदर। Outlook, Thunderbird, Windows Mail और दूसरे मेल प्रोग्रामों में खुलती है।
+Outlook file (.pst)	Outlook फ़ाइल (.pst)
+One new Outlook data file with the folders and everything in them. The file you opened isn't changed.	फ़ोल्डरों और उनमें सब कुछ के साथ एक नई Outlook डेटा फ़ाइल। आपकी खोली फ़ाइल नहीं बदलती।
+Each email as a PDF, looking as it does on screen, with a list of its attachments.	हर ईमेल एक PDF के रूप में, जैसा स्क्रीन पर दिखता है, उसके अटैचमेंट की सूची के साथ।
+Attachments only	केवल अटैचमेंट
+The attached files, without the emails.	ईमेल के बिना, केवल संलग्न फ़ाइलें।
+List (CSV)	सूची (CSV)
+A list of the emails for Excel: date, from, to, subject, size and attachment names.	Excel के लिए ईमेलों की सूची: तारीख़, भेजने वाला, प्राप्तकर्ता, विषय, आकार और अटैचमेंट के नाम।
+Which {0}	कौन-से {0}
+calendar item	कैलेंडर आइटम
+contact	संपर्क
+email	ईमेल
+The selected {0}	चुना गया {0}
+The {0} selected {1}	चुने गए {0} {1}
+The search results ({0})	खोज परिणाम ({0})
+The folder "{0}" ({1})	फ़ोल्डर "{0}" ({1})
+"{0}" and the folders in it	"{0}" और उसके अंदर के फ़ोल्डर
+Everything in "{0}"	"{0}" में सब कुछ
+Everything in the file	फ़ाइल में सब कुछ
+All {0} single emails	सभी {0} अलग ईमेल
+This {0}	यह {0}
+Everything in all {0} open files	सभी {0} खुली फ़ाइलों में सब कुछ
+Choose…	चुनें…
+One .eml file per email, named by date and subject. Attachments stay inside each email.	हर ईमेल के लिए एक .eml फ़ाइल, तारीख़ और विषय से नाम। अटैचमेंट हर ईमेल के अंदर रहते हैं।
+One new .pst file with the folders, emails with their attachments, contacts and calendar items. In Outlook: File, Open & Export, Open Outlook Data File.	फ़ोल्डरों, अटैचमेंट वाले ईमेलों, संपर्कों और कैलेंडर आइटमों के साथ एक नई .pst फ़ाइल। Outlook में: File, Open & Export, Open Outlook Data File।
+Pictures from the internet are left out, as in the reading pane.	इंटरनेट के चित्र छोड़ दिए जाते हैं, जैसे पढ़ने वाले पैनल में।
+Saving as PDF needs Microsoft Edge WebView2, which isn't installed (it's free from Microsoft).	PDF के रूप में सहेजने के लिए Microsoft Edge WebView2 चाहिए, जो इंस्टॉल नहीं है (यह Microsoft से मुफ़्त है)।
+Files with the same name are numbered: "report (2).pdf". Attached emails are saved as .eml files.	एक ही नाम की फ़ाइलों पर नंबर लगते हैं: "report (2).pdf"। संलग्न ईमेल .eml फ़ाइलों के रूप में सहेजे जाते हैं।
+One .vcf file with every contact, photos included. Contact groups are kept with their members.	हर संपर्क के साथ एक .vcf फ़ाइल, फ़ोटो समेत। संपर्क समूह अपने सदस्यों के साथ रखे जाते हैं।
+One row per contact, ready to import into Outlook or Google Contacts. Group members are listed in the notes.	हर संपर्क की एक पंक्ति, Outlook या Google Contacts में आयात के लिए तैयार। समूह के सदस्य टिप्पणियों में होते हैं।
+One .ics file with every calendar item: repeats, skipped and moved times, reminders, attendees and time zones are kept.	हर कैलेंडर आइटम के साथ एक .ics फ़ाइल: दोहराव, छोड़े और बदले गए समय, अनुस्मारक, उपस्थित लोग और समय क्षेत्र बने रहते हैं।
+One row per email. Opens in Excel and other spreadsheet programs.	हर ईमेल की एक पंक्ति। Excel और दूसरे स्प्रेडशीट प्रोग्रामों में खुलती है।
+Choose where to save	चुनें कि कहाँ सहेजना है
+Emails	ईमेल
+Search results	खोज परिणाम
+All open files	सभी खुली फ़ाइलें
+Choose where to save.	चुनें कि कहाँ सहेजना है।
+Saving as PDF needs Microsoft Edge WebView2. It's free from Microsoft: {0}	PDF के रूप में सहेजने के लिए Microsoft Edge WebView2 चाहिए। यह Microsoft से मुफ़्त है: {0}
+That folder can't be used: {0}	वह फ़ोल्डर उपयोग नहीं हो सकता: {0}
+The emails couldn't be listed: {0}	ईमेलों की सूची नहीं बन सकी: {0}
+There's nothing there to export.	वहाँ निर्यात करने को कुछ नहीं है।
+{0}.pst	{0}.pst
+.vcf	.vcf
+.ics	.ics
+.csv	.csv
+Stop	रोकें
+Exporting…	निर्यात हो रहा है…
+{0} items to {1}	{0} आइटम {1} में
+{0} of {1}: {2}	{1} में से {0}: {2}
+{0}.pdf	{0}.pdf
+{0}: the PDF couldn't be made.	{0}: PDF नहीं बन सका।
+The PDF files couldn't be joined: {0}: {1}	PDF फ़ाइलें जोड़ी नहीं जा सकीं: {0}: {1}
+Export stopped	निर्यात रुका
+Export finished	निर्यात पूरा
+Export finished, with problems	निर्यात पूरा, कुछ समस्याओं के साथ
+{0} attachments saved from {1} emails.	{1} ईमेलों से {0} अटैचमेंट सहेजे गए।
+{0} emails listed in {1}.	{0} ईमेल {1} में सूचीबद्ध।
+{0} saved in {1}.	{0} {1} में सहेजे गए।
+{0} listed in {1}.	{0} {1} में सूचीबद्ध।
+{0} read; no file was made.	{0} पढ़े गए; कोई फ़ाइल नहीं बनी।
+{0} emails saved in one PDF.	{0} ईमेल एक PDF में सहेजे गए।
+{0} emails saved.	{0} ईमेल सहेजे गए।
+{0} couldn't be saved:	{0} सहेजे नहीं जा सके:
+Show in File Explorer	File Explorer में दिखाएँ
+Close	बंद करें
+This attached email couldn't be read.	यह संलग्न ईमेल पढ़ा नहीं जा सका।
+"{0}" can run programs on your computer. Only open it if you trust who sent it.\n\nOpen it anyway?	"{0}" आपके कंप्यूटर पर प्रोग्राम चला सकता है। केवल तभी खोलें जब आपको भेजने वाले पर भरोसा हो।\n\nफिर भी खोलें?
+Couldn't open the attachment.\n\n{0}	अटैचमेंट नहीं खुल सका।\n\n{0}
+Save the attachment	अटैचमेंट सहेजें
+Couldn't save the attachment.\n\n{0}	अटैचमेंट सहेजा नहीं जा सका।\n\n{0}
+Choose a folder for the attachments	अटैचमेंट के लिए फ़ोल्डर चुनें
+Save as an email file	ईमेल फ़ाइल के रूप में सहेजें
+Email file	ईमेल फ़ाइल
+Couldn't save the email.\n\n{0}	ईमेल सहेजा नहीं जा सका।\n\n{0}
+Saving as PDF needs Microsoft Edge WebView2, which isn't installed. It's free from Microsoft.	PDF के रूप में सहेजने के लिए Microsoft Edge WebView2 चाहिए, जो इंस्टॉल नहीं है। यह Microsoft से मुफ़्त है।
+Save as PDF	PDF के रूप में सहेजें
+PDF file	PDF फ़ाइल
+Couldn't save the PDF.	PDF सहेजा नहीं जा सका।
+Subject: {0}	विषय: {0}
+From: {0}	भेजने वाला: {0}
+Sent by: {0}	की ओर से भेजा: {0}
+Sent: {0}	भेजा गया: {0}
+Received: {0}	प्राप्त: {0}
+Message ID: {0}	संदेश ID: {0}
+Type: {0}	प्रकार: {0}
+Size: {0}	आकार: {0}
+This item has no internet headers (it may have been written in Outlook, or come from Exchange).	इस आइटम के इंटरनेट हेडर नहीं हैं (शायद यह Outlook में लिखा गया, या Exchange से आया)।
+Details	विवरण
+Where the email came from and how it travelled, as its mail servers recorded it.	ईमेल कहाँ से आया और कैसे पहुँचा, जैसा उसके मेल सर्वरों ने दर्ज किया।
+Copy	कॉपी करें
+Details · KUDUPST	विवरण · KUDUPST
+Open	खोलें
+Save as…	इस रूप में सहेजें…
+No attachments	कोई अटैचमेंट नहीं
+Save all attachments…	सभी अटैचमेंट सहेजें…
+Open this email in its own window	यह ईमेल अलग खिड़की में खोलें
+Save this email as an email file (.eml) or a PDF	यह ईमेल ईमेल फ़ाइल (.eml) या PDF के रूप में सहेजें
+Email file (.eml)…	ईमेल फ़ाइल (.eml)…
+PDF…	PDF…
+Open or save this email's attachments	इस ईमेल के अटैचमेंट खोलें या सहेजें
+Print	प्रिंट करें
+Print this email	यह ईमेल प्रिंट करें
+The internet headers and other details of this email	इस ईमेल के इंटरनेट हेडर और दूसरे विवरण
+{0} - KUDUPST	{0} - KUDUPST
+OK	OK
+Not Found	Not Found
+Blocked	Blocked
+Open this link in your web browser?\n\n{0}	यह लिंक अपने वेब ब्राउज़र में खोलें?\n\n{0}
+Show pictures	चित्र दिखाएँ
+Choose an email to read it here.	यहाँ पढ़ने के लिए कोई ईमेल चुनें।
+Install Microsoft Edge WebView2 (free, from Microsoft) to see emails as they were designed. Showing the text only.	ईमेल जैसे बनाए गए थे वैसे देखने के लिए Microsoft Edge WebView2 इंस्टॉल करें (मुफ़्त, Microsoft से)। केवल टेक्स्ट दिखाया जा रहा है।
+Pictures from the internet are blocked, so the sender can't tell you've opened this email.	इंटरनेट के चित्र रोके गए हैं, ताकि भेजने वाले को पता न चले कि आपने यह ईमेल खोला।
+From:	भेजने वाला:
+Date:	तारीख़:
+To:	प्राप्तकर्ता:
+Cc:	Cc:
+Attachment:	अटैचमेंट:
+document.body ? document.body.innerText : ''	document.body ? document.body.innerText : ''
+KUDUPST PDF	KUDUPST PDF
+Search emails	ईमेल खोजें
+With attachments	अटैचमेंट वाले
+Show system folders	सिस्टम फ़ोल्डर दिखाएँ
+Look deeper for deleted items	हटाए गए आइटमों के लिए और गहराई से देखें
+Open…	खोलें…
+Open a .pst, .ost, .msg or .eml file, as well as the ones open now (Ctrl+O)	अभी खुली फ़ाइलों के साथ एक .pst, .ost, .msg या .eml फ़ाइल खोलें (Ctrl+O)
+Save emails as email files, PDF, attachments only, or a list for Excel	ईमेलों को ईमेल फ़ाइलों, PDF, केवल अटैचमेंट, या Excel के लिए सूची के रूप में सहेजें
+Settings	सेटिंग्स
+About	परिचय
+Folders	फ़ोल्डर
+Reads the whole file for what's left of deleted items. Takes longer on big files; some may be only partly there.	हटाए गए आइटमों में से जो बचा है उसके लिए पूरी फ़ाइल पढ़ता है। बड़ी फ़ाइलों पर ज़्यादा समय लगता है; कुछ केवल आंशिक हो सकते हैं।
+Close this file	यह फ़ाइल बंद करें
+Close the file shown (the others stay open)	दिखाई गई फ़ाइल बंद करें (बाक़ी खुली रहती हैं)
+Close all	सभी बंद करें
+Close every open file	हर खुली फ़ाइल बंद करें
+Words to look for in the emails: subject, sender, recipients, text and attachment names	ईमेल में खोजने के शब्द: विषय, भेजने वाला, प्राप्तकर्ता, टेक्स्ट और अटैचमेंट के नाम
+Search	खोजें
+This file	यह फ़ाइल
+This folder	यह फ़ोल्डर
+Where to look	कहाँ देखें
+Everything	सब कुछ
+What to look in	किसमें देखें
+Dates and attachments	तारीख़ें और अटैचमेंट
+Filters	फ़िल्टर
+to	तक
+Clear	साफ़ करें
+Sort the list	सूची क्रमबद्ध करें
+{0} {1} is available	{0} {1} उपलब्ध है
+Open an Outlook data file	एक Outlook डेटा फ़ाइल खोलें
+PST and OST files, and single emails saved as .msg or .eml. Outlook isn't needed, and the file is only read, never changed.	PST और OST फ़ाइलें, और .msg या .eml के रूप में सहेजे गए अलग ईमेल। Outlook की ज़रूरत नहीं, और फ़ाइल केवल पढ़ी जाती है, कभी बदली नहीं जाती।
+Open a file…	एक फ़ाइल खोलें…
+or drop it on this window	या इसे इस खिड़की पर छोड़ें
+Opened recently	हाल में खोली गईं
+Nothing opened yet	अभी कुछ नहीं खोला
+Clear this list	यह सूची साफ़ करें
+Open an Outlook data file or an email	एक Outlook डेटा फ़ाइल या ईमेल खोलें
+Outlook files and emails	Outlook फ़ाइलें और ईमेल
+Outlook data files (*.pst, *.ost)	Outlook डेटा फ़ाइलें (*.pst, *.ost)
+Emails (*.msg, *.eml)	ईमेल (*.msg, *.eml)
+That's a folder. Choose a .pst, .ost, .msg or .eml file.	यह एक फ़ोल्डर है। एक .pst, .ost, .msg या .eml फ़ाइल चुनें।
+Couldn't open "{0}".\n\n{1}	"{0}" नहीं खुल सका।\n\n{1}
+{0} files	{0} फ़ाइलें
+{0} files open	{0} फ़ाइलें खुली हैं
+Close "{0}"	"{0}" बंद करें
+Close the single emails	अलग ईमेल बंद करें
+Close all files	सभी फ़ाइलें बंद करें
+Search is limited: the search index of {0} couldn't be made ({1})	खोज सीमित है: {0} का खोज इंडेक्स नहीं बन सका ({1})
+Couldn't finish the search index: {0}	खोज इंडेक्स पूरा नहीं हो सका: {0}
+Search ready · {0} items · still making the index of {1}	खोज तैयार · {0} आइटम · {1} का इंडेक्स अभी बन रहा है
+Search ready · {0} items here, {1} in all open files	खोज तैयार · यहाँ {0} आइटम, सभी खुली फ़ाइलों में {1}
+Search ready · {0} items	खोज तैयार · {0} आइटम
+Making the search index of {0}	{0} का खोज इंडेक्स बन रहा है
+Looking through the whole file…	पूरी फ़ाइल देखी जा रही है…
+Looking through the whole file… {0}	पूरी फ़ाइल देखी जा रही है… {0}
+Stopped looking.	देखना रोका।
+Couldn't look through the whole file: {0}	पूरी फ़ाइल नहीं देखी जा सकी: {0}
+Stop looking	देखना रोकें
+Looked through the whole file: no deleted items left in it.	पूरी फ़ाइल देखी: कोई हटाया गया आइटम नहीं बचा।
+Looked through the whole file: {0} found ({1} only partly).	पूरी फ़ाइल देखी: {0} मिले ({1} केवल आंशिक)।
+Looked through the whole file: {0} found.	पूरी फ़ाइल देखी: {0} मिले।
+deleted item	हटाया गया आइटम
+Some folders of {0} couldn't be read: {1}	{0} के कुछ फ़ोल्डर पढ़े नहीं जा सके: {1}
+Single emails	अलग ईमेल
+1 email file	1 ईमेल फ़ाइल
+{0} email files	{0} ईमेल फ़ाइलें
+Reading the folder…	फ़ोल्डर पढ़ा जा रहा है…
+This folder couldn't be read: {0}	यह फ़ोल्डर पढ़ा नहीं जा सका: {0}
+A search folder: Outlook keeps its results elsewhere, so it has nothing to show here.	एक खोज फ़ोल्डर: Outlook इसके परिणाम कहीं और रखता है, इसलिए यहाँ दिखाने को कुछ नहीं।
+{0} in {1} ({2})	{1} में {0} ({2})
+{0} in {1}	{1} में {0}
+Searching…	खोज हो रही है…
+Single emails › {0}	अलग ईमेल › {0}
+The search didn't work: {0}	खोज काम नहीं की: {0}
+all {0} open files	सभी {0} खुली फ़ाइलें
+the single emails	अलग ईमेल
+Nothing found	कुछ नहीं मिला
+1 item found	1 आइटम मिला
+{0} items found	{0} आइटम मिले
+so far (the search index is still being made)	अब तक (खोज इंडेक्स अभी बन रहा है)
+Newest first	नए पहले
+Oldest first	पुराने पहले
+Largest first	बड़े पहले
+Name	नाम
+Contacts	संपर्क
+Calendar	कैलेंडर
+{0} selected	{0} चुने गए
+This item couldn't be read: {0}	यह आइटम पढ़ा नहीं जा सका: {0}
+This item couldn't be read.\n\n{0}	यह आइटम पढ़ा नहीं जा सका।\n\n{0}
+Open in its own window	अलग खिड़की में खोलें
+Export the {0} selected…	चुने गए {0} निर्यात करें…
+Export…	निर्यात…
+Settings · KUDUPST	सेटिंग्स · KUDUPST
+Appearance	रूप
+Same as Windows	Windows जैसा
+Language	भाषा
+Privacy	गोपनीयता
+Always show pictures from the internet in emails	ईमेल में इंटरनेट के चित्र हमेशा दिखाएँ
+Off: they're blocked until you click "Show pictures", so senders can't tell you opened their email.	बंद: "चित्र दिखाएँ" दबाने तक रोके जाते हैं, ताकि भेजने वालों को पता न चले कि आपने ईमेल खोला।
+File Explorer	File Explorer
+Add "Open with KUDUPST" to the right-click menu of .pst, .ost, .msg and .eml files	.pst, .ost, .msg और .eml फ़ाइलों के राइट-क्लिक मेनू में "Open with KUDUPST" जोड़ें
+Open these files in KUDUPST when they're double-clicked	डबल-क्लिक करने पर ये फ़ाइलें KUDUPST में खोलें
+For your Windows account only. If you chose another program in Windows' "Open with", Windows keeps that choice. On Windows 11 the menu is under "Show more options".	केवल आपके Windows खाते के लिए। अगर आपने Windows के "Open with" में दूसरा प्रोग्राम चुना है, तो Windows वही रखता है। Windows 11 पर ये "Show more options" के अंदर हैं।
+Search indexes use {0} in your AppData folder. They're never stored next to your files.	खोज इंडेक्स आपके AppData फ़ोल्डर में {0} लेते हैं। वे कभी आपकी फ़ाइलों के पास नहीं रखे जाते।
+Delete all search indexes	सभी खोज इंडेक्स हटाएँ
+Delete the search indexes? They're made again when you next open a file.	खोज इंडेक्स हटाएँ? अगली बार फ़ाइल खोलने पर वे फिर बनेंगे।
+Some indexes are in use and weren't deleted.\n\n{0}	कुछ इंडेक्स उपयोग में हैं और हटाए नहीं गए।\n\n{0}
+Updates	अपडेट
+Check for a new KUDUPST version when it starts	शुरू होने पर KUDUPST का नया संस्करण देखें
+Only asks GitHub for the latest version number. Nothing is downloaded without asking.	GitHub से केवल नवीनतम संस्करण का नंबर पूछता है। बिना पूछे कुछ डाउनलोड नहीं होता।
+About KUDUPST	KUDUPST के बारे में
+Password	पासवर्ड
+That's not the password.	यह पासवर्ड नहीं है।
+Forgot the password?	पासवर्ड भूल गए?
+Outlook's password only stops Outlook from opening the file; the emails in it aren't locked with it, so KUDUPST can read them anyway.\n\nOnly do this with your own files, or files you're allowed to read.\n\nOpen it without the password?	Outlook का पासवर्ड केवल Outlook को फ़ाइल खोलने से रोकता है; उसके ईमेल इससे लॉक नहीं होते, इसलिए KUDUPST उन्हें बिना पासवर्ड पढ़ सकता है। इसे केवल अपनी फ़ाइलों के लिए उपयोग करें।
+This file has a password	इस फ़ाइल में पासवर्ड है
+"{0}" was given a password in Outlook. Type it to open the file.	"{0}" को Outlook में पासवर्ड दिया गया था। फ़ाइल खोलने के लिए इसे लिखें।
+Password · KUDUPST	पासवर्ड · KUDUPST
+KUDUPST	KUDUPST
+Version {0} · Read, search and export Outlook files	संस्करण {0} · Outlook फ़ाइलें पढ़ें, खोजें और निर्यात करें
+Azeem, with Claude and	Azeem, with Claude and
+Made by	Made by
+Licence	लाइसेंस
+MIT · free and open source	MIT · मुफ़्त और ओपन सोर्स
+View	देखें
+Source code	सोर्स कोड
+Reading files	फ़ाइलें पढ़ना
+Its own reader for Outlook PST and OST files, .msg and .eml emails	Outlook PST और OST फ़ाइलों, .msg और .eml ईमेलों के लिए अपना रीडर
+Showing emails	ईमेल दिखाना
+Microsoft Edge WebView2 {0}	Microsoft Edge WebView2 {0}
+Text only (Microsoft Edge WebView2 isn't installed)	केवल टेक्स्ट (Microsoft Edge WebView2 इंस्टॉल नहीं है)
+Third-party	तृतीय पक्ष
+Third-party notices	तृतीय पक्ष सूचनाएँ
+KUDUPST only reads your files; it never changes them. Search indexes are kept in your AppData folder. Nothing is sent anywhere.	KUDUPST केवल आपकी फ़ाइलें पढ़ता है; उन्हें कभी नहीं बदलता। खोज इंडेक्स आपके AppData फ़ोल्डर में रखे जाते हैं। कुछ भी कहीं नहीं भेजा जाता।
+Check for updates	अपडेट देखें
+Couldn't find any published version yet.	अभी तक कोई प्रकाशित संस्करण नहीं मिला।
+KUDUPST {0} is available. Open the download page?	KUDUPST {0} उपलब्ध है। डाउनलोड पेज खोलें?
+You have the latest version.	आपके पास नवीनतम संस्करण है।
+Couldn't check for updates. Check your internet connection and try again.	अपडेट नहीं देखे जा सके। अपना इंटरनेट कनेक्शन जाँचें और फिर कोशिश करें।
+Count	गिनती
+(no name)	(कोई नाम नहीं)
+.msg and .eml files open on their own	अपने आप खुली .msg और .eml फ़ाइलें
+{0} items, {1} not read	{0} आइटम, {1} नहीं पढ़े
+All day, {0} days	पूरा दिन, {0} दिन
+All day	पूरा दिन
+Partial	आंशिक
+(no sender)	(कोई भेजने वाला नहीं)
+(repeats)	(दोहराता है)
+In: {0}	में: {0}
+Deleted, and only partly found	हटाया गया, और केवल आंशिक मिला
+Deleted (found inside the file)	हटाया गया (फ़ाइल के अंदर मिला)
+Was in {0}	{0} में था
+{0} ran into a problem it couldn't get past, and has to close.	{0} को ऐसी समस्या आई जिससे वह आगे नहीं बढ़ सका, और उसे बंद होना होगा।
+{0} contact	{0} संपर्क
+{0} contacts	{0} संपर्क
+{0} calendar item	{0} कैलेंडर आइटम
+{0} calendar items	{0} कैलेंडर आइटम
+{0} item	{0} आइटम
+{0} items	{0} आइटम
+{0} deleted item	{0} हटाया गया आइटम
+{0} deleted items	{0} हटाए गए आइटम

@@ -45,6 +45,7 @@
 - **Password-protected PST files** ask for their password. If you've forgotten the password of your own file, KUDUPST can open it anyway (Outlook's password doesn't lock the emails themselves).
 - **Never changes your files**: everything is only read. The search index is kept in your own AppData folder, never next to the file.
 - **Open files your way**: drop them on the window, use Open or the recent files list, or (optional, chosen when installing or in Settings) right-click a file → *Open with KUDUPST*, or open it with a double-click.
+- **In your language**: English, Malayalam (മലയാളം), Hindi (हिन्दी), Spanish, French and Arabic (with the windows mirrored for right-to-left). KUDUPST starts in the same language as Windows when it has it; choose another in Settings. Emails themselves are never changed, and exported contact and calendar files keep the column names Outlook and Google expect.
 - Light and dark themes, following Windows.
 
 ## Download

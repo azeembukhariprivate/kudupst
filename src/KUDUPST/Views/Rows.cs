@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
+using Kudupst.Core;
 using Kudupst.Core.Mail;
 using Kudupst.Core.Pst;
 using Kudupst.Core.Search;
@@ -56,7 +57,8 @@ namespace Kudupst.Views
         public bool IsFile => Type == FolderRowKind.File;
         public bool IsSingles => Type == FolderRowKind.Singles;
 
-        public string Name => IsFile ? File.Name : IsSingles ? "Single emails" : Folder.Name.Length > 0 ? Folder.Name : "(no name)";
+        // Rows are drawn from templates, so their own words are put into the language here (names of folders stay as they are).
+        public string Name => IsFile ? File.Name : IsSingles ? Lang.T("Single emails") : Folder.Name.Length > 0 ? Folder.Name : Lang.T("(no name)");
         public FontWeight NameWeight => IsFile || IsSingles ? FontWeights.SemiBold : FontWeights.Normal;
         public Thickness Indent => new Thickness(4 + Depth * 16, 0, 0, 0);
         public string Expander => CanExpand ? (Expanded ? "▾" : "▸") : string.Empty;
@@ -80,7 +82,7 @@ namespace Kudupst.Views
 
         public string CountText => IsSingles ? Count.ToString("N0", CultureInfo.CurrentCulture) : IsFile ? string.Empty : Folder.UnreadCount > 0 ? Folder.UnreadCount.ToString("N0", CultureInfo.CurrentCulture) : Folder.ItemCount > 0 ? Folder.ItemCount.ToString("N0", CultureInfo.CurrentCulture) : string.Empty;
         public FontWeight CountWeight => Folder.UnreadCount > 0 ? FontWeights.SemiBold : FontWeights.Normal;
-        public string Tip => IsFile ? File.Path : IsSingles ? ".msg and .eml files open on their own" : Folder.UnreadCount > 0 ? $"{Folder.ItemCount:N0} items, {Folder.UnreadCount:N0} not read" : $"{Folder.ItemCount:N0} items";
+        public string Tip => IsFile ? File.Path : IsSingles ? Lang.T(".msg and .eml files open on their own") : Folder.UnreadCount > 0 ? Lang.T("{0} items, {1} not read", Folder.ItemCount.ToString("N0"), Folder.UnreadCount.ToString("N0")) : Format.Count(Folder.ItemCount, "item");
     }
 
     /// <summary>An item in the mail list.</summary>
@@ -169,7 +171,7 @@ namespace Kudupst.Views
                     if (AllDay)
                     {
                         var days = End.HasValue ? (int)Math.Round((End.Value - Start.Value).TotalDays) : 1;
-                        time = days > 1 ? $"All day, {days} days" : "All day";
+                        time = days > 1 ? Lang.T("All day, {0} days", days) : Lang.T("All day");
                     }
                     else
                     {
@@ -180,7 +182,7 @@ namespace Kudupst.Views
                     }
                     return Location.Length > 0 ? time + "  ·  " + Location : time;
                 }
-                if (Kind == ItemKind.DistributionList) return "Contact group";
+                if (Kind == ItemKind.DistributionList) return Lang.T("Contact group");
                 if (IsContact) return string.Join("  ·  ", new[] { Company, Email }.Where(x => x.Length > 0));
                 return SubjectText;
             }
@@ -197,12 +199,12 @@ namespace Kudupst.Views
         }
 
         /// <summary>A mark for deleted items found in the file, and for repeating calendar items.</summary>
-        public string MarkText => Partial ? "Partial" : Deleted ? "Deleted" : IsCalendar && Recurring ? "Repeats" : string.Empty;
+        public string MarkText => Lang.T(Partial ? "Partial" : Deleted ? "Deleted" : IsCalendar && Recurring ? "Repeats" : string.Empty);
         public Visibility MarkVisible => MarkText.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         public ItemKind Kind => ItemKinds.Of(MessageClass);
-        public string FromText => From.Length > 0 ? From : "(no sender)";
-        public string SubjectText => Subject.Length > 0 ? Subject : IsContact && Email.Length > 0 ? Email : IsContact ? "(no name)" : "(no subject)";
+        public string FromText => From.Length > 0 ? From : Lang.T("(no sender)");
+        public string SubjectText => Subject.Length > 0 ? Subject : IsContact && Email.Length > 0 ? Email : IsContact ? Lang.T("(no name)") : Lang.T("(no subject)");
         public FontWeight Weight => Read ? FontWeights.Normal : FontWeights.SemiBold;
         public Visibility UnreadBar => Read ? Visibility.Hidden : Visibility.Visible;
         public Visibility AttachmentVisible => HasAttachments ? Visibility.Visible : Visibility.Collapsed;
@@ -245,19 +247,19 @@ namespace Kudupst.Views
             get
             {
                 var parts = new List<string> { SubjectText };
-                if (IsCalendar) parts.Add(RightText + ", " + Line2 + (Recurring ? " (repeats)" : string.Empty));
+                if (IsCalendar) parts.Add(RightText + ", " + Line2 + (Recurring ? " " + Lang.T("(repeats)") : string.Empty));
                 else if (IsContact) parts.Add(Line2);
-                else parts.Add("From: " + FromText);
+                else parts.Add(Lang.T("From: {0}", FromText));
                 if (Date.HasValue && !IsCalendar && !IsContact) parts.Add(MailHtml.FormatDate(Date.Value));
                 if (Size > 0) parts.Add(MailHtml.Size(Size));
-                if (FolderName.Length > 0) parts.Add("In: " + FolderName);
-                if (Kind != ItemKind.Email) parts.Add(ItemKinds.Name(Kind));
-                if (Deleted) parts.Add(Partial ? "Deleted, and only partly found" : "Deleted (found inside the file)");
+                if (FolderName.Length > 0) parts.Add(Lang.T("In: {0}", FolderName));
+                if (Kind != ItemKind.Email) parts.Add(Lang.T(ItemKinds.Name(Kind)));
+                if (Deleted) parts.Add(Lang.T(Partial ? "Deleted, and only partly found" : "Deleted (found inside the file)"));
                 return string.Join("\n", parts);
             }
         }
 
-        public string FolderLine => Deleted && FoundIn.Length > 0 ? "Was in " + FoundIn : FolderName;
+        public string FolderLine => Deleted && FoundIn.Length > 0 ? Lang.T("Was in {0}", FoundIn) : FolderName;
         public Visibility FolderVisible => FolderLine.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 

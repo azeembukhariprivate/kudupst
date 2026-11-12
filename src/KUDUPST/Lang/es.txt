@@ -1,0 +1,583 @@
+Something went wrong:\n\n{0}	Algo salió mal:\n\n{0}
+Azeem Bukhari	Azeem Bukhari
+less than a second	menos de un segundo
+{0} h {1} min	{0} h {1} min
+{0} min {1} s	{0} min {1} s
+This email file is too big to open (over 300 MB).	Este archivo de correo es demasiado grande para abrirlo (más de 300 MB).
+"{0}" was open last time but isn't there now, so it was left out.	"{0}" estaba abierto la última vez pero ya no está, así que se dejó fuera.
+{0} files open last time aren't there now, so they were left out: {1}	{0} archivos abiertos la última vez ya no están, así que se dejaron fuera: {1}
+Theme	Tema
+Recent	Recientes
+Outlook data file	Archivo de datos de Outlook
+Outlook offline data file	Archivo de datos sin conexión de Outlook
+Outlook email	Correo de Outlook
+Email message	Mensaje de correo
+Open with KUDUPST	Abrir con KUDUPST
+Missing theme resource {0}	Missing theme resource {0}
+Light	Claro
+Styles	Styles
+Dark	Oscuro
+Application	Application
+,PREF	,PREF
+WORK	WORK
+HOME	HOME
+POSTAL	POSTAL
+Contact group members:\n{0}	Contact group members:\n{0}
+Title	Title
+First Name	First Name
+Middle Name	Middle Name
+Last Name	Last Name
+Suffix	Suffix
+Nickname	Apodo
+Company	Empresa
+Department	Departamento
+Job Title	Job Title
+Office Location	Office Location
+Manager's Name	Manager's Name
+Assistant's Name	Assistant's Name
+Business Street	Business Street
+Business City	Business City
+Business State	Business State
+Business Postal Code	Business Postal Code
+Business Country/Region	Business Country/Region
+Home Street	Home Street
+Home City	Home City
+Home State	Home State
+Home Postal Code	Home Postal Code
+Home Country/Region	Home Country/Region
+Other Street	Other Street
+Other City	Other City
+Other State	Other State
+Other Postal Code	Other Postal Code
+Other Country/Region	Other Country/Region
+Assistant's Phone	Assistant's Phone
+Business Fax	Business Fax
+Business Phone	Business Phone
+Business Phone 2	Business Phone 2
+Car Phone	Car Phone
+Company Main Phone	Company Main Phone
+Home Fax	Home Fax
+Home Phone	Home Phone
+Home Phone 2	Home Phone 2
+Mobile Phone	Mobile Phone
+Other Phone	Other Phone
+Pager	Pager
+Primary Phone	Primary Phone
+E-mail Address	E-mail Address
+E-mail Display Name	E-mail Display Name
+E-mail 2 Address	E-mail 2 Address
+E-mail 2 Display Name	E-mail 2 Display Name
+E-mail 3 Address	E-mail 3 Address
+E-mail 3 Display Name	E-mail 3 Display Name
+Anniversary	Aniversario
+Birthday	Cumpleaños
+Spouse	Spouse
+Web Page	Web Page
+Personal Web Page	Personal Web Page
+Categories	Categorías
+Notes	Notas
+Contact group members: {0}	Contact group members: {0}
+Work	Trabajo
+Business	Empresa
+Home	Casa
+Other	Otro
+{0} Street	{0} Street
+{0} City	{0} City
+{0} State	{0} State
+{0} Postal Code	{0} Postal Code
+E-mail{0} Address	E-mail{0} Address
+E-mail{0} Display Name	E-mail{0} Display Name
+EXDATE{0}	EXDATE{0}
+TRANSPARENT	TRANSPARENT
+OPAQUE	OPAQUE
+FREE	FREE
+TENTATIVE	TENTATIVE
+OOF	OOF
+WORKINGELSEWHERE	WORKINGELSEWHERE
+BUSY	BUSY
+PRIVATE	PRIVATE
+CONFIDENTIAL	CONFIDENTIAL
+PUBLIC	PUBLIC
+OPT-PARTICIPANT	OPT-PARTICIPANT
+NON-PARTICIPANT	NON-PARTICIPANT
+REQ-PARTICIPANT	REQ-PARTICIPANT
+ACCEPTED	ACCEPTED
+DECLINED	DECLINED
+NEEDS-ACTION	NEEDS-ACTION
+Reminder	Recordatorio
+mailto:{0}	mailto:{0}
+Time zone	Zona horaria
+PDF is saved by the app window.	PDF is saved by the app window.
+{0}.eml	{0}.eml
+Folder	Carpeta
+Date	Fecha
+From	De
+From address	Dirección del remitente
+To	Para
+Cc	CC
+Subject	Asunto
+Size (KB)	Tamaño (KB)
+Attachments	Adjuntos
+Read	Leído
+Type	Tipo
+Yes	Sí
+No	No
+Exported items	Exported items
+{0}.unfinished	{0}.unfinished
+(no subject)	(sin asunto)
+Free	Libre
+Tentative	Provisional
+Away	Fuera
+Working elsewhere	Trabajando en otro lugar
+Busy	Ocupado
+Organiser	Organizador
+Accepted	Aceptado
+Declined	Rechazado
+No reply	Sin respuesta
+Optional	Opcional
+Room or equipment	Sala o equipo
+Required	Obligatorio
+Sunday	domingo
+Monday	lunes
+Tuesday	martes
+Wednesday	miércoles
+Thursday	jueves
+Friday	viernes
+Saturday	sábado
+{0} and {1}	{0} and {1}
+Every {0}	Every {0}
+Every {0} {1}	Every {0} {1}
+first	first
+Every weekday	Every weekday
+Every {0} weeks on {1}	Every {0} weeks on {1}
+{1} on day {0}	{1} on day {0}
+{3} on the {0} {1} of {2}	{3} on the {0} {1} of {2}
+{2} on the {0} {1}	{2} on the {0} {1}
+{1} on the last day of {0}	{1} on the last day of {0}
+{0} on the last day	{0} on the last day
+Repeats	Se repite
+, once	, once
+, {0} times	, {0} times
+, until {0}	, until {0}
+The repeat details are damaged.	Los datos de repetición están dañados.
+Mobile	Móvil
+Business 2	Empresa 2
+Home 2	Casa 2
+Business fax	Fax de empresa
+Home fax	Fax de casa
+Car	Coche
+Primary	Principal
+Company main	Número principal de la empresa
+Assistant	Asistente
+Keywords	Palabras clave
+Bcc	Bcc
+Sender	Sender
+ddd, dd MMM yyyy HH:mm:ss '+0000'	ddd, dd MMM yyyy HH:mm:ss '+0000'
+References	References
+Importance	Importancia
+high	high
+low	low
+This is a message in MIME format.	This is a message in MIME format.
+Content-Transfer-Encoding: quoted-printable	Content-Transfer-Encoding: quoted-printable
+Content-Type: message/rfc822	Content-Type: message/rfc822
+Content-Disposition: attachment	Content-Disposition: attachment
+Content-Transfer-Encoding: base64	Content-Transfer-Encoding: base64
+inline	inline
+attachment	attachment
+Content-ID: <	Content-ID: <
+(\\r?\\n[ \\t]*){3,}	(\\r?\\n[ \\t]*){3,}
+default-src 'none'; img-src * data: blob:; style-src * 'unsafe-inline'; font-src * data:; media-src *	default-src 'none'; img-src * data: blob:; style-src * 'unsafe-inline'; font-src * data:; media-src *
+default-src 'none'; img-src data: blob: {0}; style-src 'unsafe-inline' {1}; font-src data:	default-src 'none'; img-src data: blob: {0}; style-src 'unsafe-inline' {1}; font-src data:
+Deleted	Eliminado
+Found inside the file (it was in {0}).	Encontrado dentro del archivo (estaba en {0}).
+Found inside the file.	Encontrado dentro del archivo.
+Only part of it is left: some text, recipients or attachments may be missing.	Solo queda una parte: puede faltar texto, destinatarios o adjuntos.
+1 member	1 miembro
+{0} members	{0} miembros
+Sent by	Enviado en nombre de
+Sent	Enviado
+High	Alta
+Sensitivity	Confidencialidad
+Private	Privado
+Confidential	Confidencial
+" title="Open">	" title="Open">
+Full name	Nombre completo
+File as	Archivar como
+Job title	Puesto
+Office	Oficina
+Profession	Profesión
+Email	Correo
+{0} phone	Teléfono {0}
+{0} address	Dirección {0}
+Web page	Página web
+Chat address	Dirección de chat
+Partner	Pareja
+Manager	Jefe
+When	Cuándo
+Where	Dónde
+Attendees	Asistentes
+None	Ninguno
+Show as	Mostrar como
+{0}, all day	{0}, todo el día
+When it starts	Al empezar
+1 week before	1 semana antes
+{0} weeks before	{0} semanas antes
+1 day before	1 día antes
+{0} days before	{0} días antes
+1 hour before	1 hora antes
+{0} hours before	{0} horas antes
+1 minute before	1 minuto antes
+{0} minutes before	{0} minutos antes
+{0} bytes	{0} bytes
+Meeting request	Convocatoria de reunión
+Appointment	Cita
+Contact	Contacto
+Contact group	Grupo de contactos
+Task	Tarea
+Note	Nota
+Journal entry	Entrada del diario
+Delivery report	Informe de entrega
+Item	Elemento
+Received	Recibido
+Attached email	Correo adjunto
+This isn't an Outlook .msg file.	Esto no es un archivo .msg de Outlook.
+This .msg file is damaged.	Este archivo .msg está dañado.
+This Outlook data file is damaged: an item's contents are unreadable.	Este archivo de datos de Outlook está dañado: no se puede leer el contenido de un elemento.
+This Outlook data file is damaged: an index inside an item is unreadable.	Este archivo de datos de Outlook está dañado: no se puede leer un índice dentro de un elemento.
+This Outlook data file is damaged: an item's properties are unreadable.	Este archivo de datos de Outlook está dañado: no se pueden leer las propiedades de un elemento.
+This Outlook data file is damaged: a list of items is unreadable.	Este archivo de datos de Outlook está dañado: no se puede leer una lista de elementos.
+A block holds 1 to 8176 bytes.	A block holds 1 to 8176 bytes.
+This item is too big to save in an Outlook data file.	Este elemento es demasiado grande para guardarlo en un archivo de datos de Outlook.
+This item has too many parts to save in an Outlook data file.	Este elemento tiene demasiadas partes para guardarlo en un archivo de datos de Outlook.
+This file is too small to be an Outlook data file.	Este archivo es demasiado pequeño para ser un archivo de datos de Outlook.
+This isn't an Outlook data file (.pst or .ost).	Esto no es un archivo de datos de Outlook (.pst ni .ost).
+This Outlook data file uses a format KUDUPST doesn't know (version {0}).	Este archivo de datos de Outlook usa un formato que KUDUPST no conoce (versión {0}).
+This Outlook data file uses an unknown kind of encryption.	Este archivo de datos de Outlook usa un tipo de cifrado desconocido.
+This Outlook data file is damaged: its index is missing.	Este archivo de datos de Outlook está dañado: falta su índice.
+This Outlook data file is damaged: an index page is outside the file.	Este archivo de datos de Outlook está dañado: una página del índice está fuera del archivo.
+This Outlook data file is cut short.	Este archivo de datos de Outlook está incompleto.
+This Outlook data file is damaged: an index page is unreadable.	Este archivo de datos de Outlook está dañado: no se puede leer una página del índice.
+This Outlook data file is damaged: its index is too deep.	Este archivo de datos de Outlook está dañado: su índice es demasiado profundo.
+This Outlook data file is damaged: item {0} is missing.	Este archivo de datos de Outlook está dañado: falta el elemento {0}.
+This Outlook data file is damaged: block {0} is missing.	Este archivo de datos de Outlook está dañado: falta el bloque {0}.
+This Outlook data file is damaged: a block is outside the file.	Este archivo de datos de Outlook está dañado: un bloque está fuera del archivo.
+This Outlook data file is damaged: a compressed block is unreadable.	Este archivo de datos de Outlook está dañado: no se puede leer un bloque comprimido.
+This Outlook data file is damaged: a block list is unreadable.	Este archivo de datos de Outlook está dañado: no se puede leer una lista de bloques.
+This Outlook data file is damaged: a list of item parts is unreadable.	Este archivo de datos de Outlook está dañado: no se puede leer una lista de partes de un elemento.
+Too big for a heap: {0}	Too big for a heap: {0}
+Replace keeps the length.	Replace keeps the length.
+Found deleted items	Elementos eliminados encontrados
+Personal Folders	Personal Folders
+Top of Personal Folders	Top of Personal Folders
+Search Root	Search Root
+Deleted Items	Deleted Items
+The file is already finished.	The file is already finished.
+SMTP	SMTP
+Attachment	Adjunto
+{0}.tmp	{0}.tmp
+Not an index file.	No es un archivo de índice.
+The search index is damaged.	El índice de búsqueda está dañado.
+Index	Index
+KUDUPST index	KUDUPST index
+KUDUPST index (found items)	KUDUPST index (found items)
+Indexing for search… {0:P0}	Indexing for search… {0:P0}
+Indexing for search…	Preparando la búsqueda…
+Error message shown: {0}	Error message shown: {0}
+All files	Todos los archivos
+Save	Guardar
+Cancel	Cancelar
+Keep the folder structure (a folder for each Outlook folder)	Mantener la estructura de carpetas (una carpeta por cada carpeta de Outlook)
+Put all emails in one PDF file (with a bookmark for each)	Poner todos los correos en un solo PDF (con un marcador para cada uno)
+Also save pictures that are part of the email text (logos and the like)	Guardar también las imágenes que forman parte del texto (logotipos y similares)
+Export · KUDUPST	Exportar · KUDUPST
+contacts	contactos
+calendar items	elementos del calendario
+emails	correos
+Export	Exportar
+Save as	Guardar como
+Contacts (.vcf)	Contactos (.vcf)
+All the contacts in one vCard file, for phones, Google Contacts, Apple Contacts, Thunderbird and Outlook.	Todos los contactos en un archivo vCard, para teléfonos, Google Contacts, Apple Contacts, Thunderbird y Outlook.
+Contacts list (CSV)	Lista de contactos (CSV)
+A CSV file with the columns Outlook and Google Contacts use when importing contacts.	Un archivo CSV con las columnas que usan Outlook y Google Contacts al importar contactos.
+Calendar (.ics)	Calendario (.ics)
+All the calendar items in one file, for Google Calendar, Apple Calendar, Thunderbird and Outlook. Repeating items keep their pattern.	Todos los elementos del calendario en un archivo, para Google Calendar, Apple Calendar, Thunderbird y Outlook. Los elementos que se repiten conservan su patrón.
+Email files (.eml)	Archivos de correo (.eml)
+One file per email, with its attachments inside. Opens in Outlook, Thunderbird, Windows Mail and other mail programs.	Un archivo por correo, con sus adjuntos dentro. Se abre en Outlook, Thunderbird, Windows Mail y otros programas de correo.
+Outlook file (.pst)	Archivo de Outlook (.pst)
+One new Outlook data file with the folders and everything in them. The file you opened isn't changed.	Un archivo de datos de Outlook nuevo con las carpetas y todo lo que contienen. El archivo que abriste no cambia.
+Each email as a PDF, looking as it does on screen, with a list of its attachments.	Cada correo como PDF, tal como se ve en pantalla, con una lista de sus adjuntos.
+Attachments only	Solo adjuntos
+The attached files, without the emails.	Los archivos adjuntos, sin los correos.
+List (CSV)	Lista (CSV)
+A list of the emails for Excel: date, from, to, subject, size and attachment names.	Una lista de los correos para Excel: fecha, remitente, destinatario, asunto, tamaño y nombres de adjuntos.
+Which {0}	Qué {0}
+calendar item	elemento del calendario
+contact	contacto
+email	correo
+The selected {0}	El {0} seleccionado
+The {0} selected {1}	Los {0} {1} seleccionados
+The search results ({0})	Los resultados de búsqueda ({0})
+The folder "{0}" ({1})	La carpeta "{0}" ({1})
+"{0}" and the folders in it	"{0}" y las carpetas que contiene
+Everything in "{0}"	Todo lo de "{0}"
+Everything in the file	Todo el archivo
+All {0} single emails	Los {0} correos sueltos
+This {0}	Este {0}
+Everything in all {0} open files	Todo lo de los {0} archivos abiertos
+Choose…	Elegir…
+One .eml file per email, named by date and subject. Attachments stay inside each email.	Un archivo .eml por correo, nombrado por fecha y asunto. Los adjuntos quedan dentro de cada correo.
+One new .pst file with the folders, emails with their attachments, contacts and calendar items. In Outlook: File, Open & Export, Open Outlook Data File.	Un archivo .pst nuevo con las carpetas, los correos con sus adjuntos, los contactos y los elementos del calendario. En Outlook: Archivo, Abrir y exportar, Abrir archivo de datos de Outlook.
+Pictures from the internet are left out, as in the reading pane.	Las imágenes de internet se dejan fuera, como en el panel de lectura.
+Saving as PDF needs Microsoft Edge WebView2, which isn't installed (it's free from Microsoft).	Guardar como PDF necesita Microsoft Edge WebView2, que no está instalado (es gratis de Microsoft).
+Files with the same name are numbered: "report (2).pdf". Attached emails are saved as .eml files.	Los archivos con el mismo nombre se numeran: "report (2).pdf". Los correos adjuntos se guardan como archivos .eml.
+One .vcf file with every contact, photos included. Contact groups are kept with their members.	Un archivo .vcf con todos los contactos, fotos incluidas. Los grupos de contactos se guardan con sus miembros.
+One row per contact, ready to import into Outlook or Google Contacts. Group members are listed in the notes.	Una fila por contacto, lista para importar en Outlook o Google Contacts. Los miembros de los grupos se listan en las notas.
+One .ics file with every calendar item: repeats, skipped and moved times, reminders, attendees and time zones are kept.	Un archivo .ics con todos los elementos del calendario: se conservan repeticiones, horas omitidas y movidas, recordatorios, asistentes y zonas horarias.
+One row per email. Opens in Excel and other spreadsheet programs.	Una fila por correo. Se abre en Excel y otros programas de hojas de cálculo.
+Choose where to save	Elige dónde guardar
+Emails	Correos
+Search results	Resultados de búsqueda
+All open files	Todos los archivos abiertos
+Choose where to save.	Elige dónde guardar.
+Saving as PDF needs Microsoft Edge WebView2. It's free from Microsoft: {0}	Guardar como PDF necesita Microsoft Edge WebView2. Es gratis de Microsoft: {0}
+That folder can't be used: {0}	Esa carpeta no se puede usar: {0}
+The emails couldn't be listed: {0}	No se pudieron listar los correos: {0}
+There's nothing there to export.	No hay nada que exportar ahí.
+{0}.pst	{0}.pst
+.vcf	.vcf
+.ics	.ics
+.csv	.csv
+Stop	Detener
+Exporting…	Exportando…
+{0} items to {1}	{0} elementos a {1}
+{0} of {1}: {2}	{0} de {1}: {2}
+{0}.pdf	{0}.pdf
+{0}: the PDF couldn't be made.	{0}: no se pudo hacer el PDF.
+The PDF files couldn't be joined: {0}: {1}	No se pudieron unir los PDF: {0}: {1}
+Export stopped	Exportación detenida
+Export finished	Exportación terminada
+Export finished, with problems	Exportación terminada, con problemas
+{0} attachments saved from {1} emails.	{0} adjuntos guardados de {1} correos.
+{0} emails listed in {1}.	{0} correos listados en {1}.
+{0} saved in {1}.	{0} guardados en {1}.
+{0} listed in {1}.	{0} listados en {1}.
+{0} read; no file was made.	{0} leídos; no se creó ningún archivo.
+{0} emails saved in one PDF.	{0} correos guardados en un PDF.
+{0} emails saved.	{0} correos guardados.
+{0} couldn't be saved:	{0} no se pudieron guardar:
+Show in File Explorer	Mostrar en el Explorador de archivos
+Close	Cerrar
+This attached email couldn't be read.	No se pudo leer este correo adjunto.
+"{0}" can run programs on your computer. Only open it if you trust who sent it.\n\nOpen it anyway?	"{0}" puede ejecutar programas en tu ordenador. Ábrelo solo si confías en quien lo envió.\n\n¿Abrirlo de todos modos?
+Couldn't open the attachment.\n\n{0}	No se pudo abrir el adjunto.\n\n{0}
+Save the attachment	Guardar el adjunto
+Couldn't save the attachment.\n\n{0}	No se pudo guardar el adjunto.\n\n{0}
+Choose a folder for the attachments	Elige una carpeta para los adjuntos
+Save as an email file	Guardar como archivo de correo
+Email file	Archivo de correo
+Couldn't save the email.\n\n{0}	No se pudo guardar el correo.\n\n{0}
+Saving as PDF needs Microsoft Edge WebView2, which isn't installed. It's free from Microsoft.	Guardar como PDF necesita Microsoft Edge WebView2, que no está instalado. Es gratis de Microsoft.
+Save as PDF	Guardar como PDF
+PDF file	Archivo PDF
+Couldn't save the PDF.	No se pudo guardar el PDF.
+Subject: {0}	Asunto: {0}
+From: {0}	De: {0}
+Sent by: {0}	Enviado en nombre de: {0}
+Sent: {0}	Enviado: {0}
+Received: {0}	Recibido: {0}
+Message ID: {0}	ID del mensaje: {0}
+Type: {0}	Tipo: {0}
+Size: {0}	Tamaño: {0}
+This item has no internet headers (it may have been written in Outlook, or come from Exchange).	Este elemento no tiene encabezados de internet (puede que se escribiera en Outlook o viniera de Exchange).
+Details	Detalles
+Where the email came from and how it travelled, as its mail servers recorded it.	De dónde vino el correo y cómo viajó, según lo anotaron sus servidores de correo.
+Copy	Copiar
+Details · KUDUPST	Detalles · KUDUPST
+Open	Abrir
+Save as…	Guardar como…
+No attachments	Sin adjuntos
+Save all attachments…	Guardar todos los adjuntos…
+Open this email in its own window	Abrir este correo en su propia ventana
+Save this email as an email file (.eml) or a PDF	Guardar este correo como archivo de correo (.eml) o PDF
+Email file (.eml)…	Archivo de correo (.eml)…
+PDF…	PDF…
+Open or save this email's attachments	Abrir o guardar los adjuntos de este correo
+Print	Imprimir
+Print this email	Imprimir este correo
+The internet headers and other details of this email	Los encabezados de internet y otros detalles de este correo
+{0} - KUDUPST	{0} - KUDUPST
+OK	OK
+Not Found	Not Found
+Blocked	Blocked
+Open this link in your web browser?\n\n{0}	¿Abrir este enlace en tu navegador?\n\n{0}
+Show pictures	Mostrar imágenes
+Choose an email to read it here.	Elige un correo para leerlo aquí.
+Install Microsoft Edge WebView2 (free, from Microsoft) to see emails as they were designed. Showing the text only.	Instala Microsoft Edge WebView2 (gratis, de Microsoft) para ver los correos tal como se diseñaron. Se muestra solo el texto.
+Pictures from the internet are blocked, so the sender can't tell you've opened this email.	Las imágenes de internet están bloqueadas, así el remitente no puede saber que abriste este correo.
+From:	De:
+Date:	Fecha:
+To:	Para:
+Cc:	CC:
+Attachment:	Adjunto:
+document.body ? document.body.innerText : ''	document.body ? document.body.innerText : ''
+KUDUPST PDF	KUDUPST PDF
+Search emails	Buscar en los correos
+With attachments	Con adjuntos
+Show system folders	Mostrar carpetas del sistema
+Look deeper for deleted items	Buscar más a fondo elementos eliminados
+Open…	Abrir…
+Open a .pst, .ost, .msg or .eml file, as well as the ones open now (Ctrl+O)	Abrir un archivo .pst, .ost, .msg o .eml, junto a los que ya están abiertos (Ctrl+O)
+Save emails as email files, PDF, attachments only, or a list for Excel	Guardar correos como archivos de correo, PDF, solo adjuntos o una lista para Excel
+Settings	Ajustes
+About	Acerca de
+Folders	Carpetas
+Reads the whole file for what's left of deleted items. Takes longer on big files; some may be only partly there.	Lee todo el archivo buscando lo que queda de elementos eliminados. Tarda más en archivos grandes; algunos pueden estar solo en parte.
+Close this file	Cerrar este archivo
+Close the file shown (the others stay open)	Cerrar el archivo mostrado (los demás siguen abiertos)
+Close all	Cerrar todo
+Close every open file	Cerrar todos los archivos abiertos
+Words to look for in the emails: subject, sender, recipients, text and attachment names	Palabras que buscar en los correos: asunto, remitente, destinatarios, texto y nombres de adjuntos
+Search	Buscar
+This file	Este archivo
+This folder	Esta carpeta
+Where to look	Dónde buscar
+Everything	Todo
+What to look in	En qué buscar
+Dates and attachments	Fechas y adjuntos
+Filters	Filtros
+to	a
+Clear	Borrar
+Sort the list	Ordenar la lista
+{0} {1} is available	{0} {1} está disponible
+Open an Outlook data file	Abrir un archivo de datos de Outlook
+PST and OST files, and single emails saved as .msg or .eml. Outlook isn't needed, and the file is only read, never changed.	Archivos PST y OST, y correos sueltos guardados como .msg o .eml. No hace falta Outlook, y el archivo solo se lee, nunca se cambia.
+Open a file…	Abrir un archivo…
+or drop it on this window	o suéltalo en esta ventana
+Opened recently	Abiertos recientemente
+Nothing opened yet	Aún no se ha abierto nada
+Clear this list	Borrar esta lista
+Open an Outlook data file or an email	Abrir un archivo de datos de Outlook o un correo
+Outlook files and emails	Archivos de Outlook y correos
+Outlook data files (*.pst, *.ost)	Archivos de datos de Outlook (*.pst, *.ost)
+Emails (*.msg, *.eml)	Correos (*.msg, *.eml)
+That's a folder. Choose a .pst, .ost, .msg or .eml file.	Eso es una carpeta. Elige un archivo .pst, .ost, .msg o .eml.
+Couldn't open "{0}".\n\n{1}	No se pudo abrir "{0}".\n\n{1}
+{0} files	{0} archivos
+{0} files open	{0} archivos abiertos
+Close "{0}"	Cerrar "{0}"
+Close the single emails	Cerrar los correos sueltos
+Close all files	Cerrar todos los archivos
+Search is limited: the search index of {0} couldn't be made ({1})	La búsqueda es limitada: no se pudo crear el índice de búsqueda de {0} ({1})
+Couldn't finish the search index: {0}	No se pudo terminar el índice de búsqueda: {0}
+Search ready · {0} items · still making the index of {1}	Búsqueda lista · {0} elementos · aún se está creando el índice de {1}
+Search ready · {0} items here, {1} in all open files	Búsqueda lista · {0} elementos aquí, {1} en todos los archivos abiertos
+Search ready · {0} items	Búsqueda lista · {0} elementos
+Making the search index of {0}	Creando el índice de búsqueda de {0}
+Looking through the whole file…	Revisando todo el archivo…
+Looking through the whole file… {0}	Revisando todo el archivo… {0}
+Stopped looking.	Se dejó de buscar.
+Couldn't look through the whole file: {0}	No se pudo revisar todo el archivo: {0}
+Stop looking	Dejar de buscar
+Looked through the whole file: no deleted items left in it.	Se revisó todo el archivo: no queda ningún elemento eliminado.
+Looked through the whole file: {0} found ({1} only partly).	Se revisó todo el archivo: {0} encontrados ({1} solo en parte).
+Looked through the whole file: {0} found.	Se revisó todo el archivo: {0} encontrados.
+deleted item	elemento eliminado
+Some folders of {0} couldn't be read: {1}	No se pudieron leer algunas carpetas de {0}: {1}
+Single emails	Correos sueltos
+1 email file	1 archivo de correo
+{0} email files	{0} archivos de correo
+Reading the folder…	Leyendo la carpeta…
+This folder couldn't be read: {0}	No se pudo leer esta carpeta: {0}
+A search folder: Outlook keeps its results elsewhere, so it has nothing to show here.	Una carpeta de búsqueda: Outlook guarda sus resultados en otro lugar, así que aquí no hay nada que mostrar.
+{0} in {1} ({2})	{0} en {1} ({2})
+{0} in {1}	{0} en {1}
+Searching…	Buscando…
+Single emails › {0}	Correos sueltos › {0}
+The search didn't work: {0}	La búsqueda no funcionó: {0}
+all {0} open files	los {0} archivos abiertos
+the single emails	los correos sueltos
+Nothing found	No se encontró nada
+1 item found	1 elemento encontrado
+{0} items found	{0} elementos encontrados
+so far (the search index is still being made)	por ahora (aún se está creando el índice de búsqueda)
+Newest first	Más recientes primero
+Oldest first	Más antiguos primero
+Largest first	Más grandes primero
+Name	Nombre
+Contacts	Contactos
+Calendar	Calendario
+{0} selected	{0} seleccionados
+This item couldn't be read: {0}	No se pudo leer este elemento: {0}
+This item couldn't be read.\n\n{0}	No se pudo leer este elemento.\n\n{0}
+Open in its own window	Abrir en su propia ventana
+Export the {0} selected…	Exportar los {0} seleccionados…
+Export…	Exportar…
+Settings · KUDUPST	Ajustes · KUDUPST
+Appearance	Apariencia
+Same as Windows	Igual que Windows
+Language	Idioma
+Privacy	Privacidad
+Always show pictures from the internet in emails	Mostrar siempre las imágenes de internet en los correos
+Off: they're blocked until you click "Show pictures", so senders can't tell you opened their email.	Desactivado: se bloquean hasta que pulses "Mostrar imágenes", así los remitentes no saben que abriste su correo.
+File Explorer	Explorador de archivos
+Add "Open with KUDUPST" to the right-click menu of .pst, .ost, .msg and .eml files	Añadir "Open with KUDUPST" al menú del clic derecho de los archivos .pst, .ost, .msg y .eml
+Open these files in KUDUPST when they're double-clicked	Abrir estos archivos en KUDUPST al hacer doble clic
+For your Windows account only. If you chose another program in Windows' "Open with", Windows keeps that choice. On Windows 11 the menu is under "Show more options".	Solo para tu cuenta de Windows. Si elegiste otro programa en "Abrir con" de Windows, Windows mantiene esa elección. En Windows 11 está en "Mostrar más opciones".
+Search indexes use {0} in your AppData folder. They're never stored next to your files.	Los índices de búsqueda ocupan {0} en tu carpeta AppData. Nunca se guardan junto a tus archivos.
+Delete all search indexes	Eliminar todos los índices de búsqueda
+Delete the search indexes? They're made again when you next open a file.	¿Eliminar los índices de búsqueda? Se vuelven a crear la próxima vez que abras un archivo.
+Some indexes are in use and weren't deleted.\n\n{0}	Algunos índices están en uso y no se eliminaron.\n\n{0}
+Updates	Actualizaciones
+Check for a new KUDUPST version when it starts	Buscar una nueva versión de KUDUPST al iniciar
+Only asks GitHub for the latest version number. Nothing is downloaded without asking.	Solo pregunta a GitHub el número de la última versión. No se descarga nada sin preguntar.
+About KUDUPST	Acerca de KUDUPST
+Password	Contraseña
+That's not the password.	Esa no es la contraseña.
+Forgot the password?	¿Olvidaste la contraseña?
+Outlook's password only stops Outlook from opening the file; the emails in it aren't locked with it, so KUDUPST can read them anyway.\n\nOnly do this with your own files, or files you're allowed to read.\n\nOpen it without the password?	La contraseña de Outlook solo impide que Outlook abra el archivo; los correos no están bloqueados con ella, así que KUDUPST puede leerlos sin ella. Úsalo solo con tus propios archivos.
+This file has a password	Este archivo tiene contraseña
+"{0}" was given a password in Outlook. Type it to open the file.	"{0}" tiene una contraseña puesta en Outlook. Escríbela para abrir el archivo.
+Password · KUDUPST	Contraseña · KUDUPST
+KUDUPST	KUDUPST
+Version {0} · Read, search and export Outlook files	Versión {0} · Lee, busca y exporta archivos de Outlook
+Azeem, with Claude and	Azeem, with Claude and
+Made by	Made by
+Licence	Licencia
+MIT · free and open source	MIT · libre y de código abierto
+View	Ver
+Source code	Código fuente
+Reading files	Lectura de archivos
+Its own reader for Outlook PST and OST files, .msg and .eml emails	Su propio lector de archivos PST y OST de Outlook, y de correos .msg y .eml
+Showing emails	Mostrar correos
+Microsoft Edge WebView2 {0}	Microsoft Edge WebView2 {0}
+Text only (Microsoft Edge WebView2 isn't installed)	Solo texto (Microsoft Edge WebView2 no está instalado)
+Third-party	De terceros
+Third-party notices	Avisos de terceros
+KUDUPST only reads your files; it never changes them. Search indexes are kept in your AppData folder. Nothing is sent anywhere.	KUDUPST solo lee tus archivos; nunca los cambia. Los índices de búsqueda se guardan en tu carpeta AppData. No se envía nada a ningún sitio.
+Check for updates	Buscar actualizaciones
+Couldn't find any published version yet.	Aún no se ha encontrado ninguna versión publicada.
+KUDUPST {0} is available. Open the download page?	KUDUPST {0} está disponible. ¿Abrir la página de descarga?
+You have the latest version.	Tienes la última versión.
+Couldn't check for updates. Check your internet connection and try again.	No se pudieron buscar actualizaciones. Revisa tu conexión a internet e inténtalo de nuevo.
+Count	Número
+(no name)	(sin nombre)
+.msg and .eml files open on their own	Archivos .msg y .eml abiertos por separado
+{0} items, {1} not read	{0} elementos, {1} sin leer
+All day, {0} days	Todo el día, {0} días
+All day	Todo el día
+Partial	En parte
+(no sender)	(sin remitente)
+(repeats)	(se repite)
+In: {0}	En: {0}
+Deleted, and only partly found	Eliminado, y encontrado solo en parte
+Deleted (found inside the file)	Eliminado (encontrado dentro del archivo)
+Was in {0}	Estaba en {0}
+{0} ran into a problem it couldn't get past, and has to close.	{0} ha encontrado un problema que no ha podido superar y tiene que cerrarse.
+{0} contact	{0} contacto
+{0} contacts	{0} contactos
+{0} calendar item	{0} elemento del calendario
+{0} calendar items	{0} elementos del calendario
+{0} item	{0} elemento
+{0} items	{0} elementos
+{0} deleted item	{0} elemento eliminado
+{0} deleted items	{0} elementos eliminados

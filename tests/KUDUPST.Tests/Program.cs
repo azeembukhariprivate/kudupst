@@ -76,6 +76,9 @@ namespace Kudupst.Tests
 
         // ================================================================== PST: the Enron file (expected values from pst-extractor's tests)
 
+        private static void TestOtherLanguages() => LangTests.Run();
+
+
         private static void TestEnronStore()
         {
             using (var store = PstStore.Open(Samples.Enron))

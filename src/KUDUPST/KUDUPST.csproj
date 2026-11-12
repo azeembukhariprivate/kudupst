@@ -12,7 +12,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <StartupObject>Kudupst.Program</StartupObject>
 
-    <Version>1.4.0</Version>
+    <Version>1.5.0</Version>
     <Product>KUDUPST</Product>
     <Company>Azeem Bukhari</Company>
     <Authors>Azeem Bukhari</Authors>
@@ -52,6 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Lang\*.txt" LogicalName="Kudupst.Lang.%(Filename).txt" />
     <EmbeddedResource Include="Themes\*.xaml" LogicalName="Kudupst.Themes.%(Filename).xaml" />
     <EmbeddedResource Include="Assets\KUDUPST.ico" LogicalName="Kudupst.Assets.KUDUPST.ico" />
     <None Include="..\..\LICENSE" Link="LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
