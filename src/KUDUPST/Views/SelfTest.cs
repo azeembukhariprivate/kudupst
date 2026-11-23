@@ -1,3 +1,5 @@
+// KUDUPST.exe --self-test --samples <folder>: opens real Outlook files and emails, and drives the windows (reading,
+// search, export, contacts, calendar, deleted items, passwords, several files, saving as PST), keeping screenshots.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,13 +26,19 @@ namespace Kudupst.Views
     /// </summary>
     public static class SelfTest
     {
+        /// <summary>True while the self-test runs (errors are kept instead of shown).</summary>
         public static bool Running { get; private set; }
+        /// <summary>Errors that weren't expected.</summary>
         public static List<string> Errors { get; } = new List<string>();
 
+        /// <summary>The self-test's log.</summary>
         private static StringBuilder _log;
+        /// <summary>The folder for the test's files.</summary>
         private static string _temp;
+        /// <summary>The folder of sample files.</summary>
         private static string _samples;
 
+        /// <summary>A sample file's path.</summary>
         private static string Sample(string name)
         {
             var path = Path.Combine(_samples ?? string.Empty, name);
@@ -38,6 +46,7 @@ namespace Kudupst.Views
             return path;
         }
 
+        /// <summary>Runs every step and returns 0 when all passed.</summary>
         public static async Task<int> Run(string samples)
         {
             Running = true;
@@ -163,6 +172,7 @@ namespace Kudupst.Views
 
         // ================================================================== a PST file
 
+        /// <summary>A PST: folders, emails, search and export.</summary>
         private static async Task PstRound(MainWindow main)
         {
             PstFolder group = null;
@@ -284,10 +294,12 @@ namespace Kudupst.Views
             });
         }
 
+        /// <summary>The index's state, for the log.</summary>
         private static string MailIndexText(MainWindow main) => $"indexed {main.Index.Done} items";
 
         // ================================================================== an OST file
 
+        /// <summary>An OST.</summary>
         private static async Task OstRound(MainWindow main)
         {
             await Step("Open an OST file (Outlook 2013 and later)", async () =>
@@ -319,6 +331,7 @@ namespace Kudupst.Views
 
         // ================================================================== contacts and the calendar
 
+        /// <summary>Contacts and the calendar.</summary>
         private static async Task ContactsAndCalendarRound(MainWindow main)
         {
             await Step("Contacts and contact groups", async () =>
@@ -387,6 +400,7 @@ namespace Kudupst.Views
 
         // ================================================================== deleted items found inside a file
 
+        /// <summary>Deleted items found.</summary>
         private static async Task DeletedRound(MainWindow main)
         {
             await Step("Deleted items found inside a file", async () =>
@@ -428,6 +442,7 @@ namespace Kudupst.Views
 
         // ================================================================== a file with a password
 
+        /// <summary>A PST with a password.</summary>
         private static async Task PasswordRound(MainWindow main)
         {
             await Step("A file with a password", async () =>
@@ -447,6 +462,7 @@ namespace Kudupst.Views
 
         // ================================================================== single emails
 
+        /// <summary>Single .msg and .eml emails.</summary>
         private static async Task SingleFilesRound(MainWindow main)
         {
             await Step("Open an .msg email", async () =>
@@ -481,6 +497,7 @@ namespace Kudupst.Views
 
         // ================================================================== several files at once
 
+        /// <summary>Several files open at once.</summary>
         private static async Task SeveralFilesRound(MainWindow main)
         {
             OpenedFile enron = null, ost = null;
@@ -587,6 +604,7 @@ namespace Kudupst.Views
 
         // ================================================================== helpers
 
+        /// <summary>Exports items with these options.</summary>
         private static Task<ExportResult> Export(MainWindow main, List<ExportItem> items, ExportOptions options)
         {
             var w = new ExportWindow(main);
@@ -613,6 +631,7 @@ namespace Kudupst.Views
         private static Task ShownNow(MailView view) =>
             Wait(() => view.Item != null && ReferenceEquals(view.ShownItem, view.Item), 30, "the email to show");
 
+        /// <summary>Waits until the item is shown.</summary>
         private static Task Shown(MailView view)
         {
             var done = new TaskCompletionSource<bool>();
@@ -628,6 +647,7 @@ namespace Kudupst.Views
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
+        /// <summary>Takes a screenshot of the item shown.</summary>
         private static async Task Capture(MailView view, string name)
         {
             try
@@ -642,6 +662,7 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>Runs one step, writing to the log whether it passed.</summary>
         private static async Task Step(string name, Func<Task> action)
         {
             var before = Errors.Count;
@@ -661,13 +682,16 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>Adds a note to the log under the step.</summary>
         private static void Note(string text) => _log.AppendLine("      " + text);
 
+        /// <summary>Fails the step when the condition isn't true.</summary>
         private static void Expect(bool condition, string what)
         {
             if (!condition) throw new Exception("expected " + what);
         }
 
+        /// <summary>Waits until the condition is true (failing after some seconds).</summary>
         private static async Task Wait(Func<bool> condition, int seconds, string what)
         {
             var until = DateTime.UtcNow.AddSeconds(seconds);
@@ -678,12 +702,14 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>Lets the windows handle what's waiting.</summary>
         private static void Pump()
         {
             foreach (Window w in Application.Current.Windows) w.UpdateLayout();
             Application.Current.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
         }
 
+        /// <summary>Puts a window where it can't be seen.</summary>
         private static void OffScreen(Window w)
         {
             w.WindowStartupLocation = WindowStartupLocation.Manual;
@@ -694,6 +720,7 @@ namespace Kudupst.Views
             w.ShowInTaskbar = false;
         }
 
+        /// <summary>Shows a window, takes its screenshot and closes it.</summary>
         private static void ShowAndClose(Window w)
         {
             OffScreen(w);

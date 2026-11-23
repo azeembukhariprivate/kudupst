@@ -1,3 +1,5 @@
+// Calendar items: their times, place, people, repeats (Outlook's own repeat format) with changes, and time zones, read
+// from Outlook's named properties.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -12,21 +14,29 @@ namespace Kudupst.Core.Mail
     {
         /// <summary>Start and end (UTC). For a repeating item, its first time.</summary>
         public DateTime? Start { get; set; }
+        /// <summary>When it ends.</summary>
         public DateTime? End { get; set; }
+        /// <summary>True for an all-day item.</summary>
         public bool AllDay { get; set; }
+        /// <summary>Where it is.</summary>
         public string Location { get; set; } = string.Empty;
 
         /// <summary>0 free, 1 tentative, 2 busy, 3 away, 4 working elsewhere.</summary>
         public int BusyStatus { get; set; } = 2;
 
+        /// <summary>True for a meeting (with people asked).</summary>
         public bool IsMeeting { get; set; }
+        /// <summary>Who asked.</summary>
         public MailAddress Organizer { get; set; } = new MailAddress();
+        /// <summary>Who was asked.</summary>
         public List<Recipient> Attendees { get; } = new List<Recipient>();
 
         /// <summary>Minutes before the start to remind, or null for no reminder.</summary>
         public int? ReminderMinutes { get; set; }
 
+        /// <summary>True when it repeats.</summary>
         public bool Recurring { get; set; }
+        /// <summary>How it repeats.</summary>
         public RecurrencePattern Recurrence { get; set; }
 
         /// <summary>Outlook's own words for how it repeats ("every Monday from 10:00 AM to 11:00 AM").</summary>
@@ -34,6 +44,7 @@ namespace Kudupst.Core.Mail
 
         /// <summary>The time zone the repeating times are in.</summary>
         public TimeZoneRule TimeZone { get; set; }
+        /// <summary>Its time zone's name.</summary>
         public string TimeZoneName { get; set; } = string.Empty;
 
         /// <summary>The meeting's ID, the same in every copy of it (from the organiser's calendar or an invitation).</summary>
@@ -57,8 +68,10 @@ namespace Kudupst.Core.Mail
         /// <summary>How it repeats, in plain words.</summary>
         public string RepeatText => Recurrence?.Describe() ?? (Recurring && RecurrenceText.Length > 0 ? Capitalise(RecurrenceText) : string.Empty);
 
+        /// <summary>A text with a capital first letter.</summary>
         private static string Capitalise(string s) => s.Length == 0 ? s : char.ToUpperInvariant(s[0]) + s.Substring(1);
 
+        /// <summary>A calendar item's details from its properties.</summary>
         public static AppointmentInfo Read(Props p, MailItem item)
         {
             var a = new AppointmentInfo
@@ -104,6 +117,7 @@ namespace Kudupst.Core.Mail
         /// <summary>A repeating item's local time (in its own time zone) as UTC.</summary>
         public DateTime ToUtc(DateTime local) => TimeZone != null ? TimeZone.ToUtc(local) : DateTime.SpecifyKind(local, DateTimeKind.Local).ToUniversalTime();
 
+        /// <summary>A UTC time in the item's own time zone (else this PC's).</summary>
         public DateTime ToLocalOfItem(DateTime utc) => TimeZone != null ? TimeZone.ToLocal(utc) : utc.ToLocalTime();
 
         /// <summary>
@@ -138,6 +152,7 @@ namespace Kudupst.Core.Mail
             return (first, last < first ? first : last);
         }
 
+        /// <summary>Windows' time zone with this name, or null.</summary>
         private static TimeZoneInfo SystemZone(string name)
         {
             if (string.IsNullOrEmpty(name)) return null;
@@ -145,6 +160,7 @@ namespace Kudupst.Core.Mail
             catch (Exception ex) when (ex is System.Security.SecurityException || ex is InvalidTimeZoneException) { return null; }
         }
 
+        /// <summary>A meeting answer in words (accepted, declined...).</summary>
         public static string ResponseText(int response)
         {
             switch (response)
@@ -158,6 +174,7 @@ namespace Kudupst.Core.Mail
             }
         }
 
+        /// <summary>What kind of attendee (needed, optional, a room...).</summary>
         public static string AttendeeKind(int meetingType) => meetingType == 2 ? "Optional" : meetingType == 3 ? "Room or equipment" : "Required";
     }
 
@@ -166,26 +183,43 @@ namespace Kudupst.Core.Mail
     {
         /// <summary>Local times, in the item's time zone.</summary>
         public DateTime Start { get; set; }
+        /// <summary>When the changed one ends.</summary>
         public DateTime End { get; set; }
+        /// <summary>When it would have started.</summary>
         public DateTime OriginalStart { get; set; }
+        /// <summary>Which of its details were changed.</summary>
         public int OverrideFlags { get; set; }
+        /// <summary>Its subject, when changed.</summary>
         public string Subject { get; set; }
+        /// <summary>Its place, when changed.</summary>
         public string Location { get; set; }
+        /// <summary>How it shows the time (busy, free...), when changed.</summary>
         public int? BusyStatus { get; set; }
+        /// <summary>Its reminder, when changed.</summary>
         public int? ReminderMinutes { get; set; }
+        /// <summary>Whether its reminder is set, when changed.</summary>
         public bool? ReminderSet { get; set; }
+        /// <summary>Whether it's all day, when changed.</summary>
         public bool? AllDay { get; set; }
     }
 
     /// <summary>How an item repeats (MS-OXOCAL 2.2.1.44, the AppointmentRecurrencePattern structure).</summary>
     public sealed class RecurrencePattern
     {
+        /// <summary>How often it repeats (Outlook's numbers).</summary>
         public const int Daily = 0x200A, Weekly = 0x200B, Monthly = 0x200C, Yearly = 0x200D;
+        /// <summary>
+        /// The kind of pattern: every some days, weeks, a day of the month, the nth day, the month's end.
+        /// </summary>
         public const int PatternDay = 0, PatternWeek = 1, PatternMonth = 2, PatternMonthNth = 3, PatternMonthEnd = 4;
+        /// <summary>How it ends: by a date, after a count, or never.</summary>
         public const int EndByDate = 0x2021, EndAfterCount = 0x2022, EndNever = 0x2023;
 
+        /// <summary>Daily, weekly, monthly or yearly.</summary>
         public int Frequency { get; set; }
+        /// <summary>The kind of pattern.</summary>
         public int PatternType { get; set; }
+        /// <summary>The calendar it counts in (0: the usual one).</summary>
         public int CalendarType { get; set; }
 
         /// <summary>Minutes for a daily pattern, weeks for a weekly one, months otherwise.</summary>
@@ -194,36 +228,47 @@ namespace Kudupst.Core.Mail
         /// <summary>Days of the week: Sunday 1, Monday 2, ... Saturday 0x40.</summary>
         public int Days { get; set; }
 
+        /// <summary>The day of the month.</summary>
         public int DayOfMonth { get; set; }
 
         /// <summary>Which week of the month: 1 to 4, or 5 for the last.</summary>
         public int Nth { get; set; }
 
+        /// <summary>How it ends.</summary>
         public int EndType { get; set; }
+        /// <summary>After how many times.</summary>
         public int OccurrenceCount { get; set; }
+        /// <summary>The first day of the week.</summary>
         public int FirstDayOfWeek { get; set; }
 
         /// <summary>Dates (local midnight) of the times that were deleted or changed, and of the changed ones.</summary>
         public List<DateTime> DeletedDates { get; } = new List<DateTime>();
+        /// <summary>The days whose time was changed.</summary>
         public List<DateTime> ModifiedDates { get; } = new List<DateTime>();
 
         /// <summary>The first and last day it repeats on (local).</summary>
         public DateTime StartDate { get; set; }
+        /// <summary>The last day.</summary>
         public DateTime EndDate { get; set; }
 
         /// <summary>Minutes after midnight that each time starts and ends.</summary>
         public int StartMinutes { get; set; }
+        /// <summary>When each one ends, in minutes after midnight.</summary>
         public int EndMinutes { get; set; }
 
+        /// <summary>The changed and removed ones.</summary>
         public List<RecurrenceException> Exceptions { get; } = new List<RecurrenceException>();
 
+        /// <summary>True when it never ends.</summary>
         public bool NeverEnds => EndType != EndByDate && EndType != EndAfterCount;
 
         /// <summary>The dates whose time was deleted, not moved.</summary>
         public IEnumerable<DateTime> RemovedDates => DeletedDates.Where(d => !Exceptions.Any(e => e.OriginalStart.Date == d.Date));
 
+        /// <summary>Outlook's minutes since 1601 as a date.</summary>
         public static DateTime FromMinutes(uint minutes) => new DateTime(1601, 1, 1).AddMinutes(minutes);
 
+        /// <summary>Reads Outlook's repeat pattern from its bytes.</summary>
         public static RecurrencePattern Parse(byte[] data)
         {
             var r = new Reader(data);
@@ -318,7 +363,9 @@ namespace Kudupst.Core.Mail
             return p;
         }
 
+        /// <summary>The days of the week.</summary>
         private static readonly string[] DayNames = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+        /// <summary>"first", "second"... for the nth day.</summary>
         private static readonly string[] NthNames = { string.Empty, "first", "second", "third", "fourth", "last" };
 
         public IEnumerable<DayOfWeek> DaysOfWeek
@@ -330,8 +377,10 @@ namespace Kudupst.Core.Mail
             }
         }
 
+        /// <summary>True for every weekday.</summary>
         public bool IsWeekdays => Days == 0x3E;
 
+        /// <summary>The days chosen, in words.</summary>
         private string DayList()
         {
             if (IsWeekdays) return "weekday";
@@ -341,6 +390,7 @@ namespace Kudupst.Core.Mail
             return string.Join(", ", names.Take(names.Count - 1)) + " and " + names[names.Count - 1];
         }
 
+        /// <summary>"every day" or "every 3 days".</summary>
         private static string Every(int n, string one, string many) => n <= 1 ? "Every " + one : $"Every {n} {many}";
 
         /// <summary>How it repeats, in plain words: "Every Monday, 10 times".</summary>
@@ -384,22 +434,31 @@ namespace Kudupst.Core.Mail
 
         private sealed class Reader
         {
+            /// <summary>The bytes.</summary>
             private readonly byte[] _d;
+            /// <summary>Where reading is up to.</summary>
             private int _at;
 
+            /// <summary>A reader over the bytes.</summary>
             public Reader(byte[] d) { _d = d; }
 
+            /// <summary>How many bytes are left.</summary>
             public int Left => _d.Length - _at;
 
+            /// <summary>Fails when fewer than n bytes are left.</summary>
             private void Need(int n)
             {
                 if (n < 0 || _at + n > _d.Length) throw new ArgumentException("The repeat details are damaged.");
             }
 
+            /// <summary>Reads a 2-byte number.</summary>
             public int U16() { Need(2); var v = BitConverter.ToUInt16(_d, _at); _at += 2; return v; }
+            /// <summary>Reads a 4-byte number.</summary>
             public uint U32() { Need(4); var v = BitConverter.ToUInt32(_d, _at); _at += 4; return v; }
+            /// <summary>Skips n bytes.</summary>
             public void Skip(int n) { Need(n); _at += n; }
 
+            /// <summary>Reads a one-byte text with its two lengths in front.</summary>
             public string AnsiWithLengths()
             {
                 U16(); // length + 1
@@ -410,6 +469,7 @@ namespace Kudupst.Core.Mail
                 return s;
             }
 
+            /// <summary>Reads a Unicode text of this many characters.</summary>
             public string Unicode(int chars)
             {
                 Need(chars * 2);
@@ -425,18 +485,27 @@ namespace Kudupst.Core.Mail
     {
         /// <summary>Minutes: UTC = local + Bias (+ StandardBias or DaylightBias).</summary>
         public int Bias { get; set; }
+        /// <summary>How much winter time differs, in minutes.</summary>
         public int StandardBias { get; set; }
+        /// <summary>How much summer time differs, in minutes.</summary>
         public int DaylightBias { get; set; }
+        /// <summary>When winter time starts.</summary>
         public SystemTime StandardDate { get; set; }
+        /// <summary>When summer time starts.</summary>
         public SystemTime DaylightDate { get; set; }
 
+        /// <summary>True when it has summer time.</summary>
         public bool HasDaylight => StandardDate.Month != 0 && DaylightDate.Month != 0;
 
         public struct SystemTime
         {
+            /// <summary>
+            /// A change's date: the year (0: every year), month, the nth day of the week, the hour and minute.
+            /// </summary>
             public int Year, Month, DayOfWeek, Day, Hour, Minute;
         }
 
+        /// <summary>Reads a time zone rule from Outlook's bytes.</summary>
         public static TimeZoneRule Parse(byte[] d)
         {
             if (d == null || d.Length < 48) return null;
@@ -470,6 +539,7 @@ namespace Kudupst.Core.Mail
             return day.AddHours(t.Hour).AddMinutes(t.Minute);
         }
 
+        /// <summary>True when a local time is in summer time.</summary>
         public bool IsDaylight(DateTime local)
         {
             if (!HasDaylight) return false;
@@ -481,11 +551,15 @@ namespace Kudupst.Core.Mail
         /// <summary>Minutes ahead of UTC at a local time.</summary>
         public int OffsetAt(DateTime local) => -(Bias + (IsDaylight(local) ? DaylightBias : StandardBias));
 
+        /// <summary>The winter offset from UTC, in minutes.</summary>
         public int StandardOffset => -(Bias + StandardBias);
+        /// <summary>The summer offset from UTC, in minutes.</summary>
         public int DaylightOffset => -(Bias + DaylightBias);
 
+        /// <summary>A local time as UTC.</summary>
         public DateTime ToUtc(DateTime local) => DateTime.SpecifyKind(local.AddMinutes(-OffsetAt(local)), DateTimeKind.Utc);
 
+        /// <summary>A UTC time as local.</summary>
         public DateTime ToLocal(DateTime utc)
         {
             var guess = utc.AddMinutes(StandardOffset);

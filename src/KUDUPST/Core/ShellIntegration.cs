@@ -11,11 +11,15 @@ namespace Kudupst.Core
     /// </summary>
     public static class ShellIntegration
     {
+        /// <summary>The kinds of file KUDUPST opens.</summary>
         public static readonly string[] Extensions = { ".pst", ".ost", ".msg", ".eml" };
 
+        /// <summary>Where a kind's right-click menu entry is kept.</summary>
         private static string MenuKey(string ext) => $@"Software\Classes\SystemFileAssociations\{ext}\shell\KUDUPST";
+        /// <summary>KUDUPST's own name for a kind (for opening with a double-click).</summary>
         private static string ProgId(string ext) => "KUDUPST" + ext;
 
+        /// <summary>A kind's name, as File Explorer shows it.</summary>
         private static string Describe(string ext)
         {
             switch (ext)
@@ -27,9 +31,12 @@ namespace Kudupst.Core
             }
         }
 
+        /// <summary>The command the entries run.</summary>
         private static string Command => $"\"{AppInfo.ExePath}\" \"%1\"";
+        /// <summary>The icon of the entries.</summary>
         private static string Icon => "\"" + AppInfo.ExePath + "\",0";
 
+        /// <summary>Adds "Open with KUDUPST" to the right-click menu of these files, for this user only.</summary>
         public static void RegisterMenu()
         {
             Safe(() =>
@@ -46,6 +53,7 @@ namespace Kudupst.Core
             });
         }
 
+        /// <summary>Takes the menu entries away again.</summary>
         public static void RemoveMenu()
         {
             Safe(() =>
@@ -63,6 +71,7 @@ namespace Kudupst.Core
             }
         }
 
+        /// <summary>The command the menu runs, or null.</summary>
         public static string MenuCommand()
         {
             try { using (var key = Registry.CurrentUser.OpenSubKey(MenuKey(".pst") + @"\command")) return key?.GetValue(string.Empty) as string; }
@@ -98,6 +107,7 @@ namespace Kudupst.Core
             Notify();
         }
 
+        /// <summary>Stops opening these files with KUDUPST by a double-click.</summary>
         public static void RemoveOpen()
         {
             Safe(() =>
@@ -135,18 +145,21 @@ namespace Kudupst.Core
             else if (IsOpenRegistered) RemoveOpen();
         }
 
+        /// <summary>Runs a registry change, quietly when it isn't allowed.</summary>
         private static void Safe(Action action)
         {
             try { action(); }
             catch (Exception ex) when (ex is UnauthorizedAccessException || ex is System.Security.SecurityException || ex is System.IO.IOException) { }
         }
 
+        /// <summary>Tells File Explorer the file kinds changed.</summary>
         private static void Notify()
         {
             try { SHChangeNotify(0x08000000, 0, IntPtr.Zero, IntPtr.Zero); }
             catch (Exception ex) when (ex is DllNotFoundException || ex is EntryPointNotFoundException) { }
         }
 
+        /// <summary>Windows' call that tells File Explorer.</summary>
         [DllImport("shell32.dll")]
         private static extern void SHChangeNotify(int eventId, uint flags, IntPtr item1, IntPtr item2);
     }

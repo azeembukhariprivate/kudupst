@@ -24,6 +24,7 @@ namespace Kudupst.Core
             return path.TrimEnd('\\', '/');
         }
 
+        /// <summary>True when two paths are the same file.</summary>
         public static bool Same(string a, string b) => string.Equals(Normal(a), Normal(b), StringComparison.OrdinalIgnoreCase);
 
         /// <summary>The set of open files as one piece of text (one path per line).</summary>
@@ -87,6 +88,7 @@ namespace Kudupst.Core
             return result;
         }
 
+        /// <summary>A folder's name some levels up, for telling files with the same name apart.</summary>
         private static string Up(string dir, int levels)
         {
             for (var i = 0; i < levels && dir.Length > 0; i++) dir = Path.GetDirectoryName(dir) ?? string.Empty;

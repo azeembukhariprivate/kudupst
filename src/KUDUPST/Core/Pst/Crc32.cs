@@ -3,8 +3,10 @@ namespace Kudupst.Core.Pst
     /// <summary>CRC-32 checksums (the polynomial used by zip files and by PST files).</summary>
     public static class Crc32
     {
+        /// <summary>The CRC32 table, made once.</summary>
         private static readonly uint[] Table = MakeTable();
 
+        /// <summary>Makes the table.</summary>
         private static uint[] MakeTable()
         {
             var table = new uint[256];
@@ -23,6 +25,7 @@ namespace Kudupst.Core.Pst
         /// <summary>The variant MS-PST uses for its own checksums: starts from zero, not inverted.</summary>
         public static uint Plain(byte[] data) => Run(0, data);
 
+        /// <summary>The usual CRC32 of part of the data.</summary>
         public static uint Plain(byte[] data, int offset, int count)
         {
             uint crc = 0;
@@ -30,6 +33,7 @@ namespace Kudupst.Core.Pst
             return crc;
         }
 
+        /// <summary>Adds bytes to a CRC.</summary>
         private static uint Run(uint crc, byte[] data)
         {
             foreach (var b in data) crc = Table[(crc ^ b) & 0xFF] ^ (crc >> 8);

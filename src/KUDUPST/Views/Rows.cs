@@ -1,3 +1,4 @@
+// The rows of the folder list and the item list, and their look, made from XAML so long lists stay quick.
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,6 +19,7 @@ namespace Kudupst.Views
     /// <summary>A list that can be refilled in one go (one "reset" instead of a change per row), for big folders.</summary>
     public sealed class RowList<T> : ObservableCollection<T>
     {
+        /// <summary>Puts these rows in place of the old ones, in one go.</summary>
         public void Replace(IEnumerable<T> items)
         {
             Items.Clear();
@@ -30,9 +32,12 @@ namespace Kudupst.Views
 
     public abstract class RowBase : INotifyPropertyChanged
     {
+        /// <summary>Tells the list a value changed.</summary>
         public event PropertyChangedEventHandler PropertyChanged;
+        /// <summary>Tells the list every value may have changed.</summary>
         public void Refresh() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
 
+        /// <summary>A picture from the theme.</summary>
         public static Geometry Res(string key) => Application.Current?.TryFindResource(key) as Geometry;
     }
 
@@ -42,10 +47,15 @@ namespace Kudupst.Views
     /// <summary>A row in the folder list.</summary>
     public sealed class FolderRow : RowBase
     {
+        /// <summary>The folder.</summary>
         public PstFolder Folder { get; set; }
+        /// <summary>How deep it is.</summary>
         public int Depth { get; set; }
+        /// <summary>True when it's open.</summary>
         public bool Expanded { get; set; }
+        /// <summary>True when it has folders inside.</summary>
         public bool CanExpand { get; set; }
+        /// <summary>A folder, a file, or the single emails.</summary>
         public FolderRowKind Type { get; set; }
 
         /// <summary>The open file the row belongs to (none for "Single emails").</summary>
@@ -54,14 +64,20 @@ namespace Kudupst.Views
         /// <summary>For "Single emails": how many.</summary>
         public int Count { get; set; }
 
+        /// <summary>True for a file's row.</summary>
         public bool IsFile => Type == FolderRowKind.File;
+        /// <summary>True for the single emails' row.</summary>
         public bool IsSingles => Type == FolderRowKind.Singles;
 
         // Rows are drawn from templates, so their own words are put into the language here (names of folders stay as they are).
         public string Name => IsFile ? File.Name : IsSingles ? Lang.T("Single emails") : Folder.Name.Length > 0 ? Folder.Name : Lang.T("(no name)");
+        /// <summary>Files' rows in bold.</summary>
         public FontWeight NameWeight => IsFile || IsSingles ? FontWeights.SemiBold : FontWeights.Normal;
+        /// <summary>Moves the row in by its depth.</summary>
         public Thickness Indent => new Thickness(4 + Depth * 16, 0, 0, 0);
+        /// <summary>The little arrow for opening a folder.</summary>
         public string Expander => CanExpand ? (Expanded ? "▾" : "▸") : string.Empty;
+        /// <summary>Its picture.</summary>
         public Geometry Icon => Res(IconKey);
 
         private string IconKey
@@ -80,38 +96,60 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>How many items (or unread).</summary>
         public string CountText => IsSingles ? Count.ToString("N0", CultureInfo.CurrentCulture) : IsFile ? string.Empty : Folder.UnreadCount > 0 ? Folder.UnreadCount.ToString("N0", CultureInfo.CurrentCulture) : Folder.ItemCount > 0 ? Folder.ItemCount.ToString("N0", CultureInfo.CurrentCulture) : string.Empty;
+        /// <summary>Bold when some are unread.</summary>
         public FontWeight CountWeight => Folder.UnreadCount > 0 ? FontWeights.SemiBold : FontWeights.Normal;
+        /// <summary>Its path, or what it is.</summary>
         public string Tip => IsFile ? File.Path : IsSingles ? Lang.T(".msg and .eml files open on their own") : Folder.UnreadCount > 0 ? Lang.T("{0} items, {1} not read", Folder.ItemCount.ToString("N0"), Folder.UnreadCount.ToString("N0")) : Format.Count(Folder.ItemCount, "item");
     }
 
     /// <summary>An item in the mail list.</summary>
     public sealed class MailRow : RowBase
     {
+        /// <summary>The item's node.</summary>
         public uint Nid { get; set; }
+        /// <summary>Its folder's node.</summary>
         public uint FolderNid { get; set; }
+        /// <summary>Its folder's name.</summary>
         public string FolderName { get; set; } = string.Empty;
+        /// <summary>Outlook's kind of item.</summary>
         public string MessageClass { get; set; } = string.Empty;
+        /// <summary>Its subject.</summary>
         public string Subject { get; set; } = string.Empty;
+        /// <summary>Who sent it.</summary>
         public string From { get; set; } = string.Empty;
+        /// <summary>Its date.</summary>
         public DateTime? Date { get; set; }
+        /// <summary>Its size.</summary>
         public long Size { get; set; }
+        /// <summary>True when read.</summary>
         public bool Read { get; set; } = true;
+        /// <summary>True when it has attachments.</summary>
         public bool HasAttachments { get; set; }
 
         // Calendar items (UTC) and contacts.
         public DateTime? Start { get; set; }
+        /// <summary>When a calendar item ends.</summary>
         public DateTime? End { get; set; }
+        /// <summary>True for an all-day item.</summary>
         public bool AllDay { get; set; }
+        /// <summary>True when it repeats.</summary>
         public bool Recurring { get; set; }
+        /// <summary>Where it is.</summary>
         public string Location { get; set; } = string.Empty;
+        /// <summary>The name a contact is filed as.</summary>
         public string FileAs { get; set; } = string.Empty;
+        /// <summary>A contact's company.</summary>
         public string Company { get; set; } = string.Empty;
+        /// <summary>A contact's email.</summary>
         public string Email { get; set; } = string.Empty;
 
         // Deleted items found in the file: where they were, and whether only part of them is left.
         public bool Deleted { get; set; }
+        /// <summary>True for a deleted item found only in part.</summary>
         public bool Partial { get; set; }
+        /// <summary>Where a deleted item was found.</summary>
         public string FoundIn { get; set; } = string.Empty;
 
         /// <summary>For a single .msg or .eml file.</summary>
@@ -120,6 +158,7 @@ namespace Kudupst.Views
         /// <summary>The open file the item is in.</summary>
         public OpenedFile File { get; set; }
 
+        /// <summary>A row from an item's summary.</summary>
         public static MailRow Of(ItemSummary s) => new MailRow
         {
             Nid = s.Nid, FolderNid = s.FolderNid, MessageClass = s.MessageClass, Subject = s.Subject, From = s.From,
@@ -128,12 +167,14 @@ namespace Kudupst.Views
             FileAs = s.FileAs, Company = s.Company, Email = s.Email, Deleted = s.Deleted, Partial = s.Partial, FoundIn = s.FoundIn
         };
 
+        /// <summary>A row from a search result.</summary>
         public static MailRow Of(IndexedItem i) => new MailRow
         {
             Nid = i.Nid, FolderNid = i.FolderNid, MessageClass = i.MessageClass, Subject = i.Subject, From = i.From,
             Date = i.Date, Size = i.Size, Read = i.Read, HasAttachments = i.HasAttachments, Deleted = i.FolderNid == Recovery.FolderNid
         };
 
+        /// <summary>A row from a single email.</summary>
         public static MailRow Of(MailItem m) => new MailRow
         {
             Item = m, MessageClass = m.MessageClass, Subject = m.Contact?.Name ?? m.Group?.Name ?? m.Subject, From = m.From.Short, Date = m.Date, Size = m.Size, Read = true,
@@ -143,7 +184,9 @@ namespace Kudupst.Views
             Email = m.Contact?.Emails.FirstOrDefault()?.Address ?? string.Empty, Deleted = m.Deleted, Partial = m.Partial, FoundIn = m.FoundIn
         };
 
+        /// <summary>True for a calendar item.</summary>
         public bool IsCalendar => Start.HasValue && (Kind == ItemKind.Appointment || Kind == ItemKind.Meeting);
+        /// <summary>True for a contact or group.</summary>
         public bool IsContact => Kind == ItemKind.Contact || Kind == ItemKind.DistributionList;
 
         /// <summary>When a calendar item starts, else when the item was sent or received: what the list sorts by.</summary>
@@ -200,15 +243,24 @@ namespace Kudupst.Views
 
         /// <summary>A mark for deleted items found in the file, and for repeating calendar items.</summary>
         public string MarkText => Lang.T(Partial ? "Partial" : Deleted ? "Deleted" : IsCalendar && Recurring ? "Repeats" : string.Empty);
+        /// <summary>Shows the mark when it has one.</summary>
         public Visibility MarkVisible => MarkText.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
+        /// <summary>What kind of item it is.</summary>
         public ItemKind Kind => ItemKinds.Of(MessageClass);
+        /// <summary>Who sent it, or "(no sender)".</summary>
         public string FromText => From.Length > 0 ? From : Lang.T("(no sender)");
+        /// <summary>The subject, or what to show instead.</summary>
         public string SubjectText => Subject.Length > 0 ? Subject : IsContact && Email.Length > 0 ? Email : IsContact ? Lang.T("(no name)") : Lang.T("(no subject)");
+        /// <summary>Unread items in bold.</summary>
         public FontWeight Weight => Read ? FontWeights.Normal : FontWeights.SemiBold;
+        /// <summary>The bar for unread items.</summary>
         public Visibility UnreadBar => Read ? Visibility.Hidden : Visibility.Visible;
+        /// <summary>Shows the paperclip.</summary>
         public Visibility AttachmentVisible => HasAttachments ? Visibility.Visible : Visibility.Collapsed;
+        /// <summary>Its kind's picture.</summary>
         public Geometry Icon => Res(KindIcon);
+        /// <summary>The paperclip's picture.</summary>
         public Geometry AttachIcon => Res("IconAttach");
 
         private string KindIcon
@@ -259,18 +311,23 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>The folder line (where a deleted item was found).</summary>
         public string FolderLine => Deleted && FoundIn.Length > 0 ? Lang.T("Was in {0}", FoundIn) : FolderName;
+        /// <summary>Shows the folder line when there is one.</summary>
         public Visibility FolderVisible => FolderLine.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>Row templates, written in XAML and loaded at startup, so long lists only build the rows on screen.</summary>
     public static class Templates
     {
+        /// <summary>The XAML namespaces the templates need.</summary>
         private const string Ns = "xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"";
 
+        /// <summary>The XAML of a picture.</summary>
         private static string Icon(string binding, string brush, double size = 15) =>
             $"<Viewbox Width=\"{size}\" Height=\"{size}\" VerticalAlignment=\"Center\"><Canvas Width=\"24\" Height=\"24\"><Path Data=\"{{Binding {binding}}}\" Stroke=\"{{DynamicResource {brush}}}\" StrokeThickness=\"1.8\" StrokeLineJoin=\"Round\" StrokeStartLineCap=\"Round\" StrokeEndLineCap=\"Round\"/></Canvas></Viewbox>";
 
+        /// <summary>The look of a folder row.</summary>
         public static DataTemplate Folder => Parse(
             "<DataTemplate " + Ns + "><Grid Height=\"28\" ToolTip=\"{Binding Tip}\" Background=\"Transparent\">" +
             "<Grid.ColumnDefinitions><ColumnDefinition Width=\"*\"/><ColumnDefinition Width=\"Auto\"/></Grid.ColumnDefinitions>" +
@@ -281,6 +338,7 @@ namespace Kudupst.Views
             "<TextBlock Grid.Column=\"1\" Text=\"{Binding CountText}\" FontWeight=\"{Binding CountWeight}\" FontSize=\"12\" Margin=\"6,0,10,0\" VerticalAlignment=\"Center\" Foreground=\"{DynamicResource SubtleText}\"/>" +
             "</Grid></DataTemplate>");
 
+        /// <summary>The look of an item row.</summary>
         public static DataTemplate Mail => Parse(
             "<DataTemplate " + Ns + "><Grid Height=\"54\" ToolTip=\"{Binding Tip}\" Background=\"Transparent\">" +
             "<Grid.ColumnDefinitions><ColumnDefinition Width=\"4\"/><ColumnDefinition Width=\"30\"/><ColumnDefinition Width=\"*\"/><ColumnDefinition Width=\"Auto\"/></Grid.ColumnDefinitions>" +
@@ -302,6 +360,7 @@ namespace Kudupst.Views
         public static DataTemplate MonthHeading => Parse(
             "<DataTemplate " + Ns + "><TextBlock Text=\"{Binding Name}\" FontWeight=\"SemiBold\" FontSize=\"13\" Margin=\"10,14,0,6\" Foreground=\"{DynamicResource Accent}\"/></DataTemplate>");
 
+        /// <summary>A template from its XAML.</summary>
         private static DataTemplate Parse(string xaml) => (DataTemplate)XamlReader.Parse(xaml);
     }
 }

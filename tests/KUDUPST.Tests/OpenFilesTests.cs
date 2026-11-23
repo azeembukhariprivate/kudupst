@@ -1,3 +1,5 @@
+// The tests for several files open at once: the set kept for next time, telling files apart by name, and searching all
+// of them.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +14,7 @@ namespace Kudupst.Tests
     {
         // ================================================================== several files at once
 
+        /// <summary>The set of open files is kept and read back.</summary>
         private static void TestOpenFilesSet()
         {
             var a = Path.Combine(_root, "set", "a.pst");
@@ -33,6 +36,7 @@ namespace Kudupst.Tests
             Check(OpenFiles.Restore(null, p => true).Open.Count == 0, "nothing saved");
         }
 
+        /// <summary>Files with the same name are told apart.</summary>
         private static void TestOpenFilesNames()
         {
             var names = OpenFiles.Names(new[] { @"C:\Mail\2019\archive.pst", @"C:\Mail\2020\archive.pst", @"C:\Mail\work.ost" }
@@ -45,6 +49,7 @@ namespace Kudupst.Tests
             Equal("a.pst (y)", deeper[1], "and the other");
         }
 
+        /// <summary>Search finds items in every open file.</summary>
         private static void TestSearchAcrossFiles()
         {
             var root = Path.Combine(_root, "index-across");
@@ -73,6 +78,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>Search checks single emails too.</summary>
         private static void TestSearchSingleEmails()
         {
             var msg = MsgReader.Read(Samples.MultiTo);

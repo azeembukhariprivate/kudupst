@@ -1,3 +1,4 @@
+// Where KUDUPST starts: a file to open (a PST, OST, .msg or .eml), the self-test with its samples, and the main window.
 using System;
 using System.IO;
 using System.Linq;
@@ -64,6 +65,7 @@ namespace Kudupst
 
     public sealed class App : Application
     {
+        /// <summary>Starts the app, opening this file when given.</summary>
         public int Run(string file)
         {
             Startup += (s, e) =>
@@ -94,6 +96,9 @@ namespace Kudupst
             return Run();
         }
 
+        /// <summary>
+        /// Runs the self-test with the sample files in this folder, and returns its result as the exit code.
+        /// </summary>
         public int RunSelfTest(string samples)
         {
             var code = 1;
@@ -108,6 +113,10 @@ namespace Kudupst
             return code;
         }
 
+        /// <summary>
+        /// What both ways of starting need: closing with the last window, the theme, the language and the error
+        /// handler.
+        /// </summary>
         internal void Init()
         {
             ShutdownMode = ShutdownMode.OnMainWindowClose;
@@ -118,6 +127,9 @@ namespace Kudupst
             ThemeManager.WatchSystem();
         }
 
+        /// <summary>
+        /// Shows an error that wasn't expected instead of closing the app (the self-test keeps it as a failure).
+        /// </summary>
         private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             if (SelfTest.Running)

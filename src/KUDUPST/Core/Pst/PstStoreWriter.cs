@@ -1,3 +1,5 @@
+// Writing a new PST's folders and items: the nodes every Outlook file has, a new table of named properties, items
+// copied from a PST or OST property by property, and single emails written from their details.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,13 +15,20 @@ namespace Kudupst.Core.Pst
     /// </summary>
     public sealed class NameMapWriter
     {
+        /// <summary>How many hash buckets the table of names has.</summary>
         private const int Buckets = 251;
+        /// <summary>The property sets used.</summary>
         private readonly List<Guid> _guids = new List<Guid>();
+        /// <summary>Each named property's new id, by set and number.</summary>
         private readonly Dictionary<(Guid, int), ushort> _byLid = new Dictionary<(Guid, int), ushort>();
+        /// <summary>Each named property's new id, by set and name.</summary>
         private readonly Dictionary<(Guid, string), ushort> _byName = new Dictionary<(Guid, string), ushort>();
+        /// <summary>The table's entries.</summary>
         private readonly List<(uint Id, ushort Kind, ushort Index, uint Hash)> _entries = new List<(uint, ushort, ushort, uint)>();
+        /// <summary>The names, as one stream.</summary>
         private readonly MemoryStream _strings = new MemoryStream();
 
+        /// <summary>A set's place in the list (the usual ones have fixed places).</summary>
         private ushort GuidIndex(Guid set)
         {
             if (set == PropSet.Mapi) return 1;
@@ -56,6 +65,7 @@ namespace Kudupst.Core.Pst
             return _byName[(set, name)] = (ushort)(0x8000 + index);
         }
 
+        /// <summary>A table entry as bytes.</summary>
         private static byte[] Entry(uint id, ushort kind, ushort index)
         {
             var e = new byte[8];
@@ -65,6 +75,7 @@ namespace Kudupst.Core.Pst
             return e;
         }
 
+        /// <summary>The table of names as properties.</summary>
         public IEnumerable<PropOut> Properties()
         {
             var guids = new byte[_guids.Count * 16];
@@ -95,10 +106,14 @@ namespace Kudupst.Core.Pst
     /// </summary>
     public sealed class PstStoreWriter : IDisposable
     {
+        /// <summary>The nodes every Outlook file has.</summary>
         private const uint StoreNid = 0x21, NameMapNid = 0x61, RootNid = 0x122, TopNid = 0x8022, SearchRootNid = 0x8042, DeletedNid = 0x8062;
+        /// <summary>The tables' layouts' nodes.</summary>
         private const uint RecipientTableNid = 0x692, AttachmentTableNid = 0x671;
+        /// <summary>How deep attached emails are copied.</summary>
         private const int MaxDepth = 16; // emails attached to emails attached to emails...
 
+        /// <summary>A folder list table's columns.</summary>
         private static readonly (ushort, ushort)[] HierarchyColumns =
         {
             (0x0E30, PropType.Binary), (0x0E33, PropType.Int64), (0x0E34, PropType.Binary), (0x0E38, PropType.Int32),
@@ -106,6 +121,7 @@ namespace Kudupst.Core.Pst
             (0x3613, PropType.Unicode), (0x6635, PropType.Int32), (0x6636, PropType.Int32)
         };
 
+        /// <summary>A folder's items table's columns.</summary>
         private static readonly (ushort, ushort)[] ContentsColumns =
         {
             (0x0017, PropType.Int32), (0x001A, PropType.Unicode), (0x0036, PropType.Int32), (0x0037, PropType.Unicode),
@@ -117,6 +133,7 @@ namespace Kudupst.Core.Pst
             (0x3013, PropType.Binary), (0x65C6, PropType.Int32)
         };
 
+        /// <summary>A folder's hidden items table's columns.</summary>
         private static readonly (ushort, ushort)[] AssocColumns =
         {
             (0x001A, PropType.Unicode), (0x0E07, PropType.Int32), (0x0E17, PropType.Int32), (0x3001, PropType.Unicode),
@@ -125,6 +142,7 @@ namespace Kudupst.Core.Pst
             (0x7006, PropType.Unicode), (0x7007, PropType.Int32)
         };
 
+        /// <summary>The search folders' items table's columns.</summary>
         private static readonly (ushort, ushort)[] SearchContentsColumns =
         {
             (0x0017, PropType.Int32), (0x001A, PropType.Unicode), (0x0036, PropType.Int32), (0x0037, PropType.Unicode),
@@ -134,11 +152,13 @@ namespace Kudupst.Core.Pst
             (0x67F1, PropType.Int32)
         };
 
+        /// <summary>The attachments table's columns.</summary>
         private static readonly (ushort, ushort)[] AttachmentColumns =
         {
             (0x0E20, PropType.Int32), (0x3704, PropType.Unicode), (0x3705, PropType.Int32), (0x370B, PropType.Int32)
         };
 
+        /// <summary>The recipients table's columns.</summary>
         private static readonly (ushort, ushort)[] RecipientColumns =
         {
             (0x0C15, PropType.Int32), (0x0E0F, PropType.Boolean), (0x0FF9, PropType.Binary), (0x0FFE, PropType.Int32),
@@ -148,31 +168,46 @@ namespace Kudupst.Core.Pst
 
         private sealed class Folder
         {
+            /// <summary>The folder's node and its parent's.</summary>
             public uint Nid, Parent;
+            /// <summary>Its name and what it holds.</summary>
             public string Name = string.Empty, Class = string.Empty;
+            /// <summary>Its folders.</summary>
             public readonly List<Folder> Children = new List<Folder>();
+            /// <summary>Its items' rows.</summary>
             public readonly List<(uint Nid, Dictionary<ushort, byte[]> Cells)> Rows = new List<(uint, Dictionary<ushort, byte[]>)>();
+            /// <summary>How many are unread.</summary>
             public int Unread;
         }
 
         /// <summary>A message ready to go into the file: its data, its parts, and its properties (for the folder's list).</summary>
         private struct Written
         {
+            /// <summary>The item's data and sub-node blocks.</summary>
             public ulong Data, Sub;
+            /// <summary>Its properties.</summary>
             public List<PropOut> Props;
+            /// <summary>Its size.</summary>
             public long Size;
         }
 
+        /// <summary>Writes the file's lowest layer.</summary>
         private readonly PstBuilder _file;
+        /// <summary>The store's name.</summary>
         private readonly string _name;
+        /// <summary>The store's own id.</summary>
         private readonly Guid _key = Guid.NewGuid();
+        /// <summary>The new table of names.</summary>
         private readonly NameMapWriter _names = new NameMapWriter();
+        /// <summary>The folders, by node.</summary>
         private readonly Dictionary<uint, Folder> _folders = new Dictionary<uint, Folder>();
+        /// <summary>True once finished.</summary>
         private bool _finished;
 
         /// <summary>How many items have been put in.</summary>
         public int Count { get; private set; }
 
+        /// <summary>A new PST with this name.</summary>
         public PstStoreWriter(Stream output, string displayName, bool ownsStream = false)
         {
             _file = new PstBuilder(output, ownsStream);
@@ -189,11 +224,13 @@ namespace Kudupst.Core.Pst
             Add(new Folder { Nid = DeletedNid, Parent = TopNid, Name = "Deleted Items", Class = "IPF.Note" });
         }
 
+        /// <summary>Closes the file.</summary>
         public void Dispose() => _file.Dispose();
 
         /// <summary>How big the file is so far.</summary>
         public long Length => _file.Length;
 
+        /// <summary>Adds a folder.</summary>
         private void Add(Folder f)
         {
             _folders[f.Nid] = f;
@@ -227,6 +264,7 @@ namespace Kudupst.Core.Pst
             return at;
         }
 
+        /// <summary>What a folder holds, from an item's kind.</summary>
         private static string ClassFor(string messageClass)
         {
             switch (ItemKinds.Of(messageClass))
@@ -255,6 +293,7 @@ namespace Kudupst.Core.Pst
             Put(folder, Build(item, 0));
         }
 
+        /// <summary>Adds an item to a folder.</summary>
         private void Put(uint folderNid, Written w)
         {
             if (_finished) throw new InvalidOperationException("The file is already finished.");
@@ -283,6 +322,7 @@ namespace Kudupst.Core.Pst
 
         // ------------------------------------------------------------------ copying from a PST or OST file
 
+        /// <summary>One-byte text as Unicode.</summary>
         private static byte[] ToUnicode(byte[] raw, Encoding ansi) => Encoding.Unicode.GetBytes(ansi.GetString(raw).TrimEnd('\0'));
 
         /// <summary>A list of texts kept the old way (one byte a letter) as a list kept the new way.</summary>
@@ -348,6 +388,9 @@ namespace Kudupst.Core.Pst
             return list;
         }
 
+        /// <summary>
+        /// Copies an item from a PST or OST property by property (named properties get the new file's ids).
+        /// </summary>
         private Written Copy(PstStore source, NodeData data, int depth)
         {
             var pc = new PropertyContext(data) { Ansi = source.Ansi };
@@ -432,6 +475,7 @@ namespace Kudupst.Core.Pst
             return w;
         }
 
+        /// <summary>An attachment's link to an attached item.</summary>
         private static PropOut ObjectProp(ushort id, uint nid, long size)
         {
             var value = new byte[8];
@@ -440,6 +484,7 @@ namespace Kudupst.Core.Pst
             return new PropOut(id, PropType.Object, value);
         }
 
+        /// <summary>Properties as a table's cells.</summary>
         private static Dictionary<ushort, byte[]> Cells(List<PropOut> props, (ushort, ushort)[] columns)
         {
             var cells = new Dictionary<ushort, byte[]>();
@@ -502,6 +547,7 @@ namespace Kudupst.Core.Pst
 
         // ------------------------------------------------------------------ writing from what was read (.msg, .eml)
 
+        /// <summary>A plain address as Outlook's one-off entry id.</summary>
         private static byte[] OneOffEntryId(string name, string address)
         {
             var ms = new MemoryStream();
@@ -516,8 +562,10 @@ namespace Kudupst.Core.Pst
             return ms.ToArray();
         }
 
+        /// <summary>An address's search key.</summary>
         private static byte[] SearchKey(string address) => Encoding.ASCII.GetBytes("SMTP:" + address.ToUpperInvariant() + "\0");
 
+        /// <summary>Adds a person's properties (name, address, type, entry id).</summary>
         private static void AddPerson(List<PropOut> props, MailAddress a, ushort name, ushort type, ushort email, ushort smtp, ushort entryId, ushort searchKey)
         {
             if (a == null || a.IsEmpty) return;
@@ -542,6 +590,7 @@ namespace Kudupst.Core.Pst
             return all;
         }
 
+        /// <summary>Writes a single email from its details.</summary>
         private Written Build(MailItem item, int depth)
         {
             var w = new Written();
@@ -684,6 +733,7 @@ namespace Kudupst.Core.Pst
             return w;
         }
 
+        /// <summary>A list of texts as a multi-value property.</summary>
         private static byte[] TextList(string[] texts)
         {
             var parts = texts.Select(t => Encoding.Unicode.GetBytes(t ?? string.Empty)).ToList();
@@ -701,6 +751,7 @@ namespace Kudupst.Core.Pst
 
         // ================================================================== finishing
 
+        /// <summary>A node's entry id in this store.</summary>
         private byte[] EntryId(uint nid)
         {
             var id = new byte[24];
@@ -709,6 +760,7 @@ namespace Kudupst.Core.Pst
             return id;
         }
 
+        /// <summary>Writes a node with these properties.</summary>
         private void TopLevel(uint nid, IEnumerable<PropOut> props)
         {
             var node = new NodeWriter(_file);
@@ -716,6 +768,7 @@ namespace Kudupst.Core.Pst
             _file.Node(nid, data, node.Finish());
         }
 
+        /// <summary>Writes a node with this table.</summary>
         private void TopLevel(uint nid, TableWriter table)
         {
             var node = new NodeWriter(_file);

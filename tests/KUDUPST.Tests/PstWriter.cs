@@ -1,3 +1,5 @@
+// Makes small PST files for the tests, byte by byte: both formats, scrambled or not, with items, attachments, deleted
+// items and damage.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,32 +15,43 @@ namespace Kudupst.Tests
     /// </summary>
     public sealed class PstWriter
     {
+        /// <summary>True for the Unicode format.</summary>
         private readonly bool _unicode;
+        /// <summary>How the data is scrambled.</summary>
         private readonly PstCryptMethod _crypt;
+        /// <summary>The blocks, by id.</summary>
         private readonly SortedDictionary<ulong, byte[]> _blocks = new SortedDictionary<ulong, byte[]>();
+        /// <summary>The nodes.</summary>
         private readonly SortedDictionary<uint, (ulong Data, ulong Sub, uint Parent)> _nodes = new SortedDictionary<uint, (ulong, ulong, uint)>();
+        /// <summary>The next block id.</summary>
         private ulong _nextBid = 4;
+        /// <summary>The next page id.</summary>
         private ulong _nextPageBid = 0x10000;
 
         // Deleted items: blocks written into free space (not in the block index), damaged blocks, and node entries kept
         // only in an old index page left in free space.
         private readonly HashSet<ulong> _forgotten = new HashSet<ulong>();
+        /// <summary>Blocks to spoil (to test damaged files).</summary>
         private readonly HashSet<ulong> _damaged = new HashSet<ulong>();
+        /// <summary>Nodes deleted (left out of the index but still in the file).</summary>
         private readonly List<(uint Nid, ulong Data, ulong Sub, uint Parent)> _oldNodes = new List<(uint, ulong, ulong, uint)>();
 
         /// <summary>Whether to write the map of used and free space (Outlook does; without it everything is looked through).</summary>
         public bool FreeMap { get; set; } = true;
 
+        /// <summary>A writer for this format and scrambling.</summary>
         public PstWriter(bool unicode, PstCryptMethod crypt)
         {
             _unicode = unicode;
             _crypt = crypt;
         }
 
+        /// <summary>The most data one block holds.</summary>
         private int MaxBlock => _unicode ? 8176 : 8180;
 
         // ================================================================== blocks and nodes
 
+        /// <summary>Adds a data block (split into a list of blocks when big).</summary>
         public ulong DataBlock(byte[] data)
         {
             var bid = _nextBid;
@@ -47,6 +60,7 @@ namespace Kudupst.Tests
             return bid;
         }
 
+        /// <summary>Adds a list of blocks.</summary>
         private ulong InternalBlock(byte[] data)
         {
             var bid = _nextBid | 2;
@@ -76,6 +90,7 @@ namespace Kudupst.Tests
             return InternalBlock(x);
         }
 
+        /// <summary>Adds a node.</summary>
         public void Node(uint nid, ulong data, ulong sub = 0, uint parent = 0) => _nodes[nid] = (data, sub, parent);
 
         /// <summary>A deleted item's node: listed only in an old index page left in free space.</summary>
@@ -161,16 +176,20 @@ namespace Kudupst.Tests
         /// <summary>Builds a heap-on-node in one block. Add items, then call Build.</summary>
         public sealed class HeapBuilder
         {
+            /// <summary>The heap's items.</summary>
             private readonly List<byte[]> _items = new List<byte[]>();
 
+            /// <summary>Adds an item and returns its id.</summary>
             public uint Add(byte[] item)
             {
                 _items.Add(item);
                 return (uint)(_items.Count << 5);
             }
 
+            /// <summary>Puts an item in place.</summary>
             public void Set(uint hid, byte[] item) => _items[(int)(hid >> 5) - 1] = item;
 
+            /// <summary>The heap's bytes.</summary>
             public byte[] Build(byte clientSig, uint userRoot)
             {
                 var body = new MemoryStream();
@@ -198,17 +217,27 @@ namespace Kudupst.Tests
 
         public sealed class Prop
         {
+            /// <summary>The property's id.</summary>
             public ushort Id;
+            /// <summary>Its type.</summary>
             public ushort Type;
+            /// <summary>Its value.</summary>
             public byte[] Value;
+            /// <summary>Where it is, for values already placed.</summary>
             public uint Hnid; // for values already placed (sub-nodes, objects)
         }
 
+        /// <summary>A Unicode text.</summary>
         public static Prop Str(ushort id, string s) => new Prop { Id = id, Type = PropType.Unicode, Value = Encoding.Unicode.GetBytes(s) };
+        /// <summary>A one-byte text.</summary>
         public static Prop Str8(ushort id, string s, Encoding enc) => new Prop { Id = id, Type = PropType.String8, Value = enc.GetBytes(s) };
+        /// <summary>A number.</summary>
         public static Prop Int(ushort id, int v) => new Prop { Id = id, Type = PropType.Int32, Value = BitConverter.GetBytes(v) };
+        /// <summary>Yes or no.</summary>
         public static Prop Bool(ushort id, bool v) => new Prop { Id = id, Type = PropType.Boolean, Value = BitConverter.GetBytes(v ? 1 : 0) };
+        /// <summary>A date.</summary>
         public static Prop Time(ushort id, DateTime utc) => new Prop { Id = id, Type = PropType.SysTime, Value = BitConverter.GetBytes(utc.ToFileTimeUtc()) };
+        /// <summary>Bytes.</summary>
         public static Prop Bin(ushort id, byte[] data) => new Prop { Id = id, Type = PropType.Binary, Value = data };
 
         /// <summary>A property list. Values too big for the heap go to sub-nodes (returned for the node's sub-node list).</summary>
@@ -315,9 +344,12 @@ namespace Kudupst.Tests
 
         // ================================================================== the file
 
+        /// <summary>Where the first map is, and how much each covers.</summary>
         private const long MapAt = 0x4400, MapSpan = 253952;
+        /// <summary>The parts of the file used.</summary>
         private readonly List<(long Offset, long Length)> _used = new List<(long, long)>();
 
+        /// <summary>The whole file's bytes.</summary>
         public byte[] Build()
         {
             var output = new MemoryStream();
@@ -464,6 +496,7 @@ namespace Kudupst.Tests
             return file;
         }
 
+        /// <summary>Pads the file to a boundary.</summary>
         private static long Align(MemoryStream s, int to)
         {
             while (s.Length % to != 0) s.WriteByte(0);
@@ -502,6 +535,7 @@ namespace Kudupst.Tests
             return Page(output, branch, branchSize, 1, type);
         }
 
+        /// <summary>Writes an index page (and the pages above it).</summary>
         private long Page(MemoryStream output, List<byte[]> entries, int entrySize, int level, byte type, bool used = true)
         {
             var page = new byte[512];

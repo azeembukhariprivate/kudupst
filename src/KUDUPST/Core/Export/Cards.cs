@@ -1,3 +1,5 @@
+// Writing contacts and calendars for other programs: vCard 3.0, the contacts CSV Outlook and Google read, and iCalendar
+// (.ics) with repeats and time zones.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -11,8 +13,10 @@ namespace Kudupst.Core.Export
     /// <summary>Lines for vCard and iCalendar files: escaped values, folded at 75 bytes, ending in CRLF.</summary>
     internal sealed class CardText
     {
+        /// <summary>The text so far.</summary>
         private readonly StringBuilder _sb = new StringBuilder();
 
+        /// <summary>A value with vCard's and iCalendar's special characters escaped.</summary>
         public static string Escape(string value) =>
             Printable(value).Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,").Replace("\r\n", "\\n").Replace("\n", "\\n").Replace("\r", "\\n");
 
@@ -26,6 +30,7 @@ namespace Kudupst.Core.Export
             return sb.ToString();
         }
 
+        /// <summary>Adds a line (escaped, and left out when the value is empty).</summary>
         public void Add(string name, string value, bool escape = true)
         {
             value = Printable(value).Trim();
@@ -54,12 +59,14 @@ namespace Kudupst.Core.Export
             _sb.Append("\r\n");
         }
 
+        /// <summary>The whole text.</summary>
         public override string ToString() => _sb.ToString();
     }
 
     /// <summary>Contacts as a vCard 3.0 file (RFC 2426), which phones, Google and most address books read.</summary>
     public static class VcardWriter
     {
+        /// <summary>A contact or contact group as a vCard.</summary>
         public static string Write(MailItem item)
         {
             var t = new CardText();
@@ -71,6 +78,7 @@ namespace Kudupst.Core.Export
             return t.ToString();
         }
 
+        /// <summary>A contact's lines: names, emails, phones, addresses, dates, photo and notes.</summary>
         private static void Contact(CardText t, MailItem item)
         {
             var c = item.Contact ?? new ContactInfo { DisplayName = item.Subject };
@@ -126,6 +134,7 @@ namespace Kudupst.Core.Export
             if (item.Categories.Length > 0) t.Raw("CATEGORIES:" + string.Join(",", item.Categories.Select(CardText.Escape)));
         }
 
+        /// <summary>The vCard type of a phone ("WORK,VOICE"...).</summary>
         private static string PhoneType(string kind)
         {
             switch (kind)
@@ -145,6 +154,7 @@ namespace Kudupst.Core.Export
             }
         }
 
+        /// <summary>A photo's kind from its first bytes (JPEG when not told).</summary>
         private static string PhotoType(byte[] data)
         {
             if (data.Length > 3 && data[0] == 0x89 && data[1] == 0x50) return "PNG";
@@ -157,6 +167,7 @@ namespace Kudupst.Core.Export
     /// <summary>Contacts as a CSV file with the columns Outlook and Google Contacts expect when importing.</summary>
     public static class ContactsCsv
     {
+        /// <summary>The columns, as Outlook and Google read them.</summary>
         public static readonly string[] Columns =
         {
             "Title", "First Name", "Middle Name", "Last Name", "Suffix", "Nickname",
@@ -170,8 +181,10 @@ namespace Kudupst.Core.Export
             "Anniversary", "Birthday", "Spouse", "Web Page", "Personal Web Page", "Categories", "Notes"
         };
 
+        /// <summary>The header line.</summary>
         public static string Header => string.Join(",", Columns.Select(Exporter.CsvCell)) + "\r\n";
 
+        /// <summary>A contact as a CSV row.</summary>
         public static string Row(MailItem item)
         {
             var cells = new Dictionary<string, string>();
@@ -244,13 +257,19 @@ namespace Kudupst.Core.Export
     /// </summary>
     public sealed class IcsWriter
     {
+        /// <summary>The events written.</summary>
         private readonly CardText _events = new CardText();
+        /// <summary>The time zones they use.</summary>
         private readonly CardText _zones = new CardText();
+        /// <summary>Each time zone's id, by its rules.</summary>
         private readonly Dictionary<string, string> _zoneIds = new Dictionary<string, string>();
+        /// <summary>The time written as the file's own (DTSTAMP).</summary>
         private readonly DateTime _stamp;
 
+        /// <summary>How many events were written.</summary>
         public int Count { get; private set; }
 
+        /// <summary>A new calendar (stamp: the time written, for the tests).</summary>
         public IcsWriter(DateTime? stamp = null)
         {
             _stamp = stamp ?? DateTime.UtcNow;
@@ -261,6 +280,7 @@ namespace Kudupst.Core.Export
             item.Appointment != null &&
             (item.Kind == ItemKind.Appointment || item.MessageClass.StartsWith("IPM.Schedule.Meeting.Request", StringComparison.OrdinalIgnoreCase));
 
+        /// <summary>Adds a calendar item: its times, repeats with their changes, people and reminder.</summary>
         public void Add(MailItem item)
         {
             var a = item.Appointment;
@@ -340,6 +360,7 @@ namespace Kudupst.Core.Export
             Count++;
         }
 
+        /// <summary>The lines every event has: id, subject, place, notes, organiser and attendees.</summary>
         private static void Common(CardText t, MailItem item, string subject, string location, int busy, int? reminder, bool withDescription)
         {
             var a = item.Appointment;
@@ -373,6 +394,7 @@ namespace Kudupst.Core.Export
             }
         }
 
+        /// <summary>A person's name, as iCalendar's CN.</summary>
         private static string Cn(MailAddress a)
         {
             if (a.Name.Length == 0) return string.Empty;
@@ -380,6 +402,7 @@ namespace Kudupst.Core.Export
             return ";CN=\"" + name + "\"";
         }
 
+        /// <summary>A person as a mailto: link.</summary>
         private static string Mailto(MailAddress a) => "mailto:" + (a.Address.Length > 0 ? a.Address : a.Name.Replace(" ", string.Empty) + "@invalid");
 
         /// <summary>The meeting's own ID (the same in every attendee's copy), else one made from the item.</summary>
@@ -400,6 +423,7 @@ namespace Kudupst.Core.Export
             }
         }
 
+        /// <summary>A repeat as iCalendar's RRULE.</summary>
         private static string Rule(RecurrencePattern r, AppointmentInfo a, string zone)
         {
             var parts = new List<string>();
@@ -454,6 +478,7 @@ namespace Kudupst.Core.Export
             return string.Join(";", parts);
         }
 
+        /// <summary>A day's two-letter code ("MO"...).</summary>
         private static string DayCode(DayOfWeek d) => new[] { "SU", "MO", "TU", "WE", "TH", "FR", "SA" }[(int)d];
 
         /// <summary>The TZID for an item's time zone, adding its VTIMEZONE the first time it's used.</summary>
@@ -488,8 +513,10 @@ namespace Kudupst.Core.Export
             return unique;
         }
 
+        /// <summary>A time zone change's rule as text, to tell rules apart.</summary>
         private static string Sig(TimeZoneRule.SystemTime s) => $"{s.Year}.{s.Month}.{s.DayOfWeek}.{s.Day}.{s.Hour}.{s.Minute}";
 
+        /// <summary>A time zone's standard or summer part.</summary>
         private static void Part(CardText t, string kind, TimeZoneRule.SystemTime when, int from, int to)
         {
             t.Raw("BEGIN:" + kind);
@@ -508,6 +535,7 @@ namespace Kudupst.Core.Export
             t.Raw("END:" + kind);
         }
 
+        /// <summary>Minutes from UTC as "+0530".</summary>
         private static string Offset(int minutes)
         {
             var sign = minutes < 0 ? "-" : "+";
@@ -515,11 +543,16 @@ namespace Kudupst.Core.Export
             return sign + (minutes / 60).ToString("00", CultureInfo.InvariantCulture) + (minutes % 60).ToString("00", CultureInfo.InvariantCulture);
         }
 
+        /// <summary>A local time with its time zone.</summary>
         private static string Local(string zone, DateTime local) => (zone != null ? ";TZID=\"" + zone + "\"" : string.Empty) + ":" + Stamp(local);
+        /// <summary>A time as iCalendar writes it.</summary>
         private static string Stamp(DateTime d) => d.ToString("yyyyMMdd'T'HHmmss", CultureInfo.InvariantCulture);
+        /// <summary>A time in UTC.</summary>
         private static string Utc(DateTime d) => Stamp(d.Kind == DateTimeKind.Local ? d.ToUniversalTime() : d) + "Z";
+        /// <summary>A date.</summary>
         private static string Date(DateTime d) => d.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
 
+        /// <summary>The whole calendar.</summary>
         public override string ToString()
         {
             var t = new CardText();

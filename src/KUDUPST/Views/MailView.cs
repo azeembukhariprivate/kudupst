@@ -1,3 +1,5 @@
+// Showing an email with WebView2: scripts off, every request served by the app, pictures from the internet blocked
+// until "Show pictures"; plain text when WebView2 isn't there; and PDFs made from emails.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,11 +24,14 @@ namespace Kudupst.Views
     /// </summary>
     public static class Web
     {
+        /// <summary>The one WebView2 engine, once started.</summary>
         private static Task<CoreWebView2Environment> _environment;
 
+        /// <summary>The engine's folder (beside the search index, never beside the user's file).</summary>
         public static string DataFolder =>
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KUDUPST", "WebView2");
 
+        /// <summary>True once WebView2's loader was found.</summary>
         private static bool _loaderSet;
 
         /// <summary>Points the Edge engine at its loader for this computer's processor (x64, x86 or ARM).</summary>
@@ -52,6 +57,7 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>The engine (started the first time it's asked for).</summary>
         public static Task<CoreWebView2Environment> Environment2()
         {
             EnsureLoader();
@@ -71,6 +77,7 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>Where WebView2 can be downloaded from Microsoft.</summary>
         public const string DownloadUrl = "https://go.microsoft.com/fwlink/p/?LinkId=2124703";
 
         /// <summary>Sets up a WebView2 for showing emails.</summary>
@@ -93,6 +100,7 @@ namespace Kudupst.Views
             return core;
         }
 
+        /// <summary>A response the app makes for a request.</summary>
         public static CoreWebView2WebResourceResponse Response(CoreWebView2Environment env, byte[] data, string type, int status = 200)
         {
             var stream = data == null ? null : new MemoryStream(data);
@@ -113,17 +121,29 @@ namespace Kudupst.Views
     /// <summary>The reading pane: shows one email.</summary>
     public sealed class MailView : Grid
     {
+        /// <summary>The page.</summary>
         private readonly WebView2 _web = new WebView2();
+        /// <summary>Plain text, when WebView2 isn't there.</summary>
         private readonly TextBox _fallback = new TextBox { IsReadOnly = true, TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, BorderThickness = new Thickness(0), Padding = new Thickness(16) };
+        /// <summary>The bar saying pictures were blocked.</summary>
         private readonly Border _banner;
+        /// <summary>Its text.</summary>
         private readonly TextBlock _bannerText = Ui.Text(string.Empty, 12.5, wrap: true);
+        /// <summary>Shows the pictures.</summary>
         private readonly Button _showPictures;
+        /// <summary>What's shown when nothing is chosen.</summary>
         private readonly Grid _empty;
+        /// <summary>The page's engine.</summary>
         private CoreWebView2 _core;
+        /// <summary>Finished once the page is ready.</summary>
         private Task _ready;
+        /// <summary>The item shown.</summary>
         private MailItem _item;
+        /// <summary>Pictures from the internet are allowed.</summary>
         private bool _allowRemote;
+        /// <summary>The page shown.</summary>
         private string _page;
+        /// <summary>Counts items shown, so an older one that finishes late is ignored.</summary>
         private int _generation;
 
         /// <summary>Raised when an attachment's name is clicked in the header (its index in the item's attachments).</summary>
@@ -132,15 +152,21 @@ namespace Kudupst.Views
         /// <summary>Raised when a page has finished showing (for the self-test).</summary>
         public event Action Shown;
 
+        /// <summary>The item shown.</summary>
         public MailItem Item => _item;
 
         /// <summary>The email the page on screen shows (once it has finished loading).</summary>
         public MailItem ShownItem { get; private set; }
+        /// <summary>The item being drawn.</summary>
         private MailItem _rendering;
+        /// <summary>True when pictures were blocked.</summary>
         public bool PicturesBlocked { get; private set; }
+        /// <summary>True when plain text is shown instead.</summary>
         public bool UsingFallback { get; private set; }
+        /// <summary>True when pictures are allowed.</summary>
         public bool AllowRemote => _allowRemote;
 
+        /// <summary>Makes the view.</summary>
         public MailView()
         {
             RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -173,6 +199,7 @@ namespace Kudupst.Views
             Unloaded += (s, e) => { };
         }
 
+        /// <summary>Waits until the page is ready.</summary>
         private Task Ready()
         {
             if (_ready != null) return _ready;
@@ -180,6 +207,9 @@ namespace Kudupst.Views
             return _ready;
         }
 
+        /// <summary>
+        /// Makes the page: no scripts, every request to the app, links opened in the person's browser.
+        /// </summary>
         private async Task Init()
         {
             try
@@ -223,6 +253,10 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>
+        /// Answers a request: the page, pictures inside the email, or nothing (internet requests blocked unless
+        /// allowed).
+        /// </summary>
         private void Serve(CoreWebView2Environment env, CoreWebView2WebResourceRequestedEventArgs e)
         {
             var uri = e.Request.Uri;
@@ -254,6 +288,7 @@ namespace Kudupst.Views
             if (!_allowRemote) e.Response = Web.Response(env, null, "text/plain", 403);
         }
 
+        /// <summary>Shows nothing.</summary>
         public void Clear()
         {
             _item = null;
@@ -264,6 +299,7 @@ namespace Kudupst.Views
             _empty.Visibility = Visibility.Visible;
         }
 
+        /// <summary>Shows an item.</summary>
         public async Task Show(MailItem item)
         {
             _item = item;
@@ -274,12 +310,14 @@ namespace Kudupst.Views
             Render();
         }
 
+        /// <summary>Shows the pictures from the internet.</summary>
         public void ShowPictures()
         {
             _allowRemote = true;
             Render();
         }
 
+        /// <summary>Draws the item.</summary>
         private void Render()
         {
             var item = _item;
@@ -307,6 +345,7 @@ namespace Kudupst.Views
             _core.Navigate(MailHtml.Base + "page/" + _generation + (_allowRemote ? "r" : string.Empty));
         }
 
+        /// <summary>The header as plain text.</summary>
         private static string Header(MailItem item)
         {
             var sb = new StringBuilder();
@@ -333,11 +372,13 @@ namespace Kudupst.Views
             if (_core != null) await _core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, stream);
         }
 
+        /// <summary>Prints the item.</summary>
         public void Print()
         {
             if (_core != null && _item != null) _core.ShowPrintUI(CoreWebView2PrintDialogKind.Browser);
         }
 
+        /// <summary>Zooms the page.</summary>
         public void Zoom(double factor) => _web.ZoomFactor = Math.Max(0.25, Math.Min(5, factor));
     }
 
@@ -347,14 +388,22 @@ namespace Kudupst.Views
     /// </summary>
     public sealed class PdfMaker : IDisposable
     {
+        /// <summary>A hidden window for the page.</summary>
         private readonly Window _window;
+        /// <summary>The page.</summary>
         private readonly WebView2 _web = new WebView2();
+        /// <summary>Its engine.</summary>
         private CoreWebView2 _core;
+        /// <summary>The engine.</summary>
         private CoreWebView2Environment _env;
+        /// <summary>The item being made into a PDF.</summary>
         private MailItem _item;
+        /// <summary>Its page.</summary>
         private string _page;
+        /// <summary>Done once the page has loaded.</summary>
         private TaskCompletionSource<bool> _loaded;
 
+        /// <summary>Makes the PDF maker.</summary>
         public PdfMaker()
         {
             _window = new Window
@@ -371,8 +420,10 @@ namespace Kudupst.Views
             };
         }
 
+        /// <summary>True when WebView2 is there.</summary>
         public static bool Available => Web.RuntimeVersion != null;
 
+        /// <summary>Starts the hidden page.</summary>
         public async Task Start()
         {
             _window.Show();
@@ -395,6 +446,7 @@ namespace Kudupst.Views
             _core.NavigationCompleted += (s, e) => _loaded?.TrySetResult(e.IsSuccess);
         }
 
+        /// <summary>How many PDFs were made.</summary>
         private int _count;
 
         /// <summary>Prints one email to a PDF file.</summary>
@@ -437,6 +489,7 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>Closes the hidden page.</summary>
         public void Dispose()
         {
             try { _web.Dispose(); }

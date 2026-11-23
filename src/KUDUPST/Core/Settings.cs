@@ -1,3 +1,4 @@
+// KUDUPST's settings, kept in the registry for the current user.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,13 +6,16 @@ using Microsoft.Win32;
 
 namespace Kudupst.Core
 {
+    /// <summary>How the app looks: like Windows, always light, or always dark.</summary>
     public enum ThemeMode { System, Light, Dark }
 
     /// <summary>Settings are stored under HKEY_CURRENT_USER, so no administrator rights are needed.</summary>
     public static class Settings
     {
+        /// <summary>Where the settings are kept, under HKEY_CURRENT_USER.</summary>
         private const string KeyPath = @"Software\KUDUPST";
 
+        /// <summary>A setting as text, or fallback when it isn't there or can't be read.</summary>
         private static string Get(string name, string fallback)
         {
             try
@@ -27,6 +31,7 @@ namespace Kudupst.Core
             }
         }
 
+        /// <summary>Keeps a setting (quietly does nothing when the registry can't be written).</summary>
         private static void Set(string name, string value)
         {
             try
@@ -42,9 +47,12 @@ namespace Kudupst.Core
             }
         }
 
+        /// <summary>A yes/no setting (kept as "1" or "0").</summary>
         private static bool GetBool(string name, bool fallback) => Get(name, fallback ? "1" : "0") == "1";
+        /// <summary>Keeps a yes/no setting.</summary>
         private static void SetBool(string name, bool value) => Set(name, value ? "1" : "0");
 
+        /// <summary>A setting that is one of a list of choices (an enum).</summary>
         private static T GetEnum<T>(string name, T fallback) where T : struct =>
             Enum.TryParse(Get(name, fallback.ToString()), out T v) ? v : fallback;
 
@@ -102,6 +110,7 @@ namespace Kudupst.Core
         /// <summary>Files opened recently, newest first.</summary>
         public static List<string> Recent => Get("Recent", string.Empty).Split('\n').Where(p => p.Length > 0).ToList();
 
+        /// <summary>Puts a file at the top of the recent list.</summary>
         public static void AddRecent(string path)
         {
             if (string.IsNullOrEmpty(path)) return;
@@ -110,6 +119,7 @@ namespace Kudupst.Core
             Set("Recent", string.Join("\n", list.Take(10)));
         }
 
+        /// <summary>Empties the recent list.</summary>
         public static void ClearRecent() => Set("Recent", string.Empty);
 
         /// <summary>The files open when KUDUPST was last used (one path per line), opened again at the next start.</summary>

@@ -1,3 +1,5 @@
+// The email shown in the window: a page made from the item, with its header (from, to, dates, attachments, contact and
+// meeting rows), pictures from the internet blocked until "Show pictures".
 using System;
 using System.Globalization;
 using System.Linq;
@@ -15,10 +17,13 @@ namespace Kudupst.Core.Mail
     {
         /// <summary>The made-up web address the app serves an email's pictures and attachments from.</summary>
         public const string Host = "mail.kudupst.local";
+        /// <summary>The made-up site the page is served from (every request goes to the app).</summary>
         public const string Base = "https://" + Host + "/";
 
+        /// <summary>A link to something on the internet in the email.</summary>
         private static readonly Regex Remote = new Regex(@"(src|background|href)\s*=\s*[""']?\s*https?://|url\(\s*[""']?\s*https?://|<link\b[^>]*https?://",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        /// <summary>A picture from the internet.</summary>
         private static readonly Regex Img = new Regex(@"<img\b[^>]*\bsrc\s*=\s*[""']?\s*https?://", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         /// <summary>True when the body would load pictures (or other things) from the internet.</summary>
@@ -30,12 +35,17 @@ namespace Kudupst.Core.Mail
 
         public sealed class Options
         {
+            /// <summary>Show pictures from the internet.</summary>
             public bool AllowRemote { get; set; }
+            /// <summary>Show it dark.</summary>
             public bool Dark { get; set; }
+            /// <summary>For printing (no dark, no buttons).</summary>
             public bool ForPrint { get; set; }
+            /// <summary>A note about the time zone shown.</summary>
             public string TimeZoneNote { get; set; }
         }
 
+        /// <summary>The whole page for an item.</summary>
         public static string Page(MailItem item, Options options)
         {
             var body = item.Body;
@@ -64,6 +74,7 @@ namespace Kudupst.Core.Mail
             return "<!DOCTYPE html><html><head><meta charset=\"utf-8\">" + head + "</head><body>" + header + "<div id=\"kudupst-body\">" + html + "</div></body></html>";
         }
 
+        /// <summary>The page's head: its safety rules, styles and the dark look.</summary>
         private static string HeadExtras(Options o)
         {
             var policy = o.AllowRemote
@@ -94,6 +105,7 @@ namespace Kudupst.Core.Mail
                    "</style>";
         }
 
+        /// <summary>The email's header: subject, from, to, dates and attachments.</summary>
         private static string Header(MailItem item, Options o)
         {
             string E(string s) => WebUtility.HtmlEncode(s ?? string.Empty);
@@ -164,6 +176,7 @@ namespace Kudupst.Core.Mail
             return sb.ToString();
         }
 
+        /// <summary>A contact's rows: phones, emails, addresses, company...</summary>
         private static void ContactRows(MailItem item, Options o, StringBuilder sb, Action<string, string> row, Action<string, System.Collections.Generic.IEnumerable<string>> lines)
         {
             var c = item.Contact;
@@ -195,6 +208,7 @@ namespace Kudupst.Core.Mail
             row("Assistant", c.Assistant);
         }
 
+        /// <summary>A calendar item's rows: when, where, repeats, people, reminder.</summary>
         private static void AppointmentRows(MailItem item, Options o, Action<string, string> row, Action<string, System.Collections.Generic.IEnumerable<string>> lines, bool invitation = false)
         {
             var a = item.Appointment;
@@ -247,6 +261,7 @@ namespace Kudupst.Core.Mail
             return Before(minutes, "1 minute before", "{0} minutes before");
         }
 
+        /// <summary>"1 minute before" or "5 minutes before".</summary>
         private static string Before(int n, string one, string many) => n == 1 ? Lang.T(one) : Lang.T(many, n.ToString(CultureInfo.CurrentCulture));
 
         /// <summary>Points cid: pictures at the app's address for that attachment.</summary>
@@ -264,8 +279,10 @@ namespace Kudupst.Core.Mail
             return html;
         }
 
+        /// <summary>A date as shown, in local time.</summary>
         public static string FormatDate(DateTime utc) => utc.ToLocalTime().ToString("dddd d MMMM yyyy HH:mm", CultureInfo.CurrentCulture);
 
+        /// <summary>A size in words.</summary>
         public static string Size(long bytes)
         {
             if (bytes < 1024) return bytes + " bytes";

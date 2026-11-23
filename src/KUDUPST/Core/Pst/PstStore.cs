@@ -1,3 +1,5 @@
+// The mail layer of a PST or OST: folders, item summaries for the list, reading whole items (body, recipients,
+// attachments, named properties), and the made-up folder of deleted items found.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,50 +11,79 @@ namespace Kudupst.Core.Pst
     /// <summary>A folder in a PST/OST file.</summary>
     public sealed class PstFolder
     {
+        /// <summary>The folder's node.</summary>
         public uint Nid { get; set; }
+        /// <summary>Its parent folder's node.</summary>
         public uint ParentNid { get; set; }
+        /// <summary>Its name.</summary>
         public string Name { get; set; } = string.Empty;
+        /// <summary>How many items.</summary>
         public int ItemCount { get; set; }
+        /// <summary>How many unread.</summary>
         public int UnreadCount { get; set; }
+        /// <summary>True when it has folders inside.</summary>
         public bool HasSubfolders { get; set; }
+        /// <summary>What it holds ("IPF.Note" for mail...).</summary>
         public string ContainerClass { get; set; } = string.Empty;
+        /// <summary>True for a search folder.</summary>
         public bool IsSearchFolder => (Nid & 0x1F) == 0x03;
 
+        /// <summary>Its name.</summary>
         public override string ToString() => Name;
     }
 
     /// <summary>One row of a folder's contents: enough to list an item without reading all of it.</summary>
     public sealed class ItemSummary
     {
+        /// <summary>The item's node.</summary>
         public uint Nid { get; set; }
+        /// <summary>Its folder's node.</summary>
         public uint FolderNid { get; set; }
+        /// <summary>Outlook's kind of item.</summary>
         public string MessageClass { get; set; } = string.Empty;
+        /// <summary>Its subject.</summary>
         public string Subject { get; set; } = string.Empty;
+        /// <summary>Who sent it.</summary>
         public string From { get; set; } = string.Empty;
+        /// <summary>Who it went to.</summary>
         public string To { get; set; } = string.Empty;
+        /// <summary>Its date.</summary>
         public DateTime? Date { get; set; }
+        /// <summary>Its size.</summary>
         public long Size { get; set; }
+        /// <summary>True when read.</summary>
         public bool Read { get; set; } = true;
+        /// <summary>True when it has attachments.</summary>
         public bool HasAttachments { get; set; }
+        /// <summary>How important it is.</summary>
         public int Importance { get; set; } = 1;
 
         // Calendar items: when and where (UTC).
         public DateTime? Start { get; set; }
+        /// <summary>When a calendar item ends.</summary>
         public DateTime? End { get; set; }
+        /// <summary>True for an all-day item.</summary>
         public bool AllDay { get; set; }
+        /// <summary>True when it repeats.</summary>
         public bool Recurring { get; set; }
+        /// <summary>Where it is.</summary>
         public string Location { get; set; } = string.Empty;
 
         // Contacts: how they're filed, their company and first email address.
         public string FileAs { get; set; } = string.Empty;
+        /// <summary>A contact's company.</summary>
         public string Company { get; set; } = string.Empty;
+        /// <summary>A contact's email.</summary>
         public string Email { get; set; } = string.Empty;
 
         // Deleted items found in the file.
         public bool Deleted { get; set; }
+        /// <summary>True for a deleted item found only in part.</summary>
         public bool Partial { get; set; }
+        /// <summary>Where a deleted item was found.</summary>
         public string FoundIn { get; set; } = string.Empty;
 
+        /// <summary>What kind of item it is.</summary>
         public ItemKind Kind => ItemKinds.Of(MessageClass);
     }
 
@@ -62,27 +93,45 @@ namespace Kudupst.Core.Pst
     /// </summary>
     public sealed class PstStore : IDisposable
     {
+        /// <summary>The store's own node (its name and password).</summary>
         public const uint StoreNid = 0x21;
+        /// <summary>The top folder's node.</summary>
         public const uint RootFolderNid = 0x122;
+        /// <summary>The table of named properties' node.</summary>
         private const uint NameMapNid = 0x61;
+        /// <summary>The node of the recipients table's layout.</summary>
         private const uint RecipientTableNid = 0x692;
+        /// <summary>The node of the attachments table's layout.</summary>
         private const uint AttachmentTableNid = 0x671;
 
+        /// <summary>The folders read, by node.</summary>
         private readonly Dictionary<uint, PstFolder> _folders = new Dictionary<uint, PstFolder>();
+        /// <summary>Each folder's folders inside, by node.</summary>
         private readonly Dictionary<uint, List<uint>> _children = new Dictionary<uint, List<uint>>();
+        /// <summary>One read at a time.</summary>
         private readonly object _sync = new object();
 
+        /// <summary>The file.</summary>
         public PstFile File { get; }
+        /// <summary>The store's name.</summary>
         public string DisplayName { get; }
+        /// <summary>The password's CRC (0 when there's none).</summary>
         public uint PasswordCrc { get; }
         /// <summary>OST files have no password of their own (they're always marked with all bits set).</summary>
         public bool HasPassword => PasswordCrc != 0 && !File.IsOst;
+        /// <summary>The folder shown at the top (the mailbox's top, else the root).</summary>
         public uint TopNid { get; }
+        /// <summary>The encoding of one-byte text.</summary>
         public Encoding Ansi { get; }
+        /// <summary>The table of named properties, once read.</summary>
         private NameMap _names;
+        /// <summary>The deleted items found.</summary>
         private Recovery _found;
+        /// <summary>Each deleted item, by its made-up node.</summary>
         private Dictionary<uint, FoundItem> _foundById = new Dictionary<uint, FoundItem>();
+        /// <summary>The "Found deleted items" folder.</summary>
         private PstFolder _foundFolder;
+        /// <summary>Its items' summaries.</summary>
         private List<ItemSummary> _foundSummaries;
 
         /// <summary>The file's table of named properties (contact and calendar fields).</summary>
@@ -108,6 +157,7 @@ namespace Kudupst.Core.Pst
             }
         }
 
+        /// <summary>Reads a store's name, password and top folder.</summary>
         public PstStore(PstFile file)
         {
             File = file;
@@ -145,6 +195,7 @@ namespace Kudupst.Core.Pst
             return RootFolderNid;
         }
 
+        /// <summary>Opens a file.</summary>
         public static PstStore Open(string path)
         {
             var file = PstFile.Open(path);
@@ -159,10 +210,12 @@ namespace Kudupst.Core.Pst
             }
         }
 
+        /// <summary>Closes the file.</summary>
         public void Dispose() => File.Dispose();
 
         // ================================================================== deleted items found in the file
 
+        /// <summary>The made-up folder's name.</summary>
         public const string FoundFolderName = "Found deleted items";
 
         /// <summary>The deleted items found so far (null until something looked).</summary>
@@ -187,11 +240,13 @@ namespace Kudupst.Core.Pst
             }
         }
 
+        /// <summary>A deleted item by its made-up node, or null.</summary>
         private FoundItem FoundById(uint nid)
         {
             lock (_sync) return _foundById.TryGetValue(nid, out var f) ? f : null;
         }
 
+        /// <summary>The deleted items' summaries.</summary>
         private List<ItemSummary> FoundSummaries()
         {
             lock (_sync)
@@ -246,11 +301,13 @@ namespace Kudupst.Core.Pst
 
         // ================================================================== folders
 
+        /// <summary>The top folder.</summary>
         public PstFolder Root => Folder(RootFolderNid);
 
         /// <summary>The top of the folders people see in Outlook ("Top of Personal Folders", or IPM_SUBTREE in an OST).</summary>
         public PstFolder Top => Folder(TopNid);
 
+        /// <summary>A folder by its node (read the first time).</summary>
         public PstFolder Folder(uint nid)
         {
             lock (_sync)
@@ -447,6 +504,7 @@ namespace Kudupst.Core.Pst
 
         // ================================================================== items
 
+        /// <summary>True when an item is there.</summary>
         public bool Exists(uint nid) => FoundById(nid) != null || File.TryGetNode(nid, out _);
 
         /// <summary>Where an item's data is in the file (also for a deleted item that was found): for copying it as it is.</summary>
@@ -477,6 +535,7 @@ namespace Kudupst.Core.Pst
             return ReadItem(NodeData.Of(File, node));
         }
 
+        /// <summary>Reads a whole item from its node's data.</summary>
         private MailItem ReadItem(NodeData data)
         {
             var pc = new PropertyContext(data) { Ansi = Ansi };
@@ -581,6 +640,7 @@ namespace Kudupst.Core.Pst
             return new MailAddress(name.Trim('\'', ' '), address.Trim());
         }
 
+        /// <summary>The encoding for a code page (Windows-1252 when it isn't known).</summary>
         public static Encoding EncodingFor(int codePage)
         {
             if (codePage <= 0 || codePage == 1200 || codePage == 1201) return null;
@@ -627,6 +687,7 @@ namespace Kudupst.Core.Pst
             return enc.GetString(bytes);
         }
 
+        /// <summary>Reads an item's recipients.</summary>
         private List<Recipient> ReadRecipients(NodeData data, Encoding ansi)
         {
             var list = new List<Recipient>();
@@ -650,6 +711,7 @@ namespace Kudupst.Core.Pst
             return list;
         }
 
+        /// <summary>Reads an item's attachments (attached emails read when needed).</summary>
         private List<Attachment> ReadAttachments(NodeData data, Encoding ansi)
         {
             var list = new List<Attachment>();

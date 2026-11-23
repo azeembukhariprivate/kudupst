@@ -1,3 +1,5 @@
+// Deleted items still inside a file: a quick look through free space (or the whole file for 4 KB-page OSTs), or a
+// deeper look through the whole file, checking blocks by signature and checksum; and the results saved for next time.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +20,9 @@ namespace Kudupst.Core.Pst
         /// <summary>The folder it was in, when that's known.</summary>
         public uint ParentNid { get; set; }
 
+        /// <summary>Its data block.</summary>
         public ulong DataBid { get; set; }
+        /// <summary>Its sub-node list block.</summary>
         public ulong SubBid { get; set; }
 
         /// <summary>Some of it couldn't be found: parts of the text, attachments or recipients may be missing.</summary>
@@ -41,14 +45,20 @@ namespace Kudupst.Core.Pst
         /// <summary>The made-up ID of the "Found deleted items" folder.</summary>
         public const uint FolderNid = 0xFFFFFFE2;
 
+        /// <summary>The first made-up node number for found items.</summary>
         private const uint FirstId = 0xF0000004;
 
+        /// <summary>True when it was the deeper look.</summary>
         public bool Deep { get; private set; }
+        /// <summary>The items found.</summary>
         public List<FoundItem> Items { get; } = new List<FoundItem>();
+        /// <summary>The blocks found.</summary>
         public List<BlockRef> Blocks { get; } = new List<BlockRef>();
 
+        /// <summary>True for a made-up node of a found item.</summary>
         public static bool IsFoundId(uint nid) => nid >= FirstId && nid != FolderNid && (nid & 0x1F) == 0x04;
 
+        /// <summary>The made-up node for the nth item found.</summary>
         private static uint IdFor(int index) => FirstId + ((uint)index << 5);
 
         // ================================================================== finding
@@ -183,7 +193,9 @@ namespace Kudupst.Core.Pst
 
         private sealed class Live
         {
+            /// <summary>The items still in a folder (old copies of them don't count as deleted).</summary>
             public HashSet<string> Keys { get; } = new HashSet<string>(StringComparer.Ordinal);
+            /// <summary>Nodes in the index with no folder.</summary>
             public List<NodeRef> Orphans { get; } = new List<NodeRef>();
         }
 
@@ -226,6 +238,7 @@ namespace Kudupst.Core.Pst
             return live;
         }
 
+        /// <summary>An item's key: its kind, subject, date and size.</summary>
         private static string Key(string messageClass, string subject, DateTime? date) =>
             (messageClass ?? string.Empty).ToUpperInvariant() + "|" + PstStore.CleanSubject(subject) + "|" + (date?.Ticks.ToString() ?? string.Empty);
 
@@ -320,6 +333,7 @@ namespace Kudupst.Core.Pst
             }
         }
 
+        /// <summary>Gathers the blocks below a block.</summary>
         private static void Tree(PstFile file, ulong bid, HashSet<ulong> into, int depth)
         {
             if (bid == 0 || depth > 3) return;
@@ -332,6 +346,7 @@ namespace Kudupst.Core.Pst
                 Tree(file, file.Unicode ? BitConverter.ToUInt64(data, 8 + i * size) : BitConverter.ToUInt32(data, 8 + i * size), into, depth + 1);
         }
 
+        /// <summary>Gathers the blocks below a sub-node list.</summary>
         private static void SubTree(PstFile file, ulong bid, HashSet<ulong> into, int depth)
         {
             if (bid == 0 || depth > 4) return;
@@ -347,6 +362,7 @@ namespace Kudupst.Core.Pst
 
         // ================================================================== remembering
 
+        /// <summary>The saved results' layout (raised when it changes).</summary>
         private const int CacheVersion = 1;
 
         /// <summary>Saves what was found (kept next to the search index, never next to the file).</summary>
@@ -381,6 +397,7 @@ namespace Kudupst.Core.Pst
             File.Move(temp, path);
         }
 
+        /// <summary>Reads saved results, or null.</summary>
         public static Recovery Load(string path)
         {
             if (!File.Exists(path)) return null;

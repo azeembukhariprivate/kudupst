@@ -1,3 +1,4 @@
+// Attachments saved get Windows' mark of coming from the internet, so Windows warns before they run.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,6 +15,7 @@ namespace Kudupst.Core
     /// </summary>
     public static class ZoneMark
     {
+        /// <summary>Endings of files that can run programs.</summary>
         private static readonly HashSet<string> Risky = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".exe", ".com", ".bat", ".cmd", ".scr", ".pif", ".msi", ".msp", ".mst", ".ps1", ".psm1", ".psc1", ".ps1xml", ".vb", ".vbs", ".vbe",
@@ -55,6 +57,7 @@ namespace Kudupst.Core
             }
         }
 
+        /// <summary>Opens a file (or its mark).</summary>
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern SafeFileHandle CreateFile(string name, uint access, FileShare share, IntPtr security, FileMode mode, uint flags, IntPtr template);
     }

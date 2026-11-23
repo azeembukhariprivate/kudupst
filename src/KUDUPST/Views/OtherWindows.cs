@@ -1,3 +1,4 @@
+// The smaller windows: Settings, asking for a PST's password (and "Forgot the password?"), and About.
 using System;
 using System.IO;
 using System.Windows;
@@ -12,6 +13,7 @@ namespace Kudupst.Views
 {
     public sealed class SettingsWindow : Window
     {
+        /// <summary>Makes the Settings window.</summary>
         public SettingsWindow(Window owner)
         {
             Width = 600;
@@ -109,6 +111,7 @@ namespace Kudupst.Views
             Content = root;
         }
 
+        /// <summary>A size in words.</summary>
         private static string MailHtml(long bytes) => Core.Mail.MailHtml.Size(bytes);
     }
 
@@ -118,6 +121,10 @@ namespace Kudupst.Views
         /// <summary>For the self-test: the answer to give instead of showing the window ("" = forgot it, null = cancel).</summary>
         public static Func<string> AutoAnswer { get; set; }
 
+        /// <summary>
+        /// Asks for a PST's password; true when it's right, or when the person chose to open their own file without it
+        /// (after a warning).
+        /// </summary>
         public static bool Ask(Window owner, PstStore store, string fileName)
         {
             if (AutoAnswer != null)
@@ -171,6 +178,7 @@ namespace Kudupst.Views
 
     public static class About
     {
+        /// <summary>Makes the About window.</summary>
         public static Window Build(Window owner)
         {
             var header = Ui.Row(LogoTile.Create(64), Ui.Column(Ui.Text("KUDUPST", 20, bold: true), Ui.Subtle("Version " + AppInfo.VersionText + " · Read, search and export Outlook files", 12.5))
@@ -234,8 +242,12 @@ namespace Kudupst.Views
             return window;
         }
 
+        /// <summary>Shows the About window.</summary>
         public static void Show(Window owner) => Build(owner).ShowDialog();
 
+        /// <summary>
+        /// Opens a file that came with the app (the licence...), or the app's page online when it isn't there.
+        /// </summary>
         private static void OpenLocal(string name)
         {
             var path = Path.Combine(Path.GetDirectoryName(AppInfo.ExePath) ?? string.Empty, name);

@@ -1,3 +1,4 @@
+// An HTML email's text without its tags, for search and when there's no plain text.
 using System;
 using System.Net;
 using System.Text;
@@ -8,15 +9,24 @@ namespace Kudupst.Core.Mail
     /// <summary>Readable plain text from an HTML email body (for searching, the CSV list and text exports).</summary>
     public static class HtmlText
     {
+        /// <summary>Scripts, styles and the head, left out.</summary>
         private static readonly Regex Hidden = new Regex(@"<(script|style|head|title|xml)\b[^>]*>.*?</\1\s*>", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+        /// <summary>Comments, left out.</summary>
         private static readonly Regex Comments = new Regex(@"<!--.*?-->", RegexOptions.Singleline | RegexOptions.Compiled);
+        /// <summary>Tags that end a line.</summary>
         private static readonly Regex Breaks = new Regex(@"<\s*(br|/p|/div|/tr|/li|/h[1-6]|/blockquote|/table|hr)\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        /// <summary>The end of a table cell (a tab).</summary>
         private static readonly Regex Cells = new Regex(@"<\s*/t[dh]\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        /// <summary>A list item (a line starting with a dot).</summary>
         private static readonly Regex Items = new Regex(@"<\s*li\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        /// <summary>Any other tag.</summary>
         private static readonly Regex Tags = new Regex(@"<[^>]*>", RegexOptions.Compiled);
+        /// <summary>Runs of spaces.</summary>
         private static readonly Regex Spaces = new Regex(@"[ \t ]+", RegexOptions.Compiled);
+        /// <summary>More than one blank line.</summary>
         private static readonly Regex BlankLines = new Regex(@"(\r?\n[ \t]*){3,}", RegexOptions.Compiled);
 
+        /// <summary>The text of an HTML page.</summary>
         public static string ToText(string html)
         {
             if (string.IsNullOrEmpty(html)) return string.Empty;

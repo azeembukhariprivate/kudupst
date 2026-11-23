@@ -1,3 +1,5 @@
+// Outlook's named properties: the sets they're in, the ids used for contacts, calendars and reminders, each file's own
+// table of names (PST node 0x61, the .msg __nameid storage), and reading by name.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,11 +9,17 @@ namespace Kudupst.Core.Pst
     /// <summary>The groups of named properties KUDUPST reads (MS-OXPROPS), and the IDs in them.</summary>
     public static class PropSet
     {
+        /// <summary>The common set.</summary>
         public static readonly Guid Common = new Guid("00062008-0000-0000-C000-000000000046");
+        /// <summary>Contacts' set.</summary>
         public static readonly Guid Address = new Guid("00062004-0000-0000-C000-000000000046");
+        /// <summary>Calendars' set.</summary>
         public static readonly Guid Appointment = new Guid("00062002-0000-0000-C000-000000000046");
+        /// <summary>Meetings' set.</summary>
         public static readonly Guid Meeting = new Guid("6ED8DA90-450B-101B-98DA-00AA003F1305");
+        /// <summary>Properties named by text.</summary>
         public static readonly Guid PublicStrings = new Guid("00020329-0000-0000-C000-000000000046");
+        /// <summary>MAPI's own set.</summary>
         public static readonly Guid Mapi = new Guid("00020328-0000-0000-C000-000000000046");
     }
 
@@ -82,14 +90,20 @@ namespace Kudupst.Core.Pst
     /// </summary>
     public sealed class NameMap
     {
+        /// <summary>Each named property's id in this file, by set and number.</summary>
         private readonly Dictionary<(Guid, int), ushort> _byLid = new Dictionary<(Guid, int), ushort>();
+        /// <summary>Each named property's id in this file, by set and name.</summary>
         private readonly Dictionary<(Guid, string), ushort> _byName = new Dictionary<(Guid, string), ushort>();
+        /// <summary>Each id's set, number and name.</summary>
         private readonly Dictionary<ushort, (Guid Set, int Lid, string Name)> _byId = new Dictionary<ushort, (Guid, int, string)>();
 
+        /// <summary>A table with no names.</summary>
         public static readonly NameMap Empty = new NameMap();
 
+        /// <summary>How many names there are.</summary>
         public int Count => _byLid.Count + _byName.Count;
 
+        /// <summary>Reads the table of names.</summary>
         public static NameMap Parse(byte[] guids, byte[] entries, byte[] strings)
         {
             var map = new NameMap();
@@ -130,6 +144,7 @@ namespace Kudupst.Core.Pst
         /// <summary>The property ID used in this file for a named property, or 0 when the file has none.</summary>
         public ushort Id(Guid set, int lid) => _byLid.TryGetValue((set, lid), out var id) ? id : (ushort)0;
 
+        /// <summary>The id of a property named by text, or 0.</summary>
         public ushort Id(Guid set, string name) => _byName.TryGetValue((set, name), out var id) ? id : (ushort)0;
 
         /// <summary>What a property ID of this file stands for: its set and its number, or its name (then <paramref name="name"/> isn't null).</summary>
@@ -146,27 +161,37 @@ namespace Kudupst.Core.Pst
     /// <summary>An item's properties together with its file's name table, to read named properties by name.</summary>
     public sealed class Props
     {
+        /// <summary>The item's properties.</summary>
         public IPropertySource Source { get; }
+        /// <summary>The file's table of names.</summary>
         public NameMap Names { get; }
 
+        /// <summary>An item's properties with the names to read them by.</summary>
         public Props(IPropertySource source, NameMap names)
         {
             Source = source;
             Names = names ?? NameMap.Empty;
         }
 
+        /// <summary>A named property's value, or null.</summary>
         public object Get(Guid set, int lid)
         {
             var id = Names.Id(set, lid);
             return id == 0 ? null : Source.Get(id);
         }
 
+        /// <summary>A named property as text.</summary>
         public string String(Guid set, int lid) => Get(set, lid) as string ?? string.Empty;
+        /// <summary>A named property as a number.</summary>
         public int Int(Guid set, int lid, int fallback = 0) => Get(set, lid) is int i ? i : Get(set, lid) is bool b ? (b ? 1 : 0) : fallback;
+        /// <summary>A named property as yes or no.</summary>
         public bool Bool(Guid set, int lid) => Get(set, lid) is bool b ? b : Get(set, lid) is int i && i != 0;
+        /// <summary>A named property as a date.</summary>
         public DateTime? Time(Guid set, int lid) => Get(set, lid) as DateTime?;
+        /// <summary>A named property as bytes.</summary>
         public byte[] Bytes(Guid set, int lid) => Get(set, lid) as byte[];
 
+        /// <summary>A property named by text, as a list of texts.</summary>
         public string[] Strings(Guid set, string name)
         {
             var id = Names.Id(set, name);
@@ -175,7 +200,9 @@ namespace Kudupst.Core.Pst
             return v as string[] ?? (v is string s ? new[] { s } : new string[0]);
         }
 
+        /// <summary>A property as text.</summary>
         public string String(ushort id) => Source.String(id) ?? string.Empty;
+        /// <summary>A property as a date.</summary>
         public DateTime? Time(ushort id) => Source.Time(id);
     }
 }

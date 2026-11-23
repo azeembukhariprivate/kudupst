@@ -1,3 +1,4 @@
+// Writing the PST's middle layer: nodes' sub-nodes, heaps, property lists and tables.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,15 @@ namespace Kudupst.Core.Pst
     /// </summary>
     public sealed class NodeWriter
     {
+        /// <summary>The node's sub-nodes.</summary>
         private readonly List<(uint Nid, ulong Data, ulong Sub)> _subs = new List<(uint, ulong, ulong)>();
+        /// <summary>The next sub-node number for big values.</summary>
         private uint _nextValue = 1;
 
+        /// <summary>The file written.</summary>
         public PstBuilder File { get; }
 
+        /// <summary>A node being written.</summary>
         public NodeWriter(PstBuilder file)
         {
             File = file;
@@ -23,6 +28,7 @@ namespace Kudupst.Core.Pst
         /// <summary>Stores a big value as a sub-node and returns its ID (MS-PST: an "HNID" that isn't in the heap).</summary>
         public uint AddValue(byte[] data) => AddValue(new[] { data });
 
+        /// <summary>Puts a big value in a sub-node and returns its id.</summary>
         public uint AddValue(IList<byte[]> pieces)
         {
             var nid = (_nextValue++ << 5) | 0x1F;
@@ -30,6 +36,7 @@ namespace Kudupst.Core.Pst
             return nid;
         }
 
+        /// <summary>Adds a sub-node.</summary>
         public void Add(uint nid, ulong data, ulong sub = 0) => _subs.Add((nid, data, sub));
 
         /// <summary>Writes the list of sub-nodes; 0 when there are none.</summary>
@@ -42,11 +49,15 @@ namespace Kudupst.Core.Pst
     /// </summary>
     public sealed class HeapWriter
     {
+        /// <summary>The biggest item a heap takes (bigger ones go to a sub-node).</summary>
         public const int MaxItem = 3580; // the biggest item a heap takes; bigger values go into sub-nodes
 
+        /// <summary>The heap's pages and their items.</summary>
         private readonly List<List<byte[]>> _pages = new List<List<byte[]>> { new List<byte[]>() };
+        /// <summary>How big the last item was.</summary>
         private int _lastSize;
 
+        /// <summary>How big a heap page's header is (the first, every 128th from 8, or the rest).</summary>
         private static int HeaderSize(int page) => page == 0 ? 12 : page == 8 || (page > 8 && (page - 8) % 128 == 0) ? 66 : 2;
 
         /// <summary>What a page takes in its block: its header, its items, a spare byte to keep the map on an even place, and the map.</summary>
@@ -200,10 +211,14 @@ namespace Kudupst.Core.Pst
     /// <summary>A property to write: its ID, its type and its value as the bytes a PST keeps.</summary>
     public sealed class PropOut
     {
+        /// <summary>The property's id.</summary>
         public ushort Id;
+        /// <summary>Its type.</summary>
         public ushort Type;
+        /// <summary>Its value as bytes.</summary>
         public byte[] Value;
 
+        /// <summary>A property to write.</summary>
         public PropOut(ushort id, ushort type, byte[] value)
         {
             Id = id;
@@ -211,11 +226,17 @@ namespace Kudupst.Core.Pst
             Value = value ?? new byte[0];
         }
 
+        /// <summary>A number.</summary>
         public static PropOut Int(ushort id, int v) => new PropOut(id, PropType.Int32, BitConverter.GetBytes(v));
+        /// <summary>Yes or no.</summary>
         public static PropOut Bool(ushort id, bool v) => new PropOut(id, PropType.Boolean, new[] { (byte)(v ? 1 : 0) });
+        /// <summary>A text (Unicode).</summary>
         public static PropOut Text(ushort id, string s) => new PropOut(id, PropType.Unicode, System.Text.Encoding.Unicode.GetBytes(s ?? string.Empty));
+        /// <summary>Bytes.</summary>
         public static PropOut Bytes(ushort id, byte[] data) => new PropOut(id, PropType.Binary, data);
+        /// <summary>A date.</summary>
         public static PropOut Time(ushort id, DateTime utc) => new PropOut(id, PropType.SysTime, BitConverter.GetBytes(utc.ToFileTimeUtc()));
+        /// <summary>A long number.</summary>
         public static PropOut Long(ushort id, long v) => new PropOut(id, PropType.Int64, BitConverter.GetBytes(v));
     }
 
@@ -255,7 +276,9 @@ namespace Kudupst.Core.Pst
     /// </summary>
     public sealed class TableWriter
     {
+        /// <summary>The table's columns.</summary>
         private readonly List<(ushort Id, ushort Type)> _columns = new List<(ushort, ushort)>();
+        /// <summary>The table's rows: their id and cells.</summary>
         private readonly List<(uint RowId, Dictionary<ushort, byte[]> Cells)> _rows = new List<(uint, Dictionary<ushort, byte[]>)>();
 
         /// <summary>The columns, each an ID and a type. The row's own ID and version columns are added if missing.</summary>
@@ -267,6 +290,7 @@ namespace Kudupst.Core.Pst
                 if (!_columns.Any(x => x.Id == c.Id)) _columns.Add(c);
         }
 
+        /// <summary>How many rows.</summary>
         public int RowCount => _rows.Count;
 
         /// <summary>Adds a row. Cells whose column the table doesn't have are left out.</summary>
@@ -275,6 +299,7 @@ namespace Kudupst.Core.Pst
             _rows.Add((rowId, cells));
         }
 
+        /// <summary>How big a column's cell is in a row (4 bytes for values kept elsewhere).</summary>
         private static int CellSize(ushort type)
         {
             if (type == PropType.Boolean) return 1;
@@ -371,7 +396,9 @@ namespace Kudupst.Core.Pst
             return node.File.Data(heap.Build(Heap.SignatureTableContext, infoAt));
         }
 
+        /// <summary>Where each group of columns ends in a row (8-byte, 4-byte, 2-byte and 1-byte cells).</summary>
         private readonly int[] _ends = new int[3];
+        /// <summary>Notes where a group ends.</summary>
         private void EndOf(int group, int at) => _ends[group] = at;
     }
 }

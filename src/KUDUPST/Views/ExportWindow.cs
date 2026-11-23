@@ -1,3 +1,4 @@
+// The export window: what to save (chosen, listed, a folder, with its folders), as what kind, where, and the result.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,7 @@ using Kudupst.Core.Mail;
 
 namespace Kudupst.Views
 {
+    /// <summary>Which items to save.</summary>
     public enum ExportScope { Selected, Listed, Folder, FolderAndSubfolders, WholeFile, AllFiles }
 
     /// <summary>
@@ -21,27 +23,40 @@ namespace Kudupst.Views
     /// </summary>
     public sealed class ExportWindow : Window
     {
+        /// <summary>The main window.</summary>
         private readonly MainWindow _main;
+        /// <summary>The window's content.</summary>
         private readonly StackPanel _root = new StackPanel { Margin = new Thickness(26, 22, 26, 22) };
+        /// <summary>The kind chosen.</summary>
         private ExportFormat _format = ExportFormat.Eml;
+        /// <summary>What the list shows (emails, contacts, calendar).</summary>
         private readonly MainWindow.ListKind _kind;
+        /// <summary>Which items.</summary>
         private ExportScope _scope;
+        /// <summary>Where to save.</summary>
         private readonly TextBox _destination = new TextBox { MinHeight = 34, VerticalContentAlignment = VerticalAlignment.Center };
+        /// <summary>Keep the folders.</summary>
         private readonly CheckBox _keepFolders = new CheckBox { Content = "Keep the folder structure (a folder for each Outlook folder)", IsChecked = true };
+        /// <summary>Put them all in one file.</summary>
         private readonly CheckBox _combine = new CheckBox { Content = "Put all emails in one PDF file (with a bookmark for each)" };
+        /// <summary>Keep pictures inside the emails (PDF).</summary>
         private readonly CheckBox _inline = new CheckBox { Content = "Also save pictures that are part of the email text (logos and the like)" };
+        /// <summary>What went wrong.</summary>
         private readonly TextBlock _error = Ui.Text(string.Empty, 12.5, "BadText", wrap: true);
+        /// <summary>Stops saving.</summary>
         private CancellationTokenSource _cancel;
 
         /// <summary>For the self-test: the export result, and a way to run it without the window.</summary>
         public ExportResult Result { get; private set; }
 
+        /// <summary>Shows the export window.</summary>
         public static void Show(MainWindow main, ExportScope? scope = null)
         {
             if (main.Source == null) return;
             new ExportWindow(main, scope).ShowDialog();
         }
 
+        /// <summary>Makes the export window.</summary>
         public ExportWindow(MainWindow main, ExportScope? scope = null)
         {
             _main = main;
@@ -71,12 +86,15 @@ namespace Kudupst.Views
             return MainWindow.ListKind.Mail;
         }
 
+        /// <summary>True for kinds saved as one file (CSV, vCard, contacts CSV, iCalendar).</summary>
         private static bool OneFile(ExportFormat f) => f == ExportFormat.Csv || f == ExportFormat.Vcard || f == ExportFormat.ContactsCsv || f == ExportFormat.Ics;
 
+        /// <summary>"emails", "contacts" or "items", for the words shown.</summary>
         private string Noun => _kind == MainWindow.ListKind.Contacts ? "contacts" : _kind == MainWindow.ListKind.Calendar ? "calendar items" : "emails";
 
         // ================================================================== choices
 
+        /// <summary>Shows the choices: which items, what kind, where.</summary>
         private void ShowChoices()
         {
             _root.Children.Clear();
@@ -186,8 +204,10 @@ namespace Kudupst.Views
             UpdateOptions();
         }
 
+        /// <summary>Updates the notes for the kind chosen.</summary>
         private Action _updateNotes;
 
+        /// <summary>Shows the options that fit the kind chosen.</summary>
         private void UpdateOptions()
         {
             _keepFolders.Visibility = OneFile(_format) || _format == ExportFormat.Pdf && _combine.IsChecked == true ? Visibility.Collapsed : Visibility.Visible;
@@ -198,8 +218,10 @@ namespace Kudupst.Views
             _updateNotes?.Invoke();
         }
 
+        /// <summary>"One file" was clicked.</summary>
         private void CombineClicked(object sender, RoutedEventArgs e) => UpdateOptions();
 
+        /// <summary>Asks where to save.</summary>
         private void ChooseDestination()
         {
             var folder = Dialogs.PickFolder(this, "Choose where to save", _destination.Text);
@@ -208,6 +230,7 @@ namespace Kudupst.Views
 
         // ================================================================== running
 
+        /// <summary>The items to save.</summary>
         private List<ExportItem> Items()
         {
             var main = _main;
@@ -222,6 +245,7 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>A name for one file.</summary>
         private string BaseName()
         {
             switch (_scope)
@@ -235,6 +259,7 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>Saves the items in the background and shows how it went.</summary>
         private async Task Start()
         {
             var destination = _destination.Text.Trim();
@@ -293,8 +318,10 @@ namespace Kudupst.Views
             ShowDone(Result, options);
         }
 
+        /// <summary>A path that isn't taken yet.</summary>
         private static string UniquePath(string path) => Exporter.Unique(path, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
+        /// <summary>Shows what went wrong.</summary>
         private void ShowError(string text)
         {
             _error.Text = text;
@@ -408,12 +435,14 @@ namespace Kudupst.Views
         }
 
 
+        /// <summary>An item's title for a PDF's bookmark.</summary>
         private static string BookmarkTitle(MailItem item)
         {
             var date = item.Date.HasValue ? item.Date.Value.ToLocalTime().ToString("yyyy-MM-dd") + " " : string.Empty;
             return date + (item.Subject.Length > 0 ? item.Subject : "(no subject)");
         }
 
+        /// <summary>Shows how saving went, with a button to open the folder.</summary>
         private void ShowDone(ExportResult result, ExportOptions options)
         {
             _root.Children.Clear();

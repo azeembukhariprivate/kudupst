@@ -1,3 +1,5 @@
+// What can be done with an item: save its attachments, save it as .eml or PDF, print it, and open it in a window of its
+// own.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,6 +18,7 @@ namespace Kudupst.Views
     /// <summary>What can be done with one email: open its attachments, save it, print it, see its headers.</summary>
     public static class ItemActions
     {
+        /// <summary>Where attachments opened from the app are put for a moment.</summary>
         public static string TempFolder => Path.Combine(Path.GetTempPath(), "KUDUPST");
 
         /// <summary>Opens an attachment: an attached email in its own window, anything else with its program (after a warning for programs).</summary>
@@ -67,6 +70,7 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>Saves an attachment (asking where).</summary>
         public static void SaveAttachment(Window owner, Attachment a)
         {
             try
@@ -88,6 +92,7 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>Saves every attachment of an item into a folder.</summary>
         public static void SaveAllAttachments(Window owner, MailItem item)
         {
             var folder = Dialogs.PickFolder(owner, "Choose a folder for the attachments", Settings.LastExportFolder);
@@ -99,6 +104,7 @@ namespace Kudupst.Views
             else AppInfo.OpenFolder(folder, result.FirstFile);
         }
 
+        /// <summary>Saves an item as an .eml file.</summary>
         public static void SaveEml(Window owner, MailItem item)
         {
             var path = Dialogs.SaveFile(owner, "Save as an email file", Exporter.FileName(item.Date, item.Subject, ".eml"), "Email file|*.eml");
@@ -107,6 +113,7 @@ namespace Kudupst.Views
             catch (Exception ex) when (Exporter.IsReadProblem(ex)) { Dialogs.Error(owner, "Couldn't save the email.\n\n" + ex.Message); }
         }
 
+        /// <summary>Saves an item as a PDF.</summary>
         public static async Task SavePdf(Window owner, MailItem item)
         {
             if (!PdfMaker.Available)
@@ -216,8 +223,10 @@ namespace Kudupst.Views
     /// <summary>An email in a window of its own (opened from the list, or an attached email).</summary>
     public sealed class ItemWindow : Window
     {
+        /// <summary>Shows the item.</summary>
         private readonly MailView _view = new MailView();
 
+        /// <summary>A window showing one item.</summary>
         public ItemWindow(MailItem item, Window owner = null)
         {
             Width = 920;
@@ -246,6 +255,7 @@ namespace Kudupst.Views
             Loaded += async (s, e) => await _view.Show(item);
         }
 
+        /// <summary>The view inside it.</summary>
         public MailView View => _view;
     }
 }

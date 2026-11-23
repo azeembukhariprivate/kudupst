@@ -1,26 +1,34 @@
+// An email or other item as read from any file: addresses, recipients, attachments, the body (text, HTML, RTF) read
+// when needed, and the kinds of item.
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Kudupst.Core.Mail
 {
+    /// <summary>To, Cc or Bcc.</summary>
     public enum RecipientKind { To = 1, Cc = 2, Bcc = 3 }
 
     public sealed class MailAddress
     {
+        /// <summary>The name.</summary>
         public string Name { get; set; } = string.Empty;
+        /// <summary>The address.</summary>
         public string Address { get; set; } = string.Empty;
 
+        /// <summary>An empty address.</summary>
         public MailAddress()
         {
         }
 
+        /// <summary>An address with a name.</summary>
         public MailAddress(string name, string address)
         {
             Name = name ?? string.Empty;
             Address = address ?? string.Empty;
         }
 
+        /// <summary>True when it has neither.</summary>
         public bool IsEmpty => Name.Length == 0 && Address.Length == 0;
 
         /// <summary>"Name &lt;address&gt;", or whichever of the two there is.</summary>
@@ -39,12 +47,15 @@ namespace Kudupst.Core.Mail
         /// <summary>The name if there is one, else the address.</summary>
         public string Short => Name.Length > 0 ? Name : Address;
 
+        /// <summary>The address as shown.</summary>
         public override string ToString() => Display;
     }
 
     public sealed class Recipient
     {
+        /// <summary>Their address.</summary>
         public MailAddress Address { get; set; } = new MailAddress();
+        /// <summary>To, Cc or Bcc.</summary>
         public RecipientKind Kind { get; set; } = RecipientKind.To;
 
         /// <summary>For meetings: required (1), optional (2) or a room or equipment (3).</summary>
@@ -53,15 +64,21 @@ namespace Kudupst.Core.Mail
         /// <summary>For meetings: the attendee's reply (0 none, 1 organiser, 2 tentative, 3 accepted, 4 declined, 5 no reply).</summary>
         public int Response { get; set; }
 
+        /// <summary>True for a meeting's organiser.</summary>
         public bool IsOrganizer { get; set; }
     }
 
     public sealed class Attachment
     {
+        /// <summary>The file's name.</summary>
         public string FileName { get; set; } = string.Empty;
+        /// <summary>Its kind (MIME type).</summary>
         public string MimeType { get; set; } = string.Empty;
+        /// <summary>Its id, for pictures inside the email.</summary>
         public string ContentId { get; set; } = string.Empty;
+        /// <summary>Its place, for pictures inside the email.</summary>
         public string ContentLocation { get; set; } = string.Empty;
+        /// <summary>Its size.</summary>
         public long Size { get; set; }
 
         /// <summary>Shown inside the body (a picture in the HTML), not as a separate attachment.</summary>
@@ -79,10 +96,13 @@ namespace Kudupst.Core.Mail
         /// <summary>An attached email, read when asked for.</summary>
         public Func<MailItem> Embedded { get; set; }
 
+        /// <summary>True when it's an attached email.</summary>
         public bool IsEmail => Embedded != null;
 
+        /// <summary>Its bytes (read when asked).</summary>
         public byte[] Data() => Load?.Invoke() ?? new byte[0];
 
+        /// <summary>Its name.</summary>
         public override string ToString() => FileName;
     }
 
@@ -92,19 +112,28 @@ namespace Kudupst.Core.Mail
     /// </summary>
     public sealed class MailItem
     {
+        /// <summary>The body, once read.</summary>
         private MailBody _body;
+        /// <summary>The attachments, once read.</summary>
         private List<Attachment> _attachments;
 
+        /// <summary>Outlook's kind of item ("IPM.Note" for an email).</summary>
         public string MessageClass { get; set; } = "IPM.Note";
+        /// <summary>The subject.</summary>
         public string Subject { get; set; } = string.Empty;
+        /// <summary>Who sent it.</summary>
         public MailAddress From { get; set; } = new MailAddress();
 
         /// <summary>Who actually sent it, when that's someone else than From (sending on behalf).</summary>
         public MailAddress Sender { get; set; } = new MailAddress();
 
+        /// <summary>Who it went to.</summary>
         public List<Recipient> Recipients { get; set; } = new List<Recipient>();
+        /// <summary>The To line as Outlook kept it.</summary>
         public string DisplayTo { get; set; } = string.Empty;
+        /// <summary>The Cc line as Outlook kept it.</summary>
         public string DisplayCc { get; set; } = string.Empty;
+        /// <summary>The Bcc line as Outlook kept it.</summary>
         public string DisplayBcc { get; set; } = string.Empty;
 
         /// <summary>When it was sent (UTC).</summary>
@@ -113,11 +142,17 @@ namespace Kudupst.Core.Mail
         /// <summary>When it arrived (UTC).</summary>
         public DateTime? Received { get; set; }
 
+        /// <summary>Its size.</summary>
         public long Size { get; set; }
+        /// <summary>True when it was read.</summary>
         public bool Read { get; set; } = true;
+        /// <summary>How important: 0 low, 1 normal, 2 high.</summary>
         public int Importance { get; set; } = 1;
+        /// <summary>Its Message-ID.</summary>
         public string MessageId { get; set; } = string.Empty;
+        /// <summary>The Message-ID it answers.</summary>
         public string InReplyTo { get; set; } = string.Empty;
+        /// <summary>The Message-IDs before it in the conversation.</summary>
         public string References { get; set; } = string.Empty;
 
         /// <summary>The internet headers it arrived with, if they were kept.</summary>
@@ -147,37 +182,52 @@ namespace Kudupst.Core.Mail
         /// <summary>Private (2) or confidential (3); 0 when normal.</summary>
         public int Sensitivity { get; set; }
 
+        /// <summary>Reads the body when it's needed.</summary>
         public Func<MailBody> LoadBody { get; set; }
+        /// <summary>Reads the attachments when they're needed.</summary>
         public Func<List<Attachment>> LoadAttachments { get; set; }
 
+        /// <summary>The body (read the first time).</summary>
         public MailBody Body => _body ?? (_body = LoadBody?.Invoke() ?? new MailBody());
 
+        /// <summary>The attachments (read the first time).</summary>
         public List<Attachment> Attachments => _attachments ?? (_attachments = LoadAttachments?.Invoke() ?? new List<Attachment>());
 
         /// <summary>The attachments to list (not the pictures that are part of the body).</summary>
         public IEnumerable<Attachment> VisibleAttachments => Attachments.Where(a => !a.Inline && !a.Hidden && !a.IsContactPhoto);
 
+        /// <summary>The To addresses.</summary>
         public IEnumerable<MailAddress> To => Recipients.Where(r => r.Kind == RecipientKind.To).Select(r => r.Address);
+        /// <summary>The Cc addresses.</summary>
         public IEnumerable<MailAddress> Cc => Recipients.Where(r => r.Kind == RecipientKind.Cc).Select(r => r.Address);
+        /// <summary>The Bcc addresses.</summary>
         public IEnumerable<MailAddress> Bcc => Recipients.Where(r => r.Kind == RecipientKind.Bcc).Select(r => r.Address);
 
         /// <summary>The date to show: when it was sent, or when it arrived.</summary>
         public DateTime? Date => Sent ?? Received;
 
+        /// <summary>The To line.</summary>
         public string ToLine => Recipients.Any(r => r.Kind == RecipientKind.To) ? string.Join("; ", To.Select(a => a.Display)) : DisplayTo;
+        /// <summary>The Cc line.</summary>
         public string CcLine => Recipients.Any(r => r.Kind == RecipientKind.Cc) ? string.Join("; ", Cc.Select(a => a.Display)) : DisplayCc;
+        /// <summary>The Bcc line.</summary>
         public string BccLine => Recipients.Any(r => r.Kind == RecipientKind.Bcc) ? string.Join("; ", Bcc.Select(a => a.Display)) : DisplayBcc;
 
+        /// <summary>What kind of item it is.</summary>
         public ItemKind Kind => ItemKinds.Of(MessageClass);
     }
 
     /// <summary>The body in the forms it was stored in.</summary>
     public sealed class MailBody
     {
+        /// <summary>The plain text.</summary>
         public string Text { get; set; }
+        /// <summary>The HTML.</summary>
         public string Html { get; set; }
+        /// <summary>The RTF (Outlook's own).</summary>
         public string Rtf { get; set; }
 
+        /// <summary>True when there's HTML.</summary>
         public bool HasHtml => !string.IsNullOrEmpty(Html);
 
         /// <summary>The body as plain text, made from the HTML or RTF when there's no text version.</summary>
@@ -193,10 +243,12 @@ namespace Kudupst.Core.Mail
         }
     }
 
+    /// <summary>The kinds of item.</summary>
     public enum ItemKind { Email, Meeting, Appointment, Contact, Task, Note, Journal, DistributionList, Report, Other }
 
     public static class ItemKinds
     {
+        /// <summary>The kind from Outlook's message class.</summary>
         public static ItemKind Of(string messageClass)
         {
             var c = (messageClass ?? string.Empty).ToUpperInvariant();
@@ -212,6 +264,7 @@ namespace Kudupst.Core.Mail
             return ItemKind.Other;
         }
 
+        /// <summary>A kind's name.</summary>
         public static string Name(ItemKind kind)
         {
             switch (kind)

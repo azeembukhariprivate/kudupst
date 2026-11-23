@@ -1,3 +1,5 @@
+// The main window: the start page, the open files with their folders, the list of emails, contacts or calendar items,
+// search, filters and sorting, the email shown, and deleted items found.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,49 +27,86 @@ namespace Kudupst.Views
     /// </summary>
     public sealed class MainWindow : Window
     {
+        /// <summary>Where the start page or the file page is.</summary>
         private readonly ContentControl _page = new ContentControl { Focusable = false };
+        /// <summary>"A new version is out", shown when there is one.</summary>
         private readonly Button _update = Ui.Link(string.Empty, (s, e) => AppInfo.OpenUrl(AppInfo.ReleasesUrl + "/latest"));
+        /// <summary>The file shown's name.</summary>
         private readonly TextBlock _fileName = Ui.Text(string.Empty, 13, "SubtleText");
+        /// <summary>The Export button.</summary>
         private readonly Button _export;
+        /// <summary>A line in the status bar.</summary>
         private readonly TextBlock _status = Ui.Subtle(string.Empty, 12.5, false);
+        /// <summary>How the search index is going.</summary>
         private readonly TextBlock _indexStatus = Ui.Subtle(string.Empty, 12.5, false);
+        /// <summary>The status bar.</summary>
         private readonly Border _statusBar;
 
         // The file page.
         private readonly RowList<FolderRow> _folderRows = new RowList<FolderRow>();
+        /// <summary>The rows of the item list.</summary>
         private readonly RowList<MailRow> _mailRows = new RowList<MailRow>();
+        /// <summary>The folder list.</summary>
         private readonly ListBox _folders;
+        /// <summary>The item list.</summary>
         private readonly ListBox _list;
+        /// <summary>The item shown.</summary>
         private readonly MailView _view = new MailView();
+        /// <summary>The search box.</summary>
         private readonly TextBox _search = new TextBox { MinHeight = 32, VerticalContentAlignment = VerticalAlignment.Center };
+        /// <summary>A hint in the search box.</summary>
         private readonly TextBlock _searchHint = Ui.Subtle("Search emails", 13, false);
+        /// <summary>Where to search: all open files, this file, this folder.</summary>
         private readonly ComboBox _scope = new ComboBox { Width = 120, Margin = new Thickness(6, 0, 0, 0) };
+        /// <summary>What to search: everything, subject, from, to.</summary>
         private readonly ComboBox _field = new ComboBox { Width = 110, Margin = new Thickness(6, 0, 0, 0) };
+        /// <summary>How the list is sorted.</summary>
         private readonly ComboBox _sort = new ComboBox { Width = 130 };
+        /// <summary>Shows the filters.</summary>
         private readonly ToggleButton _filterToggle = new ToggleButton { Margin = new Thickness(6, 0, 0, 0) };
+        /// <summary>The filters.</summary>
         private readonly Grid _filters = new Grid { Margin = new Thickness(0, 8, 0, 0), Visibility = Visibility.Collapsed };
+        /// <summary>From this date.</summary>
         private readonly DatePicker _fromDate = new DatePicker { Width = 130 };
+        /// <summary>Up to this date.</summary>
         private readonly DatePicker _toDate = new DatePicker { Width = 130 };
+        /// <summary>Only items with attachments.</summary>
         private readonly CheckBox _withAttachments = new CheckBox { Content = "With attachments", VerticalAlignment = VerticalAlignment.Center };
+        /// <summary>The list's title.</summary>
         private readonly TextBlock _listTitle = Ui.Text(string.Empty, 14, bold: true);
+        /// <summary>Show Outlook's own hidden folders too.</summary>
         private readonly CheckBox _systemFolders = new CheckBox { Content = "Show system folders", FontSize = 12 };
+        /// <summary>Looks through the whole file for deleted items.</summary>
         private readonly Button _lookDeeper;
+        /// <summary>A note about deleted items found.</summary>
         private readonly TextBlock _deletedNote = Ui.Subtle(string.Empty, 12);
+        /// <summary>The button's words.</summary>
         private const string LookDeeperText = "Look deeper for deleted items";
+        /// <summary>Searches a moment after typing stops.</summary>
         private readonly DispatcherTimer _searchTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(450) };
+        /// <summary>Updates the index's status.</summary>
         private readonly DispatcherTimer _indexTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        /// <summary>The folder list's column.</summary>
         private readonly ColumnDefinition _treeColumn = new ColumnDefinition { Width = new GridLength(250), MinWidth = 150 };
+        /// <summary>The line beside it.</summary>
         private readonly ColumnDefinition _treeSplitter = new ColumnDefinition { Width = GridLength.Auto };
+        /// <summary>The file page.</summary>
         private readonly Grid _fileGrid = new Grid();
+        /// <summary>The search area.</summary>
         private readonly Grid _searchArea;
 
+        /// <summary>The files open.</summary>
         private readonly List<OpenedFile> _files = new List<OpenedFile>();
+        /// <summary>The links to close a file or all.</summary>
         private readonly FrameworkElement _closeLinks;
+        /// <summary>Closes every file.</summary>
         private readonly Button _closeAll;
 
         /// <summary>The file whose folder is shown (null while the single emails are shown).</summary>
         private OpenedFile _file;
+        /// <summary>True when the single emails' row is shown.</summary>
         private bool _singlesShown;
+        /// <summary>Keep the set of open files for next time (not for a window opened from one email).</summary>
         private bool _remember = true;
 
         /// <summary>The file searched when looking in "This file".</summary>
@@ -75,17 +114,24 @@ namespace Kudupst.Views
 
         /// <summary>The file shown: the folder's, or the single email selected.</summary>
         private MailSource _source => _file?.Source ?? (_singlesShown ? ((_list.SelectedItem as MailRow)?.File ?? _files.FirstOrDefault(f => !f.IsDataFile))?.Source : null);
+        /// <summary>The folder shown.</summary>
         private PstFolder _currentFolder;
+        /// <summary>Its items.</summary>
         private List<MailRow> _folderItems = new List<MailRow>();
+        /// <summary>True while search results are shown.</summary>
         private bool _searching;
+        /// <summary>Counts folders loaded, so an older one that finishes late is ignored.</summary>
         private int _loadGeneration;
 
         /// <summary>What the list shows: emails, contacts (sorted by name) or calendar items (by date, under month headings).</summary>
         public enum ListKind { Mail, Contacts, Calendar }
 
+        /// <summary>What the list shows: emails, contacts or calendar items.</summary>
         public ListKind Kind { get; private set; } = ListKind.Mail;
+        /// <summary>True while the kind is being set (changes then aren't reacted to).</summary>
         private bool _settingKind;
 
+        /// <summary>Makes the main window.</summary>
         public MainWindow()
         {
             Width = 1360;
@@ -318,6 +364,7 @@ namespace Kudupst.Views
             ShowStart();
         }
 
+        /// <summary>An element inside a grid.</summary>
         private static Grid WrapInGrid(UIElement element)
         {
             var g = new Grid();
@@ -325,6 +372,7 @@ namespace Kudupst.Views
             return g;
         }
 
+        /// <summary>A line to drag between columns.</summary>
         private static GridSplitter Splitter()
         {
             var s = new GridSplitter { Width = 5, HorizontalAlignment = HorizontalAlignment.Stretch, ResizeBehavior = GridResizeBehavior.PreviousAndNext, Focusable = false };
@@ -340,15 +388,24 @@ namespace Kudupst.Views
             return style;
         }
 
+        /// <summary>The file shown's source.</summary>
         public MailSource Source => _source;
+        /// <summary>Its search index.</summary>
         public MailIndex Index => _file?.Index;
+        /// <summary>The file shown.</summary>
         public OpenedFile Shown => _file;
+        /// <summary>The folder shown.</summary>
         public PstFolder CurrentFolder => _currentFolder;
+        /// <summary>The item view.</summary>
         public MailView View => _view;
+        /// <summary>The list's rows (for the self-test).</summary>
         public IList<MailRow> Rows => _mailRows;
+        /// <summary>The folder list's rows.</summary>
         public IList<FolderRow> FolderRows => _folderRows;
+        /// <summary>True while search results are shown.</summary>
         public bool IsSearching => _searching;
 
+        /// <summary>Looks for a new version once (unless switched off) and shows the link when there is one.</summary>
         private async Task CheckForUpdates()
         {
             if (!Settings.CheckForUpdates || SelfTest.Running) return;
@@ -367,6 +424,7 @@ namespace Kudupst.Views
 
         // ================================================================== start page
 
+        /// <summary>Shows the start page: open a file, recent files.</summary>
         public void ShowStart()
         {
             var content = new StackPanel { MaxWidth = 620, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(24) };
@@ -417,6 +475,7 @@ namespace Kudupst.Views
             Title = AppInfo.Name;
         }
 
+        /// <summary>The menu of recent files.</summary>
         private void RecentMenu(FrameworkElement at)
         {
             var menu = new ContextMenu { PlacementTarget = at, Placement = PlacementMode.Bottom };
@@ -445,6 +504,7 @@ namespace Kudupst.Views
 
         // ================================================================== opening files
 
+        /// <summary>Asks for files and opens them.</summary>
         public void PickAndOpen()
         {
             var path = Dialogs.PickFile(this, "Open an Outlook data file or an email",
@@ -461,6 +521,9 @@ namespace Kudupst.Views
         /// </summary>
         public bool OpenFile(string path) => OpenFile(path, true);
 
+        /// <summary>
+        /// Opens a file (asking for its password when it has one), adds it to the folder list and starts its index.
+        /// </summary>
         private bool OpenFile(string path, bool show)
         {
             if (Directory.Exists(path))
@@ -558,6 +621,7 @@ namespace Kudupst.Views
             foreach (var r in _folderRows.Where(r => r.IsFile)) r.Refresh();
         }
 
+        /// <summary>Shows the file page.</summary>
         private void ShowFilePage()
         {
             _page.Content = _fileGrid;
@@ -566,6 +630,7 @@ namespace Kudupst.Views
             _closeLinks.Visibility = Visibility.Visible;
         }
 
+        /// <summary>The title: the file shown, or how many are open.</summary>
         private void UpdateTitle()
         {
             var name = _files.Count == 1 ? _files[0].Name : _files.Count + " files";
@@ -660,6 +725,7 @@ namespace Kudupst.Views
             ResetLists();
         }
 
+        /// <summary>Empties the lists.</summary>
         private void ResetLists()
         {
             _indexTimer.Stop();
@@ -709,6 +775,7 @@ namespace Kudupst.Views
 
         // ------------------------------------------------------------------ the search index
 
+        /// <summary>Starts a file's search index (and the quick look for deleted items).</summary>
         private void StartIndex(OpenedFile file)
         {
             try
@@ -725,6 +792,7 @@ namespace Kudupst.Views
             UpdateIndexStatus();
         }
 
+        /// <summary>Shows how the index is going.</summary>
         private void UpdateIndexStatus()
         {
             var building = _files.Where(f => f.Index != null && !f.Index.Complete && f.Index.Error == null).ToList();
@@ -744,6 +812,7 @@ namespace Kudupst.Views
 
         // ================================================================== deleted items found in the file
 
+        /// <summary>Where a file's deleted items found are kept.</summary>
         private static string FoundCacheFolder(OpenedFile file) => file.Index?.Folder ?? Path.Combine(MailIndex.IndexRoot, MailIndex.KeyOf(file.Path));
 
         /// <summary>The quick look for deleted items, in the background, each time a file is opened.</summary>
@@ -764,6 +833,7 @@ namespace Kudupst.Views
             ShowFound(file, found);
         }
 
+        /// <summary>True while looking deeper.</summary>
         public bool LookingDeeper => _file?.RecoveryCancel != null;
 
         /// <summary>Reads the whole file shown for deleted items (or stops doing so).</summary>
@@ -895,6 +965,7 @@ namespace Kudupst.Views
             return rows;
         }
 
+        /// <summary>A file's rows in the folder list: the file and its folders.</summary>
         private List<FolderRow> TopFolderRows(OpenedFile file)
         {
             var store = file.Store;
@@ -931,6 +1002,7 @@ namespace Kudupst.Views
             foreach (var r in FileRows(file)) _folderRows.Insert(at++, r);
         }
 
+        /// <summary>Takes a file's rows out of the folder list.</summary>
         private void RemoveFileRows(OpenedFile file)
         {
             for (var i = _folderRows.Count - 1; i >= 0; i--)
@@ -978,8 +1050,10 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>True while a row is chosen by the app (not reacted to).</summary>
         private bool _selectingQuietly;
 
+        /// <summary>Opens or closes a folder's row.</summary>
         private void Toggle(FolderRow row)
         {
             var index = _folderRows.IndexOf(row);
@@ -1061,6 +1135,7 @@ namespace Kudupst.Views
             else _view.Clear();
         }
 
+        /// <summary>Shows a folder's items.</summary>
         public async void ShowFolder(PstFolder folder)
         {
             if (_file?.Store == null) return;
@@ -1079,6 +1154,7 @@ namespace Kudupst.Views
             await LoadFolder(folder);
         }
 
+        /// <summary>Reads a folder's items in the background.</summary>
         private async Task LoadFolder(PstFolder folder)
         {
             var generation = ++_loadGeneration;
@@ -1118,8 +1194,10 @@ namespace Kudupst.Views
 
         // ================================================================== search
 
+        /// <summary>True when anything is typed or filtered.</summary>
         private bool HasQuery => _search.Text.Trim().Length > 0 || _fromDate.SelectedDate.HasValue || _toDate.SelectedDate.HasValue || _withAttachments.IsChecked == true;
 
+        /// <summary>Searches again soon.</summary>
         private void RestartSearch()
         {
             if (_files.Count == 0) return;
@@ -1127,6 +1205,7 @@ namespace Kudupst.Views
             _searchTimer.Start();
         }
 
+        /// <summary>Empties the search without searching.</summary>
         private void ClearSearchQuiet()
         {
             _search.Text = string.Empty;
@@ -1137,6 +1216,7 @@ namespace Kudupst.Views
             _searching = false;
         }
 
+        /// <summary>Empties the search and shows the folder again.</summary>
         public void ClearSearch()
         {
             ClearSearchQuiet();
@@ -1244,8 +1324,11 @@ namespace Kudupst.Views
             else _view.Clear();
         }
 
+        /// <summary>The ways emails can be sorted.</summary>
         private static readonly string[] MailSorts = { "Newest first", "Oldest first", "From", "Subject", "Largest first" };
+        /// <summary>The ways contacts can be sorted.</summary>
         private static readonly string[] ContactSorts = { "Name", "Company" };
+        /// <summary>The ways calendar items can be sorted.</summary>
         private static readonly string[] CalendarSorts = { "Oldest first", "Newest first" };
 
         /// <summary>Contacts and calendar folders are listed their own way; any other folder as emails.</summary>
@@ -1262,6 +1345,7 @@ namespace Kudupst.Views
             return ListKind.Mail;
         }
 
+        /// <summary>Shows emails, contacts or calendar items.</summary>
         private void SetKind(ListKind kind)
         {
             if (kind == Kind) return;
@@ -1283,6 +1367,7 @@ namespace Kudupst.Views
             System.Windows.Automation.AutomationProperties.SetName(_list, kind == ListKind.Contacts ? "Contacts" : kind == ListKind.Calendar ? "Calendar" : "Emails");
         }
 
+        /// <summary>The rows sorted the way chosen.</summary>
         private IEnumerable<MailRow> Sorted(IEnumerable<MailRow> rows)
         {
             if (Kind == ListKind.Contacts)
@@ -1319,6 +1404,7 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>Sorts the list again.</summary>
         private void Resort()
         {
             var selected = _list.SelectedItem;
@@ -1328,6 +1414,7 @@ namespace Kudupst.Views
 
         // ================================================================== reading
 
+        /// <summary>Reads a row's whole item.</summary>
         public async Task<MailItem> Load(MailRow row)
         {
             if (row.Item != null) return row.Item;
@@ -1343,8 +1430,10 @@ namespace Kudupst.Views
             });
         }
 
+        /// <summary>Counts items shown, so an older one that finishes late is ignored.</summary>
         private int _showGeneration;
 
+        /// <summary>Shows the item chosen.</summary>
         private async Task ShowSelected()
         {
             var row = _list.SelectedItems.Count == 1 ? _list.SelectedItem as MailRow : null;
@@ -1368,6 +1457,7 @@ namespace Kudupst.Views
             await _view.Show(item);
         }
 
+        /// <summary>Opens the item chosen in a window of its own.</summary>
         private async void OpenInWindow()
         {
             if (!(_list.SelectedItem is MailRow row)) return;
@@ -1382,6 +1472,7 @@ namespace Kudupst.Views
             }
         }
 
+        /// <summary>The list's right-click menu.</summary>
         private ContextMenu ListMenu()
         {
             var menu = new ContextMenu();
@@ -1403,6 +1494,7 @@ namespace Kudupst.Views
         /// <summary>The rows the list shows now (a folder or search results).</summary>
         public List<MailRow> ListedRows => _mailRows.ToList();
 
+        /// <summary>A folder's path, from its node.</summary>
         public string FolderPathOf(uint folderNid) => FolderPathOf(_file, folderNid);
 
         /// <summary>Where a folder is in a file, e.g. "Inbox/Projects" (with the file's name first when several are open).</summary>
@@ -1422,6 +1514,7 @@ namespace Kudupst.Views
             return _files.Count > 1 ? (path.Length > 0 ? file.Name + "/" + path : file.Name) : path;
         }
 
+        /// <summary>A row as something to export.</summary>
         public ExportItem ToExport(MailRow row)
         {
             if (row.Item != null) return new ExportItem { Load = () => row.Item, Subject = row.Subject, Date = row.Date };
@@ -1434,6 +1527,7 @@ namespace Kudupst.Views
         /// <summary>Every item in a folder of the file shown (and, when asked, its sub-folders).</summary>
         public List<ExportItem> FolderItems(PstFolder folder, bool subFolders) => FolderItems(_file, folder, subFolders);
 
+        /// <summary>A folder's items as things to export (its folders too, when asked).</summary>
         public List<ExportItem> FolderItems(OpenedFile file, PstFolder folder, bool subFolders)
         {
             var store = file.Store;
@@ -1493,12 +1587,14 @@ namespace Kudupst.Views
             if (row != null) _folders.SelectedItem = row;
         }
 
+        /// <summary>Opens every folder.</summary>
         public void ExpandAll()
         {
             for (var i = 0; i < _folderRows.Count; i++)
                 if (_folderRows[i].CanExpand && !_folderRows[i].Expanded) Toggle(_folderRows[i]);
         }
 
+        /// <summary>Searches (for the self-test).</summary>
         public void SetSearch(string text, int scope = 0, int field = 0, bool attachments = false)
         {
             _scope.SelectedIndex = scope;
@@ -1508,6 +1604,7 @@ namespace Kudupst.Views
             RunSearch();
         }
 
+        /// <summary>Chooses a row.</summary>
         public void SelectRow(int index)
         {
             _list.SelectedIndex = -1;
@@ -1515,14 +1612,17 @@ namespace Kudupst.Views
             _list.ScrollIntoView(_list.SelectedItem);
         }
 
+        /// <summary>Chooses every row.</summary>
         public void SelectAllRows() => _list.SelectAll();
 
+        /// <summary>Shows or hides the filters.</summary>
         public void ShowFilters(bool show)
         {
             _filterToggle.IsChecked = show;
             _filters.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
         }
 
+        /// <summary>Shows or hides Outlook's own hidden folders.</summary>
         public void ShowSystemFolders(bool show)
         {
             _systemFolders.IsChecked = show;

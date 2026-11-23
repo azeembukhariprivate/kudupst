@@ -1,3 +1,5 @@
+// Writing a new PST file's lowest layer: the header, the maps of used space, data blocks, lists of blocks, sub-node
+// lists, and the two indexes (nodes and blocks).
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,25 +15,42 @@ namespace Kudupst.Core.Pst
     /// </summary>
     public sealed class PstBuilder : IDisposable
     {
+        /// <summary>The most data one block holds.</summary>
         public const int MaxBlockData = 8176;            // the most one block holds
+        /// <summary>Where the first map of used space is.</summary>
         private const long FirstMap = 0x4400;            // where the first map of used space is
+        /// <summary>How much of the file each map covers.</summary>
         private const long Span = 253952;                // how much of the file each map covers (496 bytes of bits, 64 bytes a bit)
+        /// <summary>How big an index or map page is.</summary>
         private const int PageSize = 512;
 
+        /// <summary>Where the file is written.</summary>
         private readonly Stream _out;
+        /// <summary>True when closing this closes the stream.</summary>
         private readonly bool _ownsStream;
+        /// <summary>Where the next block goes.</summary>
         private long _at;                                 // where the next thing goes
+        /// <summary>Which map's area is being filled.</summary>
         private long _span = -1;                          // which map's stretch of the file we're in
+        /// <summary>That map: a bit for each 64 bytes, set when used.</summary>
         private byte[] _bits = new byte[496];             // that map: a bit for every 64 bytes, set when used
+        /// <summary>How many bytes are free (kept in the header).</summary>
         private long _freeBytes;
+        /// <summary>The next block id (data blocks count up by 4).</summary>
         private ulong _nextBid = 4;
+        /// <summary>The next page id.</summary>
         private ulong _nextPageBid = 1;
+        /// <summary>True once the file is finished.</summary>
         private bool _finished;
 
+        /// <summary>Every block written: its id, place and size (for the block index).</summary>
         private readonly List<(ulong Bid, long Offset, ushort Size)> _blocks = new List<(ulong, long, ushort)>();
+        /// <summary>Every node: its data, sub-nodes and parent (for the node index).</summary>
         private readonly SortedDictionary<uint, (ulong Data, ulong Sub, uint Parent)> _nodes = new SortedDictionary<uint, (ulong, ulong, uint)>();
+        /// <summary>The next node number for each kind of node.</summary>
         private readonly uint[] _nextIndex = new uint[32];
 
+        /// <summary>A new PST file written to this stream.</summary>
         public PstBuilder(Stream output, bool ownsStream = false)
         {
             _out = output;
@@ -41,6 +60,7 @@ namespace Kudupst.Core.Pst
             OpenSpan(0);
         }
 
+        /// <summary>Finishes the file (when it isn't yet) and closes it.</summary>
         public void Dispose()
         {
             if (_ownsStream) _out.Dispose();
@@ -63,8 +83,11 @@ namespace Kudupst.Core.Pst
 
         // ================================================================== space
 
+        /// <summary>True when this area has a page map.</summary>
         private static bool HasPageMap(long span) => span % 8 == 0;
+        /// <summary>True when this area has a free map.</summary>
         private static bool HasFreeMap(long span) => span >= 128 && (span - 128) % 496 == 0;
+        /// <summary>True when this area has a free page map.</summary>
         private static bool HasFreePageMap(long span) => span >= 8192 && (span - 8192) % 31744 == 0;
 
         /// <summary>Starts the stretch of the file a map covers: the map itself comes first, then at set places the older maps.</summary>
@@ -97,6 +120,7 @@ namespace Kudupst.Core.Pst
             return page;
         }
 
+        /// <summary>Writes the map of the area that's full, and goes on to the next.</summary>
         private void CloseSpan()
         {
             var start = FirstMap + _span * Span;
@@ -106,6 +130,7 @@ namespace Kudupst.Core.Pst
             foreach (var b in _bits) for (var bit = 0; bit < 8; bit++) if ((b & (1 << bit)) == 0) _freeBytes += 64;
         }
 
+        /// <summary>Marks bytes as used in the map.</summary>
         private void Mark(long offset, int size)
         {
             var start = FirstMap + _span * Span;
@@ -131,6 +156,7 @@ namespace Kudupst.Core.Pst
             }
         }
 
+        /// <summary>Writes a page with its trailer (type, CRC and id).</summary>
         private void WritePage(long at, byte[] page, ulong bid, byte type, bool signed)
         {
             page[496] = type;
@@ -144,6 +170,7 @@ namespace Kudupst.Core.Pst
 
         // ================================================================== blocks
 
+        /// <summary>Writes a block (encrypted when it's data) and returns its id.</summary>
         private ulong WriteBlock(byte[] data, bool intern)
         {
             if (data.Length == 0 || data.Length > MaxBlockData) throw new ArgumentException("A block holds 1 to 8176 bytes.");
@@ -263,6 +290,7 @@ namespace Kudupst.Core.Pst
             _nodes[nid] = (data, sub, parent);
         }
 
+        /// <summary>True when the node is there.</summary>
         public bool HasNode(uint nid) => _nodes.ContainsKey(nid);
 
         // ================================================================== finishing
@@ -369,6 +397,7 @@ namespace Kudupst.Core.Pst
             return (level[0].Bid, level[0].Offset);
         }
 
+        /// <summary>Writes an index page of these entries (and the pages above it).</summary>
         private (ulong Bid, long Offset) IndexPage(List<byte[]> entries, int entrySize, int level, byte type)
         {
             var page = new byte[PageSize];

@@ -1,3 +1,4 @@
+// The PST file's two ways of scrambling data: "compressible" (a byte table) and "high" (cyclic, keyed by the block id).
 using System;
 
 namespace Kudupst.Core.Pst
@@ -29,6 +30,7 @@ namespace Kudupst.Core.Pst
             0xA2, 0x01, 0xF7, 0x2E, 0xBC, 0x24, 0x68, 0x75, 0x0D, 0xFE, 0xBA, 0x2F, 0xB5, 0xD0, 0xDA, 0x3D,
         };
 
+        /// <summary>The second table of the cyclic way.</summary>
         private static readonly byte[] S =
         {
             0x14, 0x53, 0x0F, 0x56, 0xB3, 0xC8, 0x7A, 0x9C, 0xEB, 0x65, 0x48, 0x17, 0x16, 0x15, 0x9F, 0x02,
@@ -49,6 +51,7 @@ namespace Kudupst.Core.Pst
             0x61, 0xE0, 0xC6, 0xC1, 0x59, 0xAB, 0xBB, 0x58, 0xDE, 0x5F, 0xDF, 0x60, 0x79, 0x7E, 0xB2, 0x8A,
         };
 
+        /// <summary>The third table of the cyclic way.</summary>
         private static readonly byte[] I =
         {
             0x47, 0xF1, 0xB4, 0xE6, 0x0B, 0x6A, 0x72, 0x48, 0x85, 0x4E, 0x9E, 0xEB, 0xE2, 0xF8, 0x94, 0x53,
@@ -69,10 +72,14 @@ namespace Kudupst.Core.Pst
             0xD4, 0xE1, 0x11, 0xD0, 0x08, 0x8B, 0x2A, 0xF2, 0xED, 0x9A, 0x64, 0x3F, 0xC1, 0x6C, 0xF9, 0xEC,
         };
 
+        /// <summary>The first table turned round (for undoing it).</summary>
         private static readonly byte[] RInverse = Inverse(R);
+        /// <summary>The second table turned round.</summary>
         private static readonly byte[] SInverse = Inverse(S);
+        /// <summary>The third table turned round.</summary>
         private static readonly byte[] IInverse = Inverse(I);
 
+        /// <summary>A table turned round.</summary>
         private static byte[] Inverse(byte[] table)
         {
             var inverse = new byte[256];
@@ -80,11 +87,13 @@ namespace Kudupst.Core.Pst
             return inverse;
         }
 
+        /// <summary>Undoes the compressible way.</summary>
         public static void DecodeCompressible(byte[] data, int offset, int count)
         {
             for (var i = offset; i < offset + count; i++) data[i] = I[data[i]];
         }
 
+        /// <summary>Does the compressible way (for writing).</summary>
         public static void EncodeCompressible(byte[] data, int offset, int count)
         {
             for (var i = offset; i < offset + count; i++) data[i] = IInverse[data[i]];
@@ -111,6 +120,7 @@ namespace Kudupst.Core.Pst
             }
         }
 
+        /// <summary>Does the cyclic way (for writing; undoing it is the same steps turned round).</summary>
         public static void EncodeCyclic(byte[] data, int offset, int count, uint key)
         {
             var salt = (ushort)((key >> 16) ^ (key & 0xFFFF));

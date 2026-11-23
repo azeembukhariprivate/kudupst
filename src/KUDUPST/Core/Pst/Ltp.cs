@@ -1,3 +1,5 @@
+// The PST's middle layer (MS-PST's LTP): a node's data and sub-nodes, heaps, property contexts (a list of properties)
+// and table contexts (rows and columns).
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,11 +9,16 @@ namespace Kudupst.Core.Pst
     /// <summary>A node's data and its sub-nodes: everything needed to read the values in it.</summary>
     public sealed class NodeData
     {
+        /// <summary>The node's sub-nodes, once read.</summary>
         private Dictionary<uint, SubNodeRef> _subNodes;
+        /// <summary>The node's data blocks, once read.</summary>
         private List<byte[]> _blocks;
+        /// <summary>The node's data block id.</summary>
         private readonly ulong _dataBid;
 
+        /// <summary>The PST file.</summary>
         public PstFile File { get; }
+        /// <summary>The sub-node list's block id.</summary>
         public ulong SubBid { get; }
 
         /// <summary>
@@ -20,6 +27,7 @@ namespace Kudupst.Core.Pst
         /// </summary>
         public bool Lenient { get; set; }
 
+        /// <summary>A node's data.</summary>
         public NodeData(PstFile file, ulong dataBid, ulong subBid)
         {
             File = file;
@@ -27,12 +35,16 @@ namespace Kudupst.Core.Pst
             SubBid = subBid;
         }
 
+        /// <summary>The data of a node.</summary>
         public static NodeData Of(PstFile file, NodeRef node) => new NodeData(file, node.DataBid, node.SubBid);
 
+        /// <summary>The data blocks (read the first time).</summary>
         public List<byte[]> Blocks => _blocks ?? (_blocks = File.ReadDataBlocks(_dataBid));
 
+        /// <summary>The sub-nodes (read the first time).</summary>
         public Dictionary<uint, SubNodeRef> SubNodes => _subNodes ?? (_subNodes = File.ReadSubNodes(SubBid));
 
+        /// <summary>A sub-node's data, when there is one.</summary>
         public bool TryGetSubNode(uint nid, out NodeData data)
         {
             data = null;
@@ -56,13 +68,19 @@ namespace Kudupst.Core.Pst
     /// </summary>
     public sealed class Heap
     {
+        /// <summary>The heap's mark for a property context.</summary>
         public const byte SignaturePropertyContext = 0xBC;
+        /// <summary>The heap's mark for a table context.</summary>
         public const byte SignatureTableContext = 0x7C;
 
+        /// <summary>The node it's in.</summary>
         public NodeData Node { get; }
+        /// <summary>What's kept in it.</summary>
         public byte ClientSignature { get; }
+        /// <summary>Where its own data starts.</summary>
         public uint UserRoot { get; }
 
+        /// <summary>Reads a node's heap.</summary>
         public Heap(NodeData node)
         {
             Node = node;
@@ -72,6 +90,7 @@ namespace Kudupst.Core.Pst
             UserRoot = BitConverter.ToUInt32(blocks[0], 4);
         }
 
+        /// <summary>True when the value points into the heap (else to a sub-node).</summary>
         public static bool IsHid(uint hnid) => (hnid & 0x1F) == 0;
 
         /// <summary>The bytes of a heap item, or null when there's none.</summary>
@@ -105,6 +124,7 @@ namespace Kudupst.Core.Pst
             return Node.TryGetSubNode(hnid, out var sub) ? Join(sub.Blocks) : null;
         }
 
+        /// <summary>Blocks joined into one.</summary>
         public static byte[] Join(List<byte[]> blocks)
         {
             if (blocks.Count == 1) return blocks[0];
@@ -132,6 +152,7 @@ namespace Kudupst.Core.Pst
             return result;
         }
 
+        /// <summary>Reads a B-tree's records in the heap.</summary>
         private void Records(uint hid, int level, int keySize, int dataSize, List<(byte[], byte[])> result, int depth)
         {
             var items = Get(hid);
@@ -160,12 +181,17 @@ namespace Kudupst.Core.Pst
     /// <summary>A property list (MS-PST "property context"): the properties of a folder, message or attachment.</summary>
     public sealed class PropertyContext : IPropertySource
     {
+        /// <summary>The heap.</summary>
         private readonly Heap _heap;
+        /// <summary>Each property's type and value (or where it is).</summary>
         private readonly Dictionary<ushort, (ushort Type, uint Value)> _entries = new Dictionary<ushort, (ushort, uint)>();
 
+        /// <summary>The node.</summary>
         public NodeData Node => _heap.Node;
+        /// <summary>The encoding of one-byte text.</summary>
         public Encoding Ansi { get; set; } = PropValue.DefaultAnsi;
 
+        /// <summary>Reads a node's properties.</summary>
         public PropertyContext(NodeData node)
         {
             _heap = new Heap(node);
@@ -177,10 +203,13 @@ namespace Kudupst.Core.Pst
             }
         }
 
+        /// <summary>The properties' ids.</summary>
         public IEnumerable<ushort> Ids => _entries.Keys;
 
+        /// <summary>True when it has this property.</summary>
         public bool Has(ushort id) => _entries.ContainsKey(id);
 
+        /// <summary>A property's type.</summary>
         public ushort TypeOf(ushort id) => _entries.TryGetValue(id, out var e) ? e.Type : (ushort)0;
 
         /// <summary>The raw bytes of a property's value.</summary>
@@ -208,6 +237,7 @@ namespace Kudupst.Core.Pst
             }
         }
 
+        /// <summary>A property's value.</summary>
         public object Get(ushort id)
         {
             if (!_entries.TryGetValue(id, out var e)) return null;
@@ -227,14 +257,21 @@ namespace Kudupst.Core.Pst
     /// <summary>A table (MS-PST "table context"): the rows of a folder's contents, sub-folders, recipients or attachments.</summary>
     public sealed class TableContext
     {
+        /// <summary>The heap.</summary>
         private readonly Heap _heap;
+        /// <summary>How big a row is, and where its "has value" bits are.</summary>
         private readonly int _rowSize, _bitmapAt;
+        /// <summary>Where each row is.</summary>
         private readonly List<(byte[] Block, int Offset)> _rows = new List<(byte[], int)>();
 
+        /// <summary>The encoding of one-byte text.</summary>
         public Encoding Ansi { get; set; } = PropValue.DefaultAnsi;
+        /// <summary>The columns: tag, place, size and bit.</summary>
         public List<(uint Tag, int Offset, int Size, int Bit)> Columns { get; } = new List<(uint, int, int, int)>();
+        /// <summary>How many rows.</summary>
         public int RowCount => _rows.Count;
 
+        /// <summary>Reads a node's table.</summary>
         public TableContext(NodeData node)
         {
             _heap = new Heap(node);
@@ -269,6 +306,7 @@ namespace Kudupst.Core.Pst
                     _rows.Add((block, at));
         }
 
+        /// <summary>True when the table has this column.</summary>
         public bool HasColumn(ushort id) => Columns.Exists(c => (c.Tag >> 16) == id);
 
         /// <summary>A cell's value, or null when the row has none.</summary>
@@ -278,6 +316,7 @@ namespace Kudupst.Core.Pst
             return raw == null ? null : PropValue.Decode(type, raw, Ansi);
         }
 
+        /// <summary>A cell's bytes and type.</summary>
         public byte[] Raw(int row, ushort id, out ushort type)
         {
             type = 0;
@@ -303,6 +342,7 @@ namespace Kudupst.Core.Pst
             return null;
         }
 
+        /// <summary>A row's id (its node).</summary>
         public uint RowId(int row) => Get(row, PropId.LtpRowId) is int v ? (uint)v : 0;
     }
 }

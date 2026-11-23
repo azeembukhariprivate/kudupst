@@ -1,3 +1,5 @@
+// Writing an item as an .eml file (MIME): headers, the text and HTML, attachments and attached emails, names and words
+// encoded so every mail program reads them.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,9 +15,12 @@ namespace Kudupst.Core.Mail
     /// </summary>
     public static class EmlWriter
     {
+        /// <summary>Headers that hold addresses.</summary>
         private static readonly string[] AddressHeaders = { "From", "To", "Cc", "Bcc", "Sender", "Reply-To" };
+        /// <summary>Headers the writer makes itself (the item's own copies are left out).</summary>
         private static readonly string[] MimeHeaders = { "Content-Type", "Content-Transfer-Encoding", "Content-Disposition", "Content-ID", "MIME-Version", "Content-Description", "Content-Language" };
 
+        /// <summary>An item as .eml bytes.</summary>
         public static byte[] Write(MailItem item)
         {
             var sb = new StringBuilder();
@@ -23,8 +28,10 @@ namespace Kudupst.Core.Mail
             return Encoding.UTF8.GetBytes(sb.ToString());
         }
 
+        /// <summary>Saves an item as an .eml file.</summary>
         public static void Save(MailItem item, string path) => File.WriteAllBytes(path, Write(item));
 
+        /// <summary>Writes an item (an attached email at depth 1 and below).</summary>
         private static void Write(MailItem item, StringBuilder sb, int depth)
         {
             WriteHeaders(item, sb);
@@ -61,6 +68,7 @@ namespace Kudupst.Core.Mail
             }
         }
 
+        /// <summary>Writes the headers: from the original when it has them, else made from the item.</summary>
         private static void WriteHeaders(MailItem item, StringBuilder sb)
         {
             // Keep the headers it arrived with (the Received: trail and so on), except the ones about its MIME layout,
@@ -96,11 +104,13 @@ namespace Kudupst.Core.Mail
             Header(sb, "MIME-Version", "1.0");
         }
 
+        /// <summary>Writes a header (left out when empty).</summary>
         private static void Header(StringBuilder sb, string name, string value) => sb.Append(name).Append(": ").Append(value).Append("\r\n");
 
         /// <summary>Header text that isn't plain ASCII becomes encoded words.</summary>
         private static string Ascii(string value) => value.All(c => c < 128) || value.Contains("=?") ? value : EncodeText(value);
 
+        /// <summary>A header's text, encoded when it isn't plain ASCII (in pieces short enough for a line).</summary>
         public static string EncodeText(string text)
         {
             text = (text ?? string.Empty).Replace("\r", string.Empty).Replace("\n", " ");
@@ -121,14 +131,17 @@ namespace Kudupst.Core.Mail
             return string.Join("\r\n ", words);
         }
 
+        /// <summary>A text's characters, whole (a letter with its accents stays together).</summary>
         private static IEnumerable<string> StringInfoElements(string text)
         {
             var e = StringInfo.GetTextElementEnumerator(text);
             while (e.MoveNext()) yield return (string)e.Current;
         }
 
+        /// <summary>A piece of text as an encoded word (UTF-8, base64).</summary>
         private static string Word(string s) => "=?utf-8?B?" + Convert.ToBase64String(Encoding.UTF8.GetBytes(s)) + "?=";
 
+        /// <summary>An address as a header writes it ("Name" &lt;address&gt;).</summary>
         private static string Address(MailAddress a)
         {
             if (a.Address.Length == 0) return EncodeText(a.Name);
@@ -139,6 +152,7 @@ namespace Kudupst.Core.Mail
             return name + " <" + Ascii(a.Address) + ">";
         }
 
+        /// <summary>Writes a multipart part with its parts.</summary>
         private static void Multipart(StringBuilder sb, string type, IList<Action<StringBuilder>> parts, string extra = "")
         {
             var boundary = "----=_KUDUPST_" + Guid.NewGuid().ToString("N");
@@ -152,6 +166,7 @@ namespace Kudupst.Core.Mail
             sb.Append("\r\n--").Append(boundary).Append("--\r\n");
         }
 
+        /// <summary>Writes a text part.</summary>
         private static void TextPart(StringBuilder sb, string type, string text)
         {
             sb.Append("Content-Type: ").Append(type).Append("; charset=\"utf-8\"\r\n");
@@ -159,6 +174,7 @@ namespace Kudupst.Core.Mail
             sb.Append(QuotedPrintable(Encoding.UTF8.GetBytes((text ?? string.Empty).Replace("\r\n", "\n").Replace("\n", "\r\n"))));
         }
 
+        /// <summary>Writes an attachment (an attached email as message/rfc822).</summary>
         private static void AttachmentPart(StringBuilder sb, Attachment a, bool inline, int depth)
         {
             if (a.IsEmail && depth < 16)
@@ -184,6 +200,7 @@ namespace Kudupst.Core.Mail
             for (var i = 0; i < b64.Length; i += 76) sb.Append(b64, i, Math.Min(76, b64.Length - i)).Append("\r\n");
         }
 
+        /// <summary>An attached email's file name (ending in .eml).</summary>
         private static string EmailName(string name) => name.EndsWith(".eml", StringComparison.OrdinalIgnoreCase) ? name : name + ".eml";
 
         /// <summary>A file name parameter: quoted ASCII, or RFC 2231 encoded (plus an encoded-word copy older programs read).</summary>
@@ -200,6 +217,7 @@ namespace Kudupst.Core.Mail
             return ";\r\n " + param + "*=utf-8''" + encoded;
         }
 
+        /// <summary>Bytes as quoted-printable text.</summary>
         public static string QuotedPrintable(byte[] data)
         {
             var sb = new StringBuilder();

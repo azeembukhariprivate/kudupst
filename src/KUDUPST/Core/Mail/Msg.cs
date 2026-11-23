@@ -1,3 +1,5 @@
+// Reading .msg files: the compound file they're kept in (sectors, mini sectors, folders and streams), its properties,
+// and the message with its recipients and attachments.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,40 +16,63 @@ namespace Kudupst.Core.Mail
     /// </summary>
     public sealed class CompoundFile
     {
+        /// <summary>The end of a chain of sectors.</summary>
         private const uint EndOfChain = 0xFFFFFFFE;
+        /// <summary>No stream.</summary>
         private const uint NoStream = 0xFFFFFFFF;
 
+        /// <summary>The file's bytes.</summary>
         private readonly byte[] _data;
+        /// <summary>How big a sector and a mini sector are.</summary>
         private readonly int _sectorSize, _miniSectorSize;
+        /// <summary>Streams smaller than this are in mini sectors.</summary>
         private readonly uint _miniCutoff;
+        /// <summary>The sector table.</summary>
         private readonly List<uint> _fat = new List<uint>();
+        /// <summary>The mini sector table.</summary>
         private readonly List<uint> _miniFat = new List<uint>();
+        /// <summary>The mini stream (where mini sectors are).</summary>
         private readonly byte[] _miniStream;
 
         public sealed class Entry
         {
+            /// <summary>Its name.</summary>
             public string Name { get; set; }
+            /// <summary>What it is (1 a folder, 2 a stream, 5 the root).</summary>
             public int Type { get; set; }
+            /// <summary>The entry to its left (in the folder's tree).</summary>
             public uint Left { get; set; }
+            /// <summary>The entry to its right.</summary>
             public uint Right { get; set; }
+            /// <summary>Its first child.</summary>
             public uint Child { get; set; }
+            /// <summary>Its first sector.</summary>
             public uint Start { get; set; }
+            /// <summary>Its size.</summary>
             public long Size { get; set; }
+            /// <summary>What's inside it.</summary>
             public List<Entry> Children { get; } = new List<Entry>();
 
+            /// <summary>True for a folder.</summary>
             public bool IsStorage => Type == 1 || Type == 5;
+            /// <summary>True for a stream.</summary>
             public bool IsStream => Type == 2;
 
+            /// <summary>The entry inside with this name, or null.</summary>
             public Entry Find(string name) => Children.FirstOrDefault(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase));
 
+            /// <summary>Its name.</summary>
             public override string ToString() => Name;
         }
 
+        /// <summary>The top folder.</summary>
         public Entry Root { get; }
 
+        /// <summary>True when the bytes are a compound file.</summary>
         public static bool IsCompoundFile(byte[] data) =>
             data.Length >= 512 && data[0] == 0xD0 && data[1] == 0xCF && data[2] == 0x11 && data[3] == 0xE0 && data[4] == 0xA1 && data[5] == 0xB1 && data[6] == 0x1A && data[7] == 0xE1;
 
+        /// <summary>Reads a compound file's tables and folders.</summary>
         public CompoundFile(byte[] data)
         {
             if (!IsCompoundFile(data)) throw new InvalidDataException("This isn't an Outlook .msg file.");
@@ -116,6 +141,7 @@ namespace Kudupst.Core.Mail
             Link(Root, entries, visited);
         }
 
+        /// <summary>Links a folder's entries into its tree (each once).</summary>
         private void Link(Entry storage, List<Entry> entries, HashSet<uint> visited)
         {
             // The children of a storage form a tree through Left/Right, starting at Child.
@@ -133,6 +159,7 @@ namespace Kudupst.Core.Mail
             }
         }
 
+        /// <summary>Where a sector starts in the file.</summary>
         private int Offset(uint sector)
         {
             var at = (long)(sector + 1) * _sectorSize;
@@ -140,6 +167,7 @@ namespace Kudupst.Core.Mail
             return (int)at;
         }
 
+        /// <summary>Reads a chain of sectors.</summary>
         private byte[] ReadChain(uint start, long size)
         {
             var output = new MemoryStream();
@@ -157,6 +185,7 @@ namespace Kudupst.Core.Mail
             return output.ToArray();
         }
 
+        /// <summary>Reads a chain of mini sectors.</summary>
         private byte[] ReadMiniChain(uint start, long size)
         {
             var output = new MemoryStream();
@@ -174,6 +203,7 @@ namespace Kudupst.Core.Mail
             return output.ToArray();
         }
 
+        /// <summary>A stream's bytes.</summary>
         public byte[] Read(Entry stream)
         {
             if (stream == null || !stream.IsStream) return null;
@@ -185,11 +215,15 @@ namespace Kudupst.Core.Mail
     /// <summary>The properties of a storage in an .msg file (MS-OXMSG): the property stream plus a stream per big value.</summary>
     public sealed class MsgProperties : IPropertySource
     {
+        /// <summary>The properties, by id.</summary>
         private readonly Dictionary<ushort, (ushort Type, byte[] Raw)> _props = new Dictionary<ushort, (ushort, byte[])>();
 
+        /// <summary>The encoding of one-byte text.</summary>
         public Encoding Ansi { get; set; } = PropValue.DefaultAnsi;
+        /// <summary>The folder the properties are in.</summary>
         public CompoundFile.Entry Storage { get; }
 
+        /// <summary>Reads the properties of a message, recipient or attachment.</summary>
         public MsgProperties(CompoundFile file, CompoundFile.Entry storage, int headerSize)
         {
             Storage = storage;
@@ -227,10 +261,13 @@ namespace Kudupst.Core.Mail
             }
         }
 
+        /// <summary>True when it has this property.</summary>
         public bool Has(ushort id) => _props.ContainsKey(id);
 
+        /// <summary>A property's bytes.</summary>
         public byte[] Raw(ushort id) => _props.TryGetValue(id, out var p) ? p.Raw : null;
 
+        /// <summary>A property's value.</summary>
         public object Get(ushort id)
         {
             if (!_props.TryGetValue(id, out var p) || p.Type == PropType.Object) return null;
@@ -241,8 +278,10 @@ namespace Kudupst.Core.Mail
     /// <summary>Reads an Outlook .msg file into a <see cref="MailItem"/>.</summary>
     public static class MsgReader
     {
+        /// <summary>Reads a .msg file.</summary>
         public static MailItem Read(string path) => Read(File.ReadAllBytes(path));
 
+        /// <summary>Reads a .msg from its bytes.</summary>
         public static MailItem Read(byte[] data)
         {
             var file = new CompoundFile(data);
@@ -260,6 +299,7 @@ namespace Kudupst.Core.Mail
                 file.Read(storage.Find("__substg1.0_00040102")));
         }
 
+        /// <summary>Reads a message (also an attached one) from its folder.</summary>
         private static MailItem ReadMessage(CompoundFile file, CompoundFile.Entry storage, int headerSize, NameMap names)
         {
             var props = new MsgProperties(file, storage, headerSize);

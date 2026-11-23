@@ -1,3 +1,4 @@
+// Contacts and contact groups: names, emails, phones, addresses, dates and more, read from Outlook's named properties.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,22 +9,31 @@ namespace Kudupst.Core.Mail
 {
     public sealed class ContactPhone
     {
+        /// <summary>What kind of phone.</summary>
         public string Kind { get; set; }
+        /// <summary>The number.</summary>
         public string Number { get; set; }
     }
 
     public sealed class ContactAddress
     {
+        /// <summary>Work, home or other.</summary>
         public string Kind { get; set; }   // Work, Home, Other
+        /// <summary>The street.</summary>
         public string Street { get; set; } = string.Empty;
+        /// <summary>The city.</summary>
         public string City { get; set; } = string.Empty;
+        /// <summary>The state.</summary>
         public string State { get; set; } = string.Empty;
+        /// <summary>The postal code.</summary>
         public string PostalCode { get; set; } = string.Empty;
+        /// <summary>The country.</summary>
         public string Country { get; set; } = string.Empty;
 
         /// <summary>The whole address as Outlook shows it, when the parts are missing.</summary>
         public string Text { get; set; } = string.Empty;
 
+        /// <summary>True when nothing is filled in.</summary>
         public bool IsEmpty => Street.Length == 0 && City.Length == 0 && State.Length == 0 && PostalCode.Length == 0 && Country.Length == 0 && Text.Length == 0;
 
         public string Display
@@ -40,37 +50,64 @@ namespace Kudupst.Core.Mail
     /// <summary>A contact's details (MS-OXOCNTC).</summary>
     public sealed class ContactInfo
     {
+        /// <summary>The name shown.</summary>
         public string DisplayName { get; set; } = string.Empty;
+        /// <summary>The name it's filed as.</summary>
         public string FileAs { get; set; } = string.Empty;
+        /// <summary>A title before the name.</summary>
         public string Prefix { get; set; } = string.Empty;
+        /// <summary>The first name.</summary>
         public string GivenName { get; set; } = string.Empty;
+        /// <summary>The middle name.</summary>
         public string MiddleName { get; set; } = string.Empty;
+        /// <summary>The last name.</summary>
         public string Surname { get; set; } = string.Empty;
+        /// <summary>After the name (Jr., PhD...).</summary>
         public string Suffix { get; set; } = string.Empty;
+        /// <summary>The nickname.</summary>
         public string Nickname { get; set; } = string.Empty;
+        /// <summary>The company.</summary>
         public string Company { get; set; } = string.Empty;
+        /// <summary>The department.</summary>
         public string Department { get; set; } = string.Empty;
+        /// <summary>The job title.</summary>
         public string JobTitle { get; set; } = string.Empty;
+        /// <summary>The office.</summary>
         public string Office { get; set; } = string.Empty;
+        /// <summary>The profession.</summary>
         public string Profession { get; set; } = string.Empty;
+        /// <summary>The manager's name.</summary>
         public string Manager { get; set; } = string.Empty;
+        /// <summary>The assistant's name.</summary>
         public string Assistant { get; set; } = string.Empty;
+        /// <summary>The spouse's name.</summary>
         public string Spouse { get; set; } = string.Empty;
+        /// <summary>The chat address.</summary>
         public string InstantMessaging { get; set; } = string.Empty;
+        /// <summary>The email addresses.</summary>
         public List<MailAddress> Emails { get; } = new List<MailAddress>();
+        /// <summary>The phones.</summary>
         public List<ContactPhone> Phones { get; } = new List<ContactPhone>();
+        /// <summary>The addresses.</summary>
         public List<ContactAddress> Addresses { get; } = new List<ContactAddress>();
+        /// <summary>The web pages.</summary>
         public List<string> Websites { get; } = new List<string>();
+        /// <summary>The birthday.</summary>
         public DateTime? Birthday { get; set; }
+        /// <summary>The anniversary.</summary>
         public DateTime? Anniversary { get; set; }
+        /// <summary>The categories.</summary>
         public string[] Categories { get; set; } = new string[0];
 
         /// <summary>The contact's photo, if there is one.</summary>
         public Attachment Photo { get; set; }
 
+        /// <summary>The name to show (built from the parts when there's no display name).</summary>
         public string Name => DisplayName.Length > 0 ? DisplayName : string.Join(" ", new[] { GivenName, MiddleName, Surname }.Where(s => s.Length > 0));
 
+        /// <summary>The number of a kind of phone, or empty.</summary>
         public string Phone(string kind) => Phones.FirstOrDefault(p => p.Kind == kind)?.Number ?? string.Empty;
+        /// <summary>The address of a kind, or null.</summary>
         public ContactAddress Address(string kind) => Addresses.FirstOrDefault(a => a.Kind == kind);
 
         /// <summary>Everything worth searching for: name, company, emails, phone numbers.</summary>
@@ -79,6 +116,7 @@ namespace Kudupst.Core.Mail
 
         // Phone kinds, as shown and as the CSV columns are named.
         public const string Mobile = "Mobile";
+        /// <summary>The kinds of phone, as named here and in the CSV.</summary>
         public const string Business = "Business";
         public const string Business2 = "Business 2";
         public const string Home = "Home";
@@ -92,6 +130,7 @@ namespace Kudupst.Core.Mail
         public const string CompanyMain = "Company main";
         public const string AssistantPhone = "Assistant";
 
+        /// <summary>Each kind of phone's property in Outlook.</summary>
         private static readonly (ushort Tag, string Kind)[] PhoneTags =
         {
             (0x3A1C, Mobile), (0x3A08, Business), (0x3A1B, Business2), (0x3A09, Home), (0x3A2F, Home2), (0x3A1A, Primary),
@@ -174,6 +213,7 @@ namespace Kudupst.Core.Mail
             return c;
         }
 
+        /// <summary>The first text that isn't empty.</summary>
         private static string First(string a, string b) => a.Length > 0 ? a : b;
 
         /// <summary>
@@ -192,9 +232,12 @@ namespace Kudupst.Core.Mail
     /// <summary>A contact group (distribution list): its members.</summary>
     public sealed class GroupInfo
     {
+        /// <summary>The group's name.</summary>
         public string Name { get; set; } = string.Empty;
+        /// <summary>Its members.</summary>
         public List<MailAddress> Members { get; } = new List<MailAddress>();
 
+        /// <summary>Outlook's id for a member that's a plain address (not a contact).</summary>
         private static readonly Guid OneOffProvider = new Guid(new byte[] { 0x81, 0x2B, 0x1F, 0xA4, 0xBE, 0xA3, 0x10, 0x19, 0x9D, 0x6E, 0x00, 0xDD, 0x01, 0x0F, 0x54, 0x02 });
 
         /// <summary>
@@ -274,6 +317,7 @@ namespace Kudupst.Core.Mail
             return null;
         }
 
+        /// <summary>The members in a line.</summary>
         public string MembersText => string.Join("; ", Members.Select(m => m.Display));
     }
 }

@@ -1,3 +1,5 @@
+// Reading a PST or OST file's lowest layer: the header, the two indexes (nodes and blocks), blocks (ANSI, Unicode, and
+// Outlook 2013+ 4 KB pages with zlib), both ways of scrambling, and blocks found outside the indexes.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,31 +17,43 @@ namespace Kudupst.Core.Pst
         Unicode4K
     }
 
+    /// <summary>How the file's data is scrambled.</summary>
     public enum PstCryptMethod { None = 0, Compressible = 1, High = 2 }
 
     /// <summary>Where a block is in the file.</summary>
     public struct BlockRef
     {
+        /// <summary>The block's id.</summary>
         public ulong Bid;
+        /// <summary>Where it is in the file.</summary>
         public long Offset;
+        /// <summary>How big it is in the file.</summary>
         public int Size;
+        /// <summary>How big it is unpacked (for 4 KB-page files with zlib).</summary>
         public int InflatedSize;
     }
 
     /// <summary>A node: an item in the file (a folder, a message, a table…), its data and its sub-nodes.</summary>
     public struct NodeRef
     {
+        /// <summary>The node's id.</summary>
         public uint Nid;
+        /// <summary>Its data block.</summary>
         public ulong DataBid;
+        /// <summary>Its sub-node list block.</summary>
         public ulong SubBid;
+        /// <summary>Its parent node.</summary>
         public uint ParentNid;
     }
 
     /// <summary>A sub-node: part of a node, like a message's recipient table or an attachment.</summary>
     public struct SubNodeRef
     {
+        /// <summary>The sub-node's id.</summary>
         public uint Nid;
+        /// <summary>Its data block.</summary>
         public ulong DataBid;
+        /// <summary>Its own sub-node list block.</summary>
         public ulong SubBid;
     }
 
@@ -50,19 +64,31 @@ namespace Kudupst.Core.Pst
     /// </summary>
     public sealed class PstFile : IDisposable
     {
+        /// <summary>The file.</summary>
         private readonly Stream _stream;
+        /// <summary>One read at a time.</summary>
         private readonly object _sync = new object();
+        /// <summary>Index pages read lately.</summary>
         private readonly Dictionary<long, byte[]> _pages = new Dictionary<long, byte[]>();
+        /// <summary>Where the node index and the block index start.</summary>
         private readonly long _nbtRoot, _bbtRoot;
+        /// <summary>How big an index page is (512 bytes, or 4 KB).</summary>
         private readonly int _pageSize;
+        /// <summary>Blocks found outside the index (deleted items).</summary>
         private readonly Dictionary<ulong, BlockRef> _foundBlocks = new Dictionary<ulong, BlockRef>();
 
+        /// <summary>ANSI, Unicode, or Unicode with 4 KB pages.</summary>
         public PstFormat Format { get; }
+        /// <summary>How its data is scrambled.</summary>
         public PstCryptMethod Crypt { get; }
+        /// <summary>True for an OST.</summary>
         public bool IsOst { get; }
+        /// <summary>How big the file is.</summary>
         public long Length { get; }
+        /// <summary>Where it is.</summary>
         public string Path { get; }
 
+        /// <summary>True for the Unicode kinds.</summary>
         public bool Unicode => Format != PstFormat.Ansi;
 
         /// <summary>The size of an index page: 512 bytes, or 4 KB in newer OST files.</summary>
@@ -74,6 +100,7 @@ namespace Kudupst.Core.Pst
         /// <summary>Where the file's own data ends (anything after it is unused).</summary>
         public long EndOfData { get; }
 
+        /// <summary>Opens a file to read (never to write).</summary>
         public static PstFile Open(string path)
         {
             var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, 65536, FileOptions.RandomAccess);
@@ -88,6 +115,7 @@ namespace Kudupst.Core.Pst
             }
         }
 
+        /// <summary>Reads a file's header from a stream.</summary>
         public PstFile(Stream stream, string path = null)
         {
             _stream = stream;
@@ -130,6 +158,7 @@ namespace Kudupst.Core.Pst
                 throw new PstException("This Outlook data file is damaged: its index is missing.");
         }
 
+        /// <summary>Closes the file.</summary>
         public void Dispose()
         {
             lock (_sync) _stream.Dispose();
@@ -138,6 +167,7 @@ namespace Kudupst.Core.Pst
         /// <summary>Reads bytes from the file as they are (for looking through its free space).</summary>
         public int ReadRaw(long offset, byte[] buffer, int count) => ReadAt(offset, buffer, count);
 
+        /// <summary>Reads bytes at a place; returns how many.</summary>
         private int ReadAt(long offset, byte[] buffer, int count)
         {
             lock (_sync)
@@ -156,6 +186,7 @@ namespace Kudupst.Core.Pst
 
         // ================================================================== index pages
 
+        /// <summary>An index page (from memory when read lately), checked by its trailer.</summary>
         private byte[] Page(long offset)
         {
             lock (_sync)
@@ -175,10 +206,13 @@ namespace Kudupst.Core.Pst
 
         private struct PageInfo
         {
+            /// <summary>How many entries, their size, and the page's level.</summary>
             public int Count, EntrySize, Level;
+            /// <summary>The page's type.</summary>
             public byte Type;
         }
 
+        /// <summary>A page's entry count, size and level.</summary>
         private PageInfo Info(byte[] page)
         {
             switch (Format)
@@ -192,8 +226,10 @@ namespace Kudupst.Core.Pst
             }
         }
 
+        /// <summary>An entry's key.</summary>
         private ulong Key(byte[] page, int offset) => Unicode ? BitConverter.ToUInt64(page, offset) : BitConverter.ToUInt32(page, offset);
 
+        /// <summary>Where an entry's child page is.</summary>
         private long ChildOffset(byte[] page, int entry)
         {
             // A branch entry: key, then a block reference (ID, offset).
@@ -259,6 +295,7 @@ namespace Kudupst.Core.Pst
         /// <summary>Whether the file's index lists a block (it's in use).</summary>
         public bool IsListed(ulong bid) => FindLeaf(_bbtRoot, bid & ~1UL, out _, out _);
 
+        /// <summary>A block's place by its id, when it's there.</summary>
         public bool TryGetBlock(ulong bid, out BlockRef block)
         {
             bid &= ~1UL; // the lowest bit isn't part of the ID
@@ -283,6 +320,7 @@ namespace Kudupst.Core.Pst
             return true;
         }
 
+        /// <summary>A node by its id, when it's there.</summary>
         public bool TryGetNode(uint nid, out NodeRef node)
         {
             node = default;
@@ -293,6 +331,7 @@ namespace Kudupst.Core.Pst
             return true;
         }
 
+        /// <summary>A node by its id (an error when it isn't there).</summary>
         public NodeRef GetNode(uint nid)
         {
             if (!TryGetNode(nid, out var node)) throw new PstException($"This Outlook data file is damaged: item {nid} is missing.");
@@ -302,6 +341,7 @@ namespace Kudupst.Core.Pst
         /// <summary>Every node in the file, in ID order (for checking a whole file, and for finding deleted items).</summary>
         public IEnumerable<NodeRef> AllNodes() => Walk(_nbtRoot, 0);
 
+        /// <summary>Every node below an index page.</summary>
         private IEnumerable<NodeRef> Walk(long offset, int depth)
         {
             if (depth > 16) yield break;
@@ -442,6 +482,7 @@ namespace Kudupst.Core.Pst
 
         // ================================================================== blocks
 
+        /// <summary>True for an internal block (a list of blocks, not data).</summary>
         public static bool IsInternal(ulong bid) => (bid & 2) != 0;
 
         /// <summary>A block's contents: decrypted (data blocks) and decompressed (newer OST files).</summary>
@@ -460,6 +501,7 @@ namespace Kudupst.Core.Pst
             return data;
         }
 
+        /// <summary>Unpacks a zlib block.</summary>
         private static byte[] Inflate(byte[] data, int size)
         {
             // zlib: a 2-byte header, then deflate data.
@@ -491,6 +533,7 @@ namespace Kudupst.Core.Pst
             return blocks;
         }
 
+        /// <summary>Gathers a node's data blocks (following lists of blocks).</summary>
         private void Collect(ulong bid, List<byte[]> blocks, int depth)
         {
             var data = ReadBlock(bid);
@@ -535,6 +578,7 @@ namespace Kudupst.Core.Pst
             return result;
         }
 
+        /// <summary>Gathers a node's sub-nodes.</summary>
         private void CollectSub(ulong bid, Dictionary<uint, SubNodeRef> result, int depth)
         {
             var data = ReadBlock(bid);
@@ -570,6 +614,7 @@ namespace Kudupst.Core.Pst
 
     public sealed class PstException : Exception
     {
+        /// <summary>A problem with the file, in plain words.</summary>
         public PstException(string message) : base(message)
         {
         }

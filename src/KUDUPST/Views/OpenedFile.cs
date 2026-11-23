@@ -1,3 +1,4 @@
+// One file open in the window: its source, its search index, and the look for deleted items.
 using System;
 using System.Threading;
 using Kudupst.Core;
@@ -9,20 +10,26 @@ namespace Kudupst.Views
     /// <summary>One of the files open in the window, with its search index and its look for deleted items.</summary>
     public sealed class OpenedFile : IDisposable
     {
+        /// <summary>A file opened.</summary>
         public OpenedFile(MailSource source)
         {
             Source = source;
             Name = source.Title;
         }
 
+        /// <summary>The file.</summary>
         public MailSource Source { get; }
+        /// <summary>Its search index.</summary>
         public MailIndex Index { get; set; }
 
         /// <summary>The name shown: the file name, with its folder when another open file has the same name.</summary>
         public string Name { get; set; }
 
+        /// <summary>Where it is.</summary>
         public string Path => Source.Path;
+        /// <summary>True for a PST or OST.</summary>
         public bool IsDataFile => Source.IsDataFile;
+        /// <summary>Its contents.</summary>
         public PstStore Store => Source.Store;
 
         /// <summary>Its folders are shown in the folder list.</summary>
@@ -34,8 +41,10 @@ namespace Kudupst.Views
         /// <summary>What the look for deleted items says about this file.</summary>
         public string DeletedNote { get; set; } = string.Empty;
 
+        /// <summary>True once closed.</summary>
         public bool Closed { get; private set; }
 
+        /// <summary>Stops its index and closes it.</summary>
         public void Dispose()
         {
             if (Closed) return;
@@ -45,6 +54,7 @@ namespace Kudupst.Views
             Source.Dispose();
         }
 
+        /// <summary>Its name.</summary>
         public override string ToString() => Name;
     }
 }

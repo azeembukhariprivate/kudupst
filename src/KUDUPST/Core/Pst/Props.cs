@@ -1,3 +1,5 @@
+// Properties: their types and ids (named as in Microsoft's MS-OXPROPS), reading values from bytes, and the ways to read
+// them.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,6 +9,7 @@ namespace Kudupst.Core.Pst
     /// <summary>MAPI property types (MS-OXCDATA 2.11.1).</summary>
     public static class PropType
     {
+        /// <summary>The property types (as in Microsoft's documents).</summary>
         public const ushort Int16 = 0x0002;
         public const ushort Int32 = 0x0003;
         public const ushort Float = 0x0004;
@@ -24,8 +27,10 @@ namespace Kudupst.Core.Pst
         public const ushort Binary = 0x0102;
         public const ushort MultiFlag = 0x1000;
 
+        /// <summary>True for a type of fixed size.</summary>
         public static bool IsFixed(ushort type) => FixedSize(type) > 0;
 
+        /// <summary>How big a type's value is (0 when it isn't fixed).</summary>
         public static int FixedSize(ushort type)
         {
             switch (type)
@@ -49,6 +54,7 @@ namespace Kudupst.Core.Pst
     /// <summary>The property IDs KUDUPST reads (the upper 16 bits of a property tag).</summary>
     public static class PropId
     {
+        /// <summary>The property ids used (as named in Microsoft's documents).</summary>
         public const ushort Importance = 0x0017;
         public const ushort MessageClass = 0x001A;
         public const ushort Priority = 0x0026;
@@ -200,6 +206,7 @@ namespace Kudupst.Core.Pst
             return list;
         }
 
+        /// <summary>A Windows file time as a date (null when empty).</summary>
         public static DateTime? FileTime(long value)
         {
             if (value <= 0 || value >= DateTime.MaxValue.ToFileTimeUtc()) return null;
@@ -207,6 +214,7 @@ namespace Kudupst.Core.Pst
             catch (ArgumentOutOfRangeException) { return null; }
         }
 
+        /// <summary>Part of a byte array.</summary>
         public static byte[] Slice(byte[] data, int start, int count)
         {
             var slice = new byte[count];
@@ -214,6 +222,7 @@ namespace Kudupst.Core.Pst
             return slice;
         }
 
+        /// <summary>A text without the zeros at its end.</summary>
         private static string TrimNul(string s)
         {
             var end = s.Length;
@@ -224,8 +233,10 @@ namespace Kudupst.Core.Pst
 
     public static class PropertySourceExtensions
     {
+        /// <summary>A property as text.</summary>
         public static string String(this IPropertySource p, ushort id) => p.Get(id) as string;
 
+        /// <summary>A property as a number.</summary>
         public static int Int(this IPropertySource p, ushort id, int fallback = 0)
         {
             switch (p.Get(id))
@@ -237,12 +248,16 @@ namespace Kudupst.Core.Pst
             }
         }
 
+        /// <summary>A property as a long number.</summary>
         public static long Long(this IPropertySource p, ushort id) => p.Get(id) is long l ? l : p.Get(id) is int i ? i : 0;
 
+        /// <summary>A property as yes or no.</summary>
         public static bool Bool(this IPropertySource p, ushort id) => p.Get(id) is bool b ? b : p.Get(id) is int i && i != 0;
 
+        /// <summary>A property as a date.</summary>
         public static DateTime? Time(this IPropertySource p, ushort id) => p.Get(id) as DateTime?;
 
+        /// <summary>A property as bytes.</summary>
         public static byte[] Bytes(this IPropertySource p, ushort id) => p.Get(id) as byte[] ?? (p.Get(id) is string ? p.Raw(id) : null);
     }
 }

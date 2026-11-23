@@ -1,3 +1,5 @@
+// The tests for deleted items: found in Unicode and ANSI files, with and without a free map, in an Outlook 2013 OST,
+// and saved for next time.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +15,7 @@ namespace Kudupst.Tests
     // Finding deleted items left inside a file.
     public static partial class Program
     {
+        /// <summary>The date the deleted items were made.</summary>
         private static readonly DateTime DeletedDate = new DateTime(2024, 2, 1, 8, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
@@ -99,6 +102,7 @@ namespace Kudupst.Tests
             w.Forget(olderCopy);
         });
 
+        /// <summary>An attachment's bytes.</summary>
         private static byte[] Attachment(int size)
         {
             var data = new byte[size];
@@ -106,6 +110,7 @@ namespace Kudupst.Tests
             return data;
         }
 
+        /// <summary>Checks the deleted items are found in a file.</summary>
         private static void CheckDeleted(byte[] file, string what)
         {
             using (var store = OpenBytes(file))
@@ -159,10 +164,14 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>In a Unicode file.</summary>
         private static void TestDeletedUnicode() => CheckDeleted(MakePstWithDeleted(true, PstCryptMethod.High), "Unicode, high encryption");
+        /// <summary>In an ANSI file.</summary>
         private static void TestDeletedAnsi() => CheckDeleted(MakePstWithDeleted(false, PstCryptMethod.Compressible), "ANSI, compressible encryption");
+        /// <summary>In a file with no free map.</summary>
         private static void TestDeletedWithoutFreeMap() => CheckDeleted(MakePstWithDeleted(true, PstCryptMethod.None, freeMap: false), "no map of free space");
 
+        /// <summary>Only the free space is looked through.</summary>
         private static void TestDeletedFreeSpaceMap()
         {
             // The quick look reads only what the map lists as free.
@@ -175,6 +184,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>What's found is saved and added to the search index.</summary>
         private static void TestDeletedCacheAndIndex()
         {
             var root = Path.Combine(_root, "found-index");
@@ -230,6 +240,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>In an Outlook 2013 OST.</summary>
         private static void TestDeletedInOst2013()
         {
             using (var store = PstStore.Open(Samples.Example2013))

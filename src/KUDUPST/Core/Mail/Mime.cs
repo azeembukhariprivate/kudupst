@@ -1,3 +1,4 @@
+// Reading .eml files (MIME): headers, parts, encodings and character sets, encoded words and dates, into a MailItem.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -11,8 +12,10 @@ namespace Kudupst.Core.Mail
     /// <summary>Email headers, in order, with case-insensitive lookup.</summary>
     public sealed class HeaderList
     {
+        /// <summary>The headers, in order.</summary>
         public List<KeyValuePair<string, string>> Entries { get; } = new List<KeyValuePair<string, string>>();
 
+        /// <summary>The first header with this name, or null.</summary>
         public string Get(string name)
         {
             foreach (var e in Entries)
@@ -20,6 +23,7 @@ namespace Kudupst.Core.Mail
             return null;
         }
 
+        /// <summary>Every header with this name.</summary>
         public IEnumerable<string> GetAll(string name) =>
             Entries.Where(e => string.Equals(e.Key, name, StringComparison.OrdinalIgnoreCase)).Select(e => e.Value);
     }
@@ -27,15 +31,24 @@ namespace Kudupst.Core.Mail
     /// <summary>A part of an internet email (RFC 2045–2049): headers, a decoded body, and sub-parts.</summary>
     public sealed class MimePart
     {
+        /// <summary>The part's headers.</summary>
         public HeaderList Headers { get; set; } = new HeaderList();
+        /// <summary>Its kind, like "text/html".</summary>
         public string MediaType { get; set; } = "text/plain";
+        /// <summary>Its kind's settings (charset, boundary, name...).</summary>
         public Dictionary<string, string> TypeParams { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        /// <summary>"inline" or "attachment".</summary>
         public string Disposition { get; set; } = string.Empty;
+        /// <summary>Its disposition's settings (filename...).</summary>
         public Dictionary<string, string> DispositionParams { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Its bytes, decoded.</summary>
         public byte[] Body { get; set; } = new byte[0];
+        /// <summary>Its parts, for a multipart.</summary>
         public List<MimePart> Parts { get; } = new List<MimePart>();
 
+        /// <summary>True for a multipart.</summary>
         public bool IsMultipart => MediaType.StartsWith("multipart/", StringComparison.OrdinalIgnoreCase);
+        /// <summary>Its character set.</summary>
         public string Charset => TypeParams.TryGetValue("charset", out var c) ? c : null;
 
         public string FileName
@@ -48,20 +61,25 @@ namespace Kudupst.Core.Mail
             }
         }
 
+        /// <summary>Its Content-ID without the brackets.</summary>
         public string ContentId => (Headers.Get("Content-ID") ?? string.Empty).Trim().Trim('<', '>');
 
+        /// <summary>Its text, in its character set.</summary>
         public string Text => Mime.DecodeText(Body, Charset);
     }
 
     /// <summary>Reading internet email (.eml): headers, encoded words, addresses, dates and MIME parts.</summary>
     public static class Mime
     {
+        /// <summary>The Latin-1 encoding (bytes as they are).</summary>
         private static readonly Encoding Latin1 = Encoding.GetEncoding(28591);
 
         // ================================================================== whole messages
 
+        /// <summary>Reads a whole message.</summary>
         public static MimePart Parse(byte[] data) => ParsePart(data, 0, data.Length, 0);
 
+        /// <summary>Reads a part (with a limit to how deep parts go).</summary>
         private static MimePart ParsePart(byte[] data, int start, int end, int depth)
         {
             var part = new MimePart();
@@ -115,6 +133,7 @@ namespace Kudupst.Core.Mail
             return end;
         }
 
+        /// <summary>Where a multipart's parts are, between its boundaries.</summary>
         private static IEnumerable<(int Start, int End)> SplitParts(byte[] data, int start, int end, string boundary)
         {
             var marker = Latin1.GetBytes("--" + boundary);
@@ -146,6 +165,7 @@ namespace Kudupst.Core.Mail
             }
         }
 
+        /// <summary>True when the bytes at a place are the marker.</summary>
         private static bool Matches(byte[] data, int at, byte[] marker)
         {
             for (var i = 0; i < marker.Length; i++)
@@ -155,6 +175,7 @@ namespace Kudupst.Core.Mail
 
         // ================================================================== headers
 
+        /// <summary>Reads headers (joining folded lines).</summary>
         public static HeaderList ParseHeaders(string text)
         {
             var list = new HeaderList();
@@ -247,6 +268,7 @@ namespace Kudupst.Core.Mail
             return (value, ps);
         }
 
+        /// <summary>Decodes %XX in a text (RFC 2231 settings).</summary>
         private static List<byte> PercentDecode(string s)
         {
             var bytes = new List<byte>();
@@ -265,6 +287,7 @@ namespace Kudupst.Core.Mail
             return bytes;
         }
 
+        /// <summary>Splits a text at a separator not inside quotes.</summary>
         private static List<string> SplitOutsideQuotes(string s, char separator)
         {
             var list = new List<string>();
@@ -291,6 +314,7 @@ namespace Kudupst.Core.Mail
             return list;
         }
 
+        /// <summary>A text without its quotes.</summary>
         private static string Unquote(string s)
         {
             if (s.Length >= 2 && s[0] == '"' && s[s.Length - 1] == '"')
@@ -298,6 +322,7 @@ namespace Kudupst.Core.Mail
             return s;
         }
 
+        /// <summary>An encoded word (=?charset?B?...?=).</summary>
         private static readonly Regex EncodedWord = new Regex(@"=\?([^?\s]+)\?([BbQq])\?([^?\s]*)\?=", RegexOptions.Compiled);
 
         /// <summary>Decodes RFC 2047 encoded words ("=?utf-8?B?...?="). Spaces between two encoded words are dropped.</summary>
@@ -323,6 +348,7 @@ namespace Kudupst.Core.Mail
             });
         }
 
+        /// <summary>Bytes as text in a character set (UTF-8 when it isn't known).</summary>
         public static string DecodeText(byte[] bytes, string charset)
         {
             if (bytes == null || bytes.Length == 0) return string.Empty;
@@ -337,6 +363,7 @@ namespace Kudupst.Core.Mail
             return text.Length > 0 && text[0] == '﻿' ? text.Substring(1) : text;
         }
 
+        /// <summary>The encoding for a character set's name, or null.</summary>
         public static Encoding GetEncoding(string charset)
         {
             if (string.IsNullOrWhiteSpace(charset)) return null;
@@ -390,6 +417,7 @@ namespace Kudupst.Core.Mail
 
         // ================================================================== dates
 
+        /// <summary>Time zone names in dates and their offsets.</summary>
         private static readonly Dictionary<string, int> Zones = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
         {
             ["UT"] = 0, ["UTC"] = 0, ["GMT"] = 0, ["Z"] = 0,
@@ -397,6 +425,7 @@ namespace Kudupst.Core.Mail
             ["MST"] = -700, ["MDT"] = -600, ["PST"] = -800, ["PDT"] = -700
         };
 
+        /// <summary>The months' short names.</summary>
         private static readonly string[] Months = { "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" };
 
         /// <summary>An RFC 5322 date ("Wed, 24 Oct 2001 10:07:37 -0700 (PDT)") as UTC, or null.</summary>
@@ -435,6 +464,7 @@ namespace Kudupst.Core.Mail
 
         // ================================================================== transfer encodings
 
+        /// <summary>Decodes base64 (characters that don't belong are left out).</summary>
         public static byte[] FromBase64(byte[] data)
         {
             var clean = new StringBuilder(data.Length);
@@ -454,6 +484,7 @@ namespace Kudupst.Core.Mail
             catch (FormatException) { return new byte[0]; }
         }
 
+        /// <summary>Decodes quoted-printable.</summary>
         public static byte[] FromQuotedPrintable(byte[] data)
         {
             var output = new MemoryStream(data.Length);
@@ -486,18 +517,23 @@ namespace Kudupst.Core.Mail
             return output.ToArray();
         }
 
+        /// <summary>True for a hex digit.</summary>
         private static bool IsHex(byte b) => (b >= '0' && b <= '9') || (b >= 'A' && b <= 'F') || (b >= 'a' && b <= 'f');
 
+        /// <summary>A hex digit's value.</summary>
         private static int Hex(byte b) => b <= '9' ? b - '0' : (b | 0x20) - 'a' + 10;
     }
 
     /// <summary>Turns a parsed .eml file into a <see cref="MailItem"/>.</summary>
     public static class EmlReader
     {
+        /// <summary>Reads an .eml file.</summary>
         public static MailItem Read(string path) => Read(File.ReadAllBytes(path));
 
+        /// <summary>Reads an .eml from its bytes.</summary>
         public static MailItem Read(byte[] data) => FromPart(Mime.Parse(data), data.Length);
 
+        /// <summary>An item from a message's parts.</summary>
         public static MailItem FromPart(MimePart root, long size)
         {
             var h = root.Headers;
@@ -537,6 +573,7 @@ namespace Kudupst.Core.Mail
             return item;
         }
 
+        /// <summary>When it was received, from its last Received header.</summary>
         private static DateTime? ReceivedDate(HeaderList h)
         {
             var received = h.Get("Received");
@@ -545,6 +582,7 @@ namespace Kudupst.Core.Mail
             return semi >= 0 ? Mime.ParseDate(received.Substring(semi + 1)) : null;
         }
 
+        /// <summary>How important it is, from its headers.</summary>
         private static int ImportanceOf(HeaderList h)
         {
             var importance = (h.Get("Importance") ?? string.Empty).Trim().ToLowerInvariant();
@@ -556,6 +594,7 @@ namespace Kudupst.Core.Mail
             return 1;
         }
 
+        /// <summary>Goes through the parts: the text, the HTML, attachments and attached emails.</summary>
         private static void Walk(MimePart part, MailBody body, List<Attachment> attachments, bool isRoot)
         {
             if (part.IsMultipart)
@@ -612,6 +651,7 @@ namespace Kudupst.Core.Mail
     /// <summary>File name extensions for common types (for attachments without a name).</summary>
     public static class Extensions
     {
+        /// <summary>A file ending for a MIME type.</summary>
         public static string For(string mediaType)
         {
             switch ((mediaType ?? string.Empty).ToLowerInvariant())
@@ -632,6 +672,7 @@ namespace Kudupst.Core.Mail
             }
         }
 
+        /// <summary>A MIME type for a file name.</summary>
         public static string MediaType(string fileName)
         {
             switch ((Path.GetExtension(fileName ?? string.Empty) ?? string.Empty).ToLowerInvariant())

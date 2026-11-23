@@ -1,3 +1,4 @@
+// The tests for saving as a new PST: what's written is read back the same by our own reader.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,6 +28,7 @@ namespace Kudupst.Tests
             return list;
         }
 
+        /// <summary>Saves items as a new PST and returns its path.</summary>
         private static string SaveAsPst(IList<ExportItem> items, string name, bool keepFolders = true)
         {
             var path = Path.Combine(_root, name);
@@ -92,12 +94,14 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>A text cut short for the log.</summary>
         private static string Short(string s)
         {
             s = s.Replace("\r", "\\r").Replace("\n", "\\n");
             return s.Length > 400 ? s.Substring(0, 400) + "..." : s;
         }
 
+        /// <summary>Folders and items are kept.</summary>
         private static void TestSaveAsPstKeepsFoldersAndItems()
         {
             using (var store = PstStore.Open(Samples.DistList))
@@ -107,6 +111,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>A whole mailbox is copied.</summary>
         private static void TestSaveAsPstCopiesAWholeMailbox()
         {
             using (var store = PstStore.Open(Samples.Enron))
@@ -118,6 +123,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>Items from an OST are saved.</summary>
         private static void TestSaveAsPstFromAnOstFile()
         {
             using (var store = PstStore.Open(Samples.Example2013))
@@ -126,6 +132,7 @@ namespace Kudupst.Tests
                 SameAsOriginal(store, path);
             }
         }
+            /// <summary>Items from an old (ANSI) file are saved.</summary>
             private static void TestSaveAsPstFromAnOldStyleFile()
         {
             // The old kind of file keeps text one byte a letter, in the sender's alphabet; the new file keeps it as real text.
@@ -137,6 +144,7 @@ namespace Kudupst.Tests
                 }
         }
 
+        /// <summary>Deleted items found are saved.</summary>
         private static void TestSaveAsPstTakesDeletedItemsThatWereFound()
         {
             using (var store = OpenBytes(MakePstWithDeleted(true, PstCryptMethod.None)))
@@ -160,6 +168,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>Single emails are saved.</summary>
         private static void TestSaveAsPstWritesSingleEmails()
         {
             var sources = new[] { Samples.MultiTo, Samples.UnicodeMsg, Samples.UnicodeHeader, Samples.StrangeDate };
@@ -198,6 +207,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>Big files and big items are saved.</summary>
         private static void TestSaveAsPstBigFilesAndBigItems()
         {
             // A file bigger than one "map of maps" covers (about 32 MB), with an attachment bigger than one list of blocks holds (8 MB).
@@ -263,6 +273,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>A save that's stopped leaves no file.</summary>
         private static void TestSaveAsPstStoppedLeavesNoFile()
         {
             using (var store = PstStore.Open(Samples.Enron))
@@ -278,6 +289,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>The table of names is laid out like Outlook's.</summary>
         private static void TestSaveAsPstNameTableMatchesOutlooks()
         {
             // Outlook finds a named field through a table of "buckets". A real Outlook file's entries must land in the

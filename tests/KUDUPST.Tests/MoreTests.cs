@@ -1,3 +1,5 @@
+// More tests: PST files made up by PstWriter (both formats, every way of scrambling, passwords), RTF, .eml reading and
+// writing, export, file names, the search index and the email page.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +17,7 @@ namespace Kudupst.Tests
     {
         // ================================================================== made-up PST files: ANSI, "high" encryption, big values
 
+        /// <summary>The nodes the made-up files use.</summary>
         private const uint TopNid = 0x8022, InboxNid = 0x8042, MessageNid = 0x200024;
 
         /// <summary>A small PST with one folder holding one email (text and HTML body, two recipients, a big attachment, an attached email).</summary>
@@ -128,8 +131,10 @@ namespace Kudupst.Tests
             return w.Build();
         }
 
+        /// <summary>A store from a file's bytes.</summary>
         private static PstStore OpenBytes(byte[] data) => new PstStore(new PstFile(new MemoryStream(data)));
 
+        /// <summary>Checks a made-up file is read right.</summary>
         private static void CheckMadeUp(byte[] data, bool unicode)
         {
             using (var store = OpenBytes(data))
@@ -166,12 +171,18 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>A Unicode file, scrambled the compressible way.</summary>
         private static void TestMadeUpUnicodeCompressible() => CheckMadeUp(MakePst(true, PstCryptMethod.Compressible), true);
+        /// <summary>A Unicode file, scrambled the high way.</summary>
         private static void TestMadeUpUnicodeHigh() => CheckMadeUp(MakePst(true, PstCryptMethod.High), true);
+        /// <summary>A Unicode file, not scrambled.</summary>
         private static void TestMadeUpUnicodePlain() => CheckMadeUp(MakePst(true, PstCryptMethod.None), true);
+        /// <summary>An ANSI file, scrambled the compressible way.</summary>
         private static void TestMadeUpAnsiCompressible() => CheckMadeUp(MakePst(false, PstCryptMethod.Compressible), false);
+        /// <summary>An ANSI file, scrambled the high way.</summary>
         private static void TestMadeUpAnsiHigh() => CheckMadeUp(MakePst(false, PstCryptMethod.High), false);
 
+        /// <summary>A file with a password.</summary>
         private static void TestMadeUpPassword()
         {
             using (var store = OpenBytes(MakePst(true, PstCryptMethod.Compressible, "Secret1")))
@@ -183,6 +194,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>A file that isn't a PST is refused plainly.</summary>
         private static void TestNotAPst()
         {
             foreach (var data in new[] { new byte[10], Encoding.ASCII.GetBytes(new string('x', 2000)) })
@@ -198,6 +210,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>Scrambling and unscrambling give the bytes back.</summary>
         private static void TestCryptRoundTrip()
         {
             var data = new byte[1000];
@@ -228,6 +241,7 @@ namespace Kudupst.Tests
             Equal("{\\rtf1 plain}", Encoding.ASCII.GetString(RtfBody.Decompress(mela)), "uncompressed");
         }
 
+        /// <summary>HTML inside RTF comes out.</summary>
         private static void TestRtfHtml()
         {
             var rtf = "{\\rtf1\\ansi\\ansicpg1252\\fromhtml1 \\deff0{\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fnil\\fcharset204 Courier;}}" +
@@ -242,6 +256,7 @@ namespace Kudupst.Tests
 
         // ================================================================== MIME / EML
 
+        /// <summary>A sample .eml file.</summary>
         private static string SampleEml =>
             "From: =?utf-8?B?Wm/DqyBFeGFtcGxl?= <zoe@example.com>\r\n" +
             "To: \"Bob, Jr.\" <bob@example.com>, ann@example.com\r\n" +
@@ -292,6 +307,7 @@ namespace Kudupst.Tests
             "Inner body\r\n" +
             "--outer--\r\n";
 
+        /// <summary>An .eml file is read.</summary>
         private static void TestEmlRead()
         {
             var m = EmlReader.Read(Encoding.GetEncoding(28591).GetBytes(SampleEml));
@@ -312,6 +328,7 @@ namespace Kudupst.Tests
             Equal(2, m.VisibleAttachments.Count(), "listed attachments");
         }
 
+        /// <summary>Dates in emails are read.</summary>
         private static void TestDates()
         {
             Equal(new DateTime(2001, 10, 24, 17, 7, 37, DateTimeKind.Utc), Mime.ParseDate("Wed, 24 Oct 2001 10:07:37 -0700 (PDT)"), "with zone");
@@ -320,6 +337,7 @@ namespace Kudupst.Tests
             Equal((DateTime?)null, Mime.ParseDate("not a date"), "rubbish");
         }
 
+        /// <summary>An item written as .eml reads back the same.</summary>
         private static void TestEmlWriteAndReadBack()
         {
             using (var store = OpenBytes(MakePst(true, PstCryptMethod.Compressible)))
@@ -363,6 +381,7 @@ namespace Kudupst.Tests
 
         // ================================================================== exports
 
+        /// <summary>Every item of a store as things to export.</summary>
         private static List<ExportItem> ExportItems(PstStore store)
         {
             var list = new List<ExportItem>();
@@ -378,6 +397,7 @@ namespace Kudupst.Tests
             return list;
         }
 
+        /// <summary>Emails and attachments are exported.</summary>
         private static void TestExportEmlAndAttachments()
         {
             using (var store = PstStore.Open(Samples.MountainMan))
@@ -407,6 +427,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>File names are made safe.</summary>
         private static void TestFileNames()
         {
             Equal("a_b_c_.txt", Exporter.Clean("a/b\\c?.txt"), "bad characters");
@@ -419,6 +440,7 @@ namespace Kudupst.Tests
 
         // ================================================================== search
 
+        /// <summary>The search index finds items.</summary>
         private static void TestSearchIndex()
         {
             var root = Path.Combine(_root, "index");
@@ -460,6 +482,7 @@ namespace Kudupst.Tests
             Check(Directory.GetDirectories(root).Length == 2, "indexes of existing files are kept");
         }
 
+        /// <summary>Text is cut into words right.</summary>
         private static void TestWords()
         {
             Equal("hello|world|dennis|lee|enron|com|2024", string.Join("|", Words.Of("Hello, WORLD! Dennis.Lee@ENRON.com 2024")), "words");
@@ -469,6 +492,7 @@ namespace Kudupst.Tests
 
         // ================================================================== the viewer's page
 
+        /// <summary>The email page blocks internet pictures until allowed.</summary>
         private static void TestMailPage()
         {
             using (var store = OpenBytes(MakePst(true, PstCryptMethod.Compressible)))

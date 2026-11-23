@@ -1,3 +1,5 @@
+// The search index of a file, kept in %LocalAppData%\KUDUPST\Index (never beside the file): words found in each item,
+// built in the background in segments, merged, and searched.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,27 +16,44 @@ namespace Kudupst.Core.Search
     /// <summary>An item as the index keeps it: enough to list and filter it without opening the file.</summary>
     public sealed class IndexedItem
     {
+        /// <summary>Its number in the index.</summary>
         public int Ordinal { get; set; }
+        /// <summary>Its node.</summary>
         public uint Nid { get; set; }
+        /// <summary>Its folder's node.</summary>
         public uint FolderNid { get; set; }
+        /// <summary>Its date.</summary>
         public DateTime? Date { get; set; }
+        /// <summary>Its size.</summary>
         public long Size { get; set; }
+        /// <summary>True when read.</summary>
         public bool Read { get; set; } = true;
+        /// <summary>True when it has attachments.</summary>
         public bool HasAttachments { get; set; }
+        /// <summary>Outlook's kind of item.</summary>
         public string MessageClass { get; set; } = string.Empty;
+        /// <summary>Its subject.</summary>
         public string Subject { get; set; } = string.Empty;
+        /// <summary>Who sent it.</summary>
         public string From { get; set; } = string.Empty;
+        /// <summary>Who it went to.</summary>
         public string To { get; set; } = string.Empty;
     }
 
+    /// <summary>Where to look: everywhere, the subject, from or to.</summary>
     public enum SearchField { Everything, Subject, From, To }
 
     public sealed class SearchQuery
     {
+        /// <summary>The words typed.</summary>
         public string Text { get; set; } = string.Empty;
+        /// <summary>Where to look.</summary>
         public SearchField Field { get; set; } = SearchField.Everything;
+        /// <summary>From this date.</summary>
         public DateTime? From { get; set; }
+        /// <summary>Up to this date.</summary>
         public DateTime? To { get; set; }
+        /// <summary>Only items with attachments.</summary>
         public bool OnlyWithAttachments { get; set; }
 
         /// <summary>Only items in these folders (null: everywhere).</summary>
@@ -44,8 +63,10 @@ namespace Kudupst.Core.Search
     /// <summary>Splits text into words for the index: lower case letters and digits; Chinese, Japanese and Korean characters one by one.</summary>
     public static class Words
     {
+        /// <summary>The longest word kept.</summary>
         public const int MaxLength = 40;
 
+        /// <summary>The words in a text, in lower case (Chinese, Japanese and Korean a character at a time).</summary>
         public static IEnumerable<string> Of(string text)
         {
             if (string.IsNullOrEmpty(text)) yield break;
@@ -71,6 +92,7 @@ namespace Kudupst.Core.Search
             if (sb.Length > 0 && sb.Length <= MaxLength) yield return sb.ToString();
         }
 
+        /// <summary>True for a Chinese, Japanese or Korean character.</summary>
         private static bool IsCjk(char c) =>
             (c >= 0x3040 && c <= 0x30FF) || (c >= 0x3400 && c <= 0x4DBF) || (c >= 0x4E00 && c <= 0x9FFF) || (c >= 0xAC00 && c <= 0xD7AF) || (c >= 0xF900 && c <= 0xFAFF);
     }
@@ -81,19 +103,30 @@ namespace Kudupst.Core.Search
     /// </summary>
     internal sealed class Segment : IDisposable
     {
+        /// <summary>The first bytes of a segment, to know it's one.</summary>
         private const string Magic = "KUDUPST-INDEX-1";
+        /// <summary>Every 32nd word is kept in memory, to find the rest quickly.</summary>
         private const int SampleEvery = 32;
 
+        /// <summary>The segment's file.</summary>
         private readonly FileStream _file;
+        /// <summary>Reads it.</summary>
         private readonly BinaryReader _reader;
+        /// <summary>The words kept in memory and where they are.</summary>
         private readonly List<(string Word, long At)> _samples = new List<(string, long)>();
+        /// <summary>Where the words end.</summary>
         private readonly long _dictionaryEnd;
+        /// <summary>One read at a time.</summary>
         private readonly object _sync = new object();
 
+        /// <summary>Where it is.</summary>
         public string Path { get; }
+        /// <summary>Its items.</summary>
         public List<IndexedItem> Items { get; } = new List<IndexedItem>();
+        /// <summary>How many words it has.</summary>
         public int WordCount { get; }
 
+        /// <summary>Opens a segment.</summary>
         public Segment(string path)
         {
             Path = path;
@@ -115,6 +148,7 @@ namespace Kudupst.Core.Search
             _dictionaryEnd = _file.Position;
         }
 
+        /// <summary>Closes the segment.</summary>
         public void Dispose()
         {
             _reader.Dispose();
@@ -155,6 +189,7 @@ namespace Kudupst.Core.Search
             return results;
         }
 
+        /// <summary>The items a word is in.</summary>
         public List<int> Postings(long at)
         {
             lock (_sync)
@@ -174,6 +209,7 @@ namespace Kudupst.Core.Search
 
         // ------------------------------------------------------------------ writing
 
+        /// <summary>Writes a segment of these items and their words.</summary>
         public static void Write(string path, IList<IndexedItem> items, SortedDictionary<string, List<int>> words)
         {
             var temp = path + ".tmp";
@@ -241,6 +277,7 @@ namespace Kudupst.Core.Search
             Write(path, items, words);
         }
 
+        /// <summary>Writes an item.</summary>
         private static void WriteItem(BinaryWriter w, IndexedItem item)
         {
             w.Write(item.Ordinal);
@@ -255,6 +292,7 @@ namespace Kudupst.Core.Search
             w.Write(item.To ?? string.Empty);
         }
 
+        /// <summary>Reads an item.</summary>
         private static IndexedItem ReadItem(BinaryReader r)
         {
             var item = new IndexedItem { Ordinal = r.ReadInt32(), Nid = r.ReadUInt32(), FolderNid = r.ReadUInt32() };
@@ -271,6 +309,7 @@ namespace Kudupst.Core.Search
             return item;
         }
 
+        /// <summary>Writes a number in as few bytes as it needs.</summary>
         private static void WriteVarInt(BinaryWriter w, int value)
         {
             var v = (uint)value;
@@ -282,6 +321,7 @@ namespace Kudupst.Core.Search
             w.Write((byte)v);
         }
 
+        /// <summary>Reads such a number.</summary>
         private static int ReadVarInt(BinaryReader r)
         {
             var result = 0;
@@ -304,35 +344,51 @@ namespace Kudupst.Core.Search
     /// </summary>
     public sealed class MailIndex : IDisposable
     {
+        /// <summary>How many items go in a segment.</summary>
         private const int ItemsPerSegment = 2000;
+        /// <summary>How much of each body is read for words.</summary>
         private const int MaxBodyChars = 200000;
+        /// <summary>Segments are merged into one when there are more than this.</summary>
         private const int MergeAbove = 8;
 
         /// <summary>Raised when what's put in the index changes (2: contact details, 3: deleted items found in the file), so files are indexed again.</summary>
         private const int Layout = 3;
 
+        /// <summary>The file indexed.</summary>
         private readonly string _sourcePath;
+        /// <summary>The segments.</summary>
         private readonly List<Segment> _segments = new List<Segment>();
+        /// <summary>Guards the segments.</summary>
         private readonly object _sync = new object();
+        /// <summary>The thread building it.</summary>
         private Thread _thread;
+        /// <summary>Set to stop building.</summary>
         private volatile bool _stop;
 
+        /// <summary>The index's own folder.</summary>
         public string Folder { get; }
+        /// <summary>True when every item is in it.</summary>
         public bool Complete { get; private set; }
+        /// <summary>How many items are done.</summary>
         public int Done { get; private set; }
+        /// <summary>How many there are.</summary>
         public int Total { get; private set; }
 
         /// <summary>How many of the deleted items found in the file are in the index.</summary>
         public int FoundIndexed { get; private set; }
+        /// <summary>What went wrong, when something did.</summary>
         public string Error { get; private set; }
+        /// <summary>True while building.</summary>
         public bool Running => _thread != null && _thread.IsAlive;
 
         /// <summary>Raised (on the indexing thread) when more items can be searched.</summary>
         public event Action Progress;
 
+        /// <summary>Where every file's index is kept.</summary>
         public static string IndexRoot =>
             System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KUDUPST", "Index");
 
+        /// <summary>The index of a file (made or carried on).</summary>
         public MailIndex(string sourcePath, string root = null)
         {
             _sourcePath = sourcePath;
@@ -351,8 +407,10 @@ namespace Kudupst.Core.Search
                 return BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", string.Empty).Substring(0, 20).ToLowerInvariant();
         }
 
+        /// <summary>The file noting where the building is up to.</summary>
         private string StatePath => System.IO.Path.Combine(Folder, "state.txt");
 
+        /// <summary>Reads the segments and where building was up to (starting again when the file changed).</summary>
         private void Load()
         {
             var state = File.Exists(StatePath) ? File.ReadAllLines(StatePath) : new string[0];
@@ -374,6 +432,7 @@ namespace Kudupst.Core.Search
             Done = _segments.Sum(s => s.Items.Count);
         }
 
+        /// <summary>Throws the index away and starts again.</summary>
         private void Reset()
         {
             foreach (var s in _segments) s.Dispose();
@@ -393,12 +452,14 @@ namespace Kudupst.Core.Search
             _thread.Start();
         }
 
+        /// <summary>Stops building.</summary>
         public void Stop()
         {
             _stop = true;
             _thread?.Join(5000);
         }
 
+        /// <summary>Stops building and closes the segments.</summary>
         public void Dispose()
         {
             Stop();
@@ -412,6 +473,7 @@ namespace Kudupst.Core.Search
         /// <summary>Builds the index right away on this thread (used by tests).</summary>
         public void BuildNow() => Build();
 
+        /// <summary>Builds the index in the background, a segment at a time.</summary>
         private void Build()
         {
             try
@@ -467,6 +529,7 @@ namespace Kudupst.Core.Search
             }
         }
 
+        /// <summary>Notes where building is up to.</summary>
         private void WriteState()
         {
             var lines = new List<string>();
@@ -527,6 +590,7 @@ namespace Kudupst.Core.Search
             _thread.Start();
         }
 
+        /// <summary>Adds the deleted items found to the index now.</summary>
         public void AddFoundNow(Recovery found)
         {
             if (!Complete || found.Items.Count <= FoundIndexed) return;
@@ -557,6 +621,7 @@ namespace Kudupst.Core.Search
             }
         }
 
+        /// <summary>Writes a segment of these items.</summary>
         private void Flush(List<IndexedItem> items, SortedDictionary<string, List<int>> words)
         {
             var path = System.IO.Path.Combine(Folder, $"seg-{items[0].Ordinal:D9}.bin");
@@ -571,6 +636,7 @@ namespace Kudupst.Core.Search
             Progress?.Invoke();
         }
 
+        /// <summary>Merges the segments into one.</summary>
         private void MergeAll()
         {
             lock (_sync)
@@ -634,6 +700,9 @@ namespace Kudupst.Core.Search
             return candidates.Where(i => Filter(i, query)).OrderByDescending(i => i.Date ?? DateTime.MinValue).ToList();
         }
 
+        /// <summary>
+        /// True when every word typed starts a word in the item's field (short words must match whole).
+        /// </summary>
         private static bool FieldMatches(IndexedItem item, SearchField field, List<string> terms)
         {
             var text = field == SearchField.Subject ? item.Subject : field == SearchField.From ? item.From : item.To;
@@ -641,6 +710,7 @@ namespace Kudupst.Core.Search
             return terms.All(t => words.Any(w => t.Length < 3 ? w == t : w.StartsWith(t, StringComparison.Ordinal)));
         }
 
+        /// <summary>True when the item passes the dates and attachments asked for.</summary>
         public static bool Filter(IndexedItem item, SearchQuery query)
         {
             if (query.Folders != null && !query.Folders.Contains(item.FolderNid)) return false;
@@ -680,6 +750,7 @@ namespace Kudupst.Core.Search
             return new DirectoryInfo(root).EnumerateFiles("*", SearchOption.AllDirectories).Sum(f => f.Length);
         }
 
+        /// <summary>A line about the index ("3,200 items indexed", or how far it is).</summary>
         public static string Describe(MailIndex index) =>
             index.Complete ? string.Format(CultureInfo.InvariantCulture, "{0:N0} items indexed", index.Done)
                 : index.Total > 0 ? string.Format(CultureInfo.InvariantCulture, "Indexing for search… {0:P0}", Math.Min(1.0, (double)index.Done / index.Total))

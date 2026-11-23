@@ -1,3 +1,5 @@
+// The tests for contacts, contact groups and calendar items: reading them from real files, repeats and time zones, and
+// saving them as vCard, contacts CSV and iCalendar.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,8 +14,10 @@ namespace Kudupst.Tests
     // Contacts, contact groups and calendar items (expected values from pst-extractor's and java-libpst's tests).
     public static partial class Program
     {
+        /// <summary>A folder at the top of a store, by name.</summary>
         private static PstFolder TopFolder(PstStore store, string name) => store.AllFolders(store.Top).First(f => f.Name == name);
 
+        /// <summary>An item in a folder, by subject.</summary>
         private static MailItem ItemNamed(PstStore store, PstFolder folder, string subject)
         {
             var row = store.Items(folder).FirstOrDefault(i => i.Subject == subject);
@@ -21,6 +25,7 @@ namespace Kudupst.Tests
             return store.ReadItem(row.Nid);
         }
 
+        /// <summary>A contact's details are read.</summary>
         private static void TestContact()
         {
             using (var store = PstStore.Open(Samples.MountainMan))
@@ -67,6 +72,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>A contact group's plain-address members are read.</summary>
         private static void TestContactGroupOneOffs()
         {
             using (var store = PstStore.Open(Samples.DistList))
@@ -81,6 +87,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>Calendar items, with repeats, changes and time zones, are read.</summary>
         private static void TestCalendar()
         {
             using (var store = PstStore.Open(Samples.MountainMan))
@@ -196,6 +203,7 @@ namespace Kudupst.Tests
             return ms.ToArray();
         }
 
+        /// <summary>Outlook's repeat patterns are read.</summary>
         private static void TestRecurrencePattern()
         {
             var r = RecurrencePattern.Parse(SampleRecurrence());
@@ -218,6 +226,7 @@ namespace Kudupst.Tests
             Equal(new DateTime(2024, 9, 3, 9, 0, 0), tz.ToLocal(new DateTime(2024, 9, 3, 7, 0, 0)), "back to local");
         }
 
+        /// <summary>iCalendar files are written right.</summary>
         private static void TestIcsExport()
         {
             var item = new MailItem
@@ -282,6 +291,7 @@ namespace Kudupst.Tests
             Equal(1, Count(text, "BEGIN:VTIMEZONE"), "the time zone is written once");
         }
 
+        /// <summary>How many times a text appears.</summary>
         private static int Count(string text, string what)
         {
             var n = 0;
@@ -289,6 +299,7 @@ namespace Kudupst.Tests
             return n;
         }
 
+        /// <summary>vCards and the contacts CSV are written right.</summary>
         private static void TestContactExports()
         {
             using (var store = PstStore.Open(Samples.MountainMan))
@@ -354,6 +365,7 @@ namespace Kudupst.Tests
             return records;
         }
 
+        /// <summary>A CSV line split into its cells.</summary>
         private static List<string> SplitCsv(string line)
         {
             var cells = new List<string>();
@@ -376,6 +388,7 @@ namespace Kudupst.Tests
             return cells;
         }
 
+        /// <summary>A calendar from a real file is saved as iCalendar.</summary>
         private static void TestCalendarExportFromFile()
         {
             using (var store = PstStore.Open(Samples.ExtractorTest))
@@ -400,6 +413,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>A .msg file's table of names is read.</summary>
         private static void TestNameMapFromMsg()
         {
             // An .msg file keeps the same name table in its __nameid storage; an email has no contact or calendar parts.

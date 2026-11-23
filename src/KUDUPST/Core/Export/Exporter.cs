@@ -1,3 +1,5 @@
+// Saving emails and other items: as .eml files, their attachments, a CSV, vCards, contacts CSV, iCalendar, or a
+// new PST file, keeping folders when asked.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,25 +11,34 @@ using Kudupst.Core.Mail;
 
 namespace Kudupst.Core.Export
 {
+    /// <summary>The kinds of saving.</summary>
     public enum ExportFormat { Eml, Pdf, Attachments, Csv, Vcard, ContactsCsv, Ics, Pst }
 
     /// <summary>An item to export: how to read it, and the folder it's in (for keeping the folder structure).</summary>
     public sealed class ExportItem
     {
+        /// <summary>Reads the item when it's needed.</summary>
         public Func<MailItem> Load { get; set; }
+        /// <summary>Its folder's path.</summary>
         public string FolderPath { get; set; } = string.Empty;
+        /// <summary>Its subject.</summary>
         public string Subject { get; set; } = string.Empty;
+        /// <summary>Its date.</summary>
         public DateTime? Date { get; set; }
 
         /// <summary>For an item in a PST or OST file: the file and the item's number there, so it can be copied whole into a new PST file.</summary>
         public Pst.PstStore Store { get; set; }
+        /// <summary>Its node in the PST, when it's from one.</summary>
         public uint Nid { get; set; }
     }
 
     public sealed class ExportOptions
     {
+        /// <summary>What to save as.</summary>
         public ExportFormat Format { get; set; } = ExportFormat.Eml;
+        /// <summary>The folder (or file) to save to.</summary>
         public string Destination { get; set; }
+        /// <summary>Keep the items' folders.</summary>
         public bool KeepFolders { get; set; } = true;
 
         /// <summary>PDF: all items in one file instead of one file each.</summary>
@@ -39,16 +50,22 @@ namespace Kudupst.Core.Export
 
     public sealed class ExportResult
     {
+        /// <summary>How many items were saved.</summary>
         public int Exported { get; set; }
+        /// <summary>How many files were written.</summary>
         public int Files { get; set; }
+        /// <summary>What went wrong.</summary>
         public List<string> Problems { get; } = new List<string>();
+        /// <summary>True when it was stopped.</summary>
         public bool Cancelled { get; set; }
+        /// <summary>The first file written (to show it).</summary>
         public string FirstFile { get; set; }
     }
 
     /// <summary>Saves items as .eml files, saves their attachments, or lists them in a CSV file. (PDF is done by the app's window, which can print web pages.)</summary>
     public static class Exporter
     {
+        /// <summary>Saves the items in the kind chosen.</summary>
         public static ExportResult Run(IList<ExportItem> items, ExportOptions options, Action<int, string> progress, CancellationToken cancel)
         {
             switch (options.Format)
@@ -64,6 +81,7 @@ namespace Kudupst.Core.Export
             }
         }
 
+        /// <summary>Saves each item as an .eml file.</summary>
         public static ExportResult Eml(IList<ExportItem> items, ExportOptions options, Action<int, string> progress, CancellationToken cancel)
         {
             var result = new ExportResult();
@@ -93,6 +111,7 @@ namespace Kudupst.Core.Export
             return result;
         }
 
+        /// <summary>Saves each item's attachments.</summary>
         public static ExportResult Attachments(IList<ExportItem> items, ExportOptions options, Action<int, string> progress, CancellationToken cancel)
         {
             var result = new ExportResult();
@@ -139,11 +158,13 @@ namespace Kudupst.Core.Export
             return result;
         }
 
+        /// <summary>The CSV's columns.</summary>
         public static readonly string[] CsvColumns =
         {
             "Folder", "Date", "From", "From address", "To", "Cc", "Subject", "Size (KB)", "Attachments", "Read", "Type"
         };
 
+        /// <summary>Saves the items as one CSV file.</summary>
         public static ExportResult Csv(IList<ExportItem> items, string path, Action<int, string> progress, CancellationToken cancel)
         {
             var result = new ExportResult();
@@ -315,6 +336,10 @@ namespace Kudupst.Core.Export
             return result;
         }
 
+        /// <summary>
+        /// A value made safe for a CSV cell: quoted when needed, and a leading = + - @ made harmless so a spreadsheet
+        /// doesn't run it.
+        /// </summary>
         public static string CsvCell(string value)
         {
             value = value ?? string.Empty;
@@ -324,12 +349,15 @@ namespace Kudupst.Core.Export
             return value;
         }
 
+        /// <summary>True for an error from reading a damaged item (it's noted and the rest go on).</summary>
         public static bool IsReadProblem(Exception ex) =>
             ex is Pst.PstException || ex is IOException || ex is UnauthorizedAccessException || ex is InvalidDataException ||
             ex is ArgumentException || ex is IndexOutOfRangeException || ex is NotSupportedException;
 
+        /// <summary>An item in words, for problems.</summary>
         private static string Describe(ExportItem e) => string.IsNullOrEmpty(e.Subject) ? "(no subject)" : e.Subject;
 
+        /// <summary>The folder an item is saved to (its own folders kept when asked).</summary>
         public static string FolderFor(ExportOptions options, ExportItem e)
         {
             if (!options.KeepFolders || string.IsNullOrEmpty(e.FolderPath)) return options.Destination;
@@ -346,6 +374,7 @@ namespace Kudupst.Core.Export
             return stamp + name + extension;
         }
 
+        /// <summary>Names Windows keeps for devices, which files can't have.</summary>
         private static readonly HashSet<string> Reserved = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",

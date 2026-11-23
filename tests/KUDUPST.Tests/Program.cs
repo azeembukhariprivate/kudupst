@@ -1,3 +1,5 @@
+// The tests for the parts that don't need Windows, on real Outlook files from other open-source projects (downloaded,
+// SHA-256 checked) and made-up ones. Run with "dotnet run".
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,10 +13,14 @@ namespace Kudupst.Tests
 {
     public static partial class Program
     {
+        /// <summary>How many checks failed.</summary>
         private static int _failed;
+        /// <summary>How many checks passed.</summary>
         private static int _passed;
+        /// <summary>A folder for the test files, removed at the end.</summary>
         private static string _root;
 
+        /// <summary>Runs every test and returns 1 when any check failed.</summary>
         public static int Main(string[] args)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -50,16 +56,19 @@ namespace Kudupst.Tests
 
         // ================================================================== helpers
 
+        /// <summary>Counts a check, writing what failed.</summary>
         private static void Check(bool condition, string what)
         {
             if (!condition) throw new Exception("Check failed: " + what);
         }
 
+        /// <summary>Checks two values are equal, writing both when they aren't.</summary>
         private static void Equal<T>(T expected, T actual, string what)
         {
             if (!EqualityComparer<T>.Default.Equals(expected, actual)) throw new Exception($"{what}: expected [{expected}], got [{actual}]");
         }
 
+        /// <summary>A folder inside another, by name.</summary>
         private static PstFolder Child(PstStore store, PstFolder folder, string name)
         {
             var child = store.SubFolders(folder).FirstOrDefault(f => f.Name == name);
@@ -67,6 +76,7 @@ namespace Kudupst.Tests
             return child;
         }
 
+        /// <summary>A folder by its path of names.</summary>
         private static PstFolder FolderAt(PstStore store, params string[] names)
         {
             var folder = store.Root;
@@ -76,9 +86,11 @@ namespace Kudupst.Tests
 
         // ================================================================== PST: the Enron file (expected values from pst-extractor's tests)
 
+        /// <summary>The language tests.</summary>
         private static void TestOtherLanguages() => LangTests.Run();
 
 
+        /// <summary>The Enron sample's folders are read.</summary>
         private static void TestEnronStore()
         {
             using (var store = PstStore.Open(Samples.Enron))
@@ -103,6 +115,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>The Enron sample's emails are read.</summary>
         private static void TestEnronMessages()
         {
             using (var store = PstStore.Open(Samples.Enron))
@@ -205,6 +218,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>Writes a folder tree (for looking at by hand).</summary>
         private static void Dump(PstStore store, PstFolder folder, int depth, StringBuilder sb)
         {
             if (depth > 0) sb.Append(string.Concat(Enumerable.Repeat(" | ", depth - 1))).Append(" |- ").Append(folder.Name).Append('\n');
@@ -213,6 +227,7 @@ namespace Kudupst.Tests
                 sb.Append(string.Concat(Enumerable.Repeat(" | ", depth))).Append(" |- Email: ").Append(item.Nid).Append(" - ").Append(item.Subject).Append('\n');
         }
 
+        /// <summary>The Mountain Man sample's attachments are read.</summary>
         private static void TestMountainManAttachments()
         {
             using (var store = PstStore.Open(Samples.MountainMan))
@@ -247,6 +262,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>Everything in the Mountain Man sample is read.</summary>
         private static void TestMountainManReadEverything()
         {
             using (var store = PstStore.Open(Samples.MountainMan))
@@ -264,6 +280,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>An Outlook 2013 file (4 KB pages) is read.</summary>
         private static void TestExample2013()
         {
             using (var store = PstStore.Open(Samples.Example2013))
@@ -275,6 +292,7 @@ namespace Kudupst.Tests
             }
         }
 
+        /// <summary>A PST's password is checked.</summary>
         private static void TestPasswords()
         {
             using (var store = PstStore.Open(Samples.Passworded))
@@ -293,6 +311,7 @@ namespace Kudupst.Tests
 
         // ================================================================== MSG files (expected values from msg-extractor's tests)
 
+        /// <summary>A .msg with several recipients is read.</summary>
         private static void TestMsgMultiTo()
         {
             var msg = MsgReader.Read(Samples.MultiTo);
@@ -304,6 +323,7 @@ namespace Kudupst.Tests
             Check(msg.Cc.Any(a => a.Address == "dave@example.com"), "cc");
         }
 
+        /// <summary>A Unicode .msg is read.</summary>
         private static void TestMsgUnicode()
         {
             var msg = MsgReader.Read(Samples.UnicodeMsg);

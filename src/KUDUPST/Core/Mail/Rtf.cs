@@ -1,3 +1,4 @@
+// Outlook's RTF body: unpacking it (LZFu), and the HTML or text inside it.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,11 +11,14 @@ namespace Kudupst.Core.Mail
     /// </summary>
     public static class RtfBody
     {
+        /// <summary>The text the unpacking starts from (as the format says).</summary>
         private const string Prebuf =
             "{\\rtf1\\ansi\\mac\\deff0\\deftab720{\\fonttbl;}{\\f0\\fnil \\froman \\fswiss \\fmodern \\fscript \\fdecor MS Sans SerifSymbolArialTimes New RomanCourier" +
             "{\\colortbl\\red0\\green0\\blue0\r\n\\par \\pard\\plain\\f0\\fs20\\b\\i\\u\\tab\\tx";
 
+        /// <summary>The mark of packed RTF.</summary>
         private const uint Compressed = 0x75465A4C; // "LZFu"
+        /// <summary>The mark of RTF kept as it is.</summary>
         private const uint Uncompressed = 0x414C454D; // "MELA"
 
         /// <summary>Unpacks a compressed RTF body. Returns null when the data isn't one.</summary>
@@ -78,8 +82,10 @@ namespace Kudupst.Core.Mail
             return raw == null ? null : Latin1.GetString(raw);
         }
 
+        /// <summary>The Latin-1 encoding.</summary>
         private static readonly Encoding Latin1 = Encoding.GetEncoding(28591);
 
+        /// <summary>True when the RTF holds HTML (made from an HTML email).</summary>
         public static bool IsFromHtml(string rtf) => rtf != null && rtf.IndexOf("\\fromhtml", StringComparison.Ordinal) >= 0;
 
         /// <summary>The HTML an email had, when its RTF body was made from HTML; otherwise null.</summary>
@@ -99,39 +105,60 @@ namespace Kudupst.Core.Mail
         /// </summary>
         private sealed class Parser
         {
+            /// <summary>The RTF.</summary>
             private readonly string _rtf;
+            /// <summary>True when the HTML inside is wanted (else the text).</summary>
             private readonly bool _html;
+            /// <summary>What's written so far.</summary>
             private readonly StringBuilder _out = new StringBuilder();
+            /// <summary>Bytes waiting to be turned into text (in their code page).</summary>
             private readonly List<byte> _pending = new List<byte>();
+            /// <summary>Each font's code page.</summary>
             private readonly Dictionary<int, int> _fontCodePages = new Dictionary<int, int>();
+            /// <summary>The document's code page.</summary>
             private int _ansiCodePage = 1252;
+            /// <summary>Where reading is up to.</summary>
             private int _pos;
 
             private sealed class State
             {
+                /// <summary>Inside a part whose text isn't shown.</summary>
                 public bool Skip;          // a destination whose text isn't shown
+                /// <summary>Inside an HTML tag.</summary>
                 public bool HtmlTag;       // inside {\*\htmltag ...}
+                /// <summary>Inside RTF-only text (not part of the HTML).</summary>
                 public bool HtmlRtf;       // inside \htmlrtf ... \htmlrtf0 (RTF-only parts in HTML mode)
+                /// <summary>Inside the font table.</summary>
                 public bool FontTable;
+                /// <summary>The code page in use.</summary>
                 public int CodePage = -1;
+                /// <summary>How many characters follow a \u to stand for it.</summary>
                 public int SkipAfterUnicode = 1;
+                /// <summary>The font in use.</summary>
                 public int FontNumber = -1;
+                /// <summary>The font's character set.</summary>
                 public int FontCharset = -1;
 
+                /// <summary>A copy of the state (for a group).</summary>
                 public State Copy() => (State)MemberwiseClone();
             }
 
+            /// <summary>The state now.</summary>
             private State _state = new State();
+            /// <summary>The states of the groups around.</summary>
             private readonly Stack<State> _stack = new Stack<State>();
 
+            /// <summary>A reader for RTF.</summary>
             public Parser(string rtf, bool html)
             {
                 _rtf = rtf;
                 _html = html;
             }
 
+            /// <summary>True when text here is written.</summary>
             private bool Visible => !_state.Skip && (!_html || _state.HtmlTag || !_state.HtmlRtf);
 
+            /// <summary>Reads the RTF and returns the HTML or text.</summary>
             public string Run()
             {
                 var skipChars = 0;
@@ -229,6 +256,7 @@ namespace Kudupst.Core.Mail
                 return _out.ToString();
             }
 
+            /// <summary>The next control word, without moving on.</summary>
             private string PeekWord()
             {
                 if (_pos >= _rtf.Length || _rtf[_pos] != '\\') return string.Empty;
@@ -238,6 +266,7 @@ namespace Kudupst.Core.Mail
                 return _rtf.Substring(start, end - start);
             }
 
+            /// <summary>Reads a control word and its number.</summary>
             private string ReadWord(out bool hasParam, out int param)
             {
                 var start = _pos;
@@ -256,6 +285,7 @@ namespace Kudupst.Core.Mail
                 return word;
             }
 
+            /// <summary>Handles a control word.</summary>
             private int Control(string word, bool hasParam, int param, int skipChars)
             {
                 switch (word)
@@ -328,6 +358,7 @@ namespace Kudupst.Core.Mail
                 }
             }
 
+            /// <summary>Writes text when it's shown.</summary>
             private void Emit(string text)
             {
                 if (!Visible) return;
@@ -335,6 +366,7 @@ namespace Kudupst.Core.Mail
                 _out.Append(text);
             }
 
+            /// <summary>Turns the waiting bytes into text.</summary>
             private void Flush()
             {
                 if (_pending.Count == 0) return;
@@ -343,14 +375,17 @@ namespace Kudupst.Core.Mail
                 _pending.Clear();
             }
 
+            /// <summary>Bytes as text in a code page.</summary>
             private static string Decode(byte[] bytes, int codePage)
             {
                 try { return Encoding.GetEncoding(codePage).GetString(bytes); }
                 catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException) { return Latin1.GetString(bytes); }
             }
 
+            /// <summary>A hex byte.</summary>
             private static bool TryHex(string s, out byte b) => byte.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out b);
 
+            /// <summary>A font character set's code page.</summary>
             private int CharsetToCodePage(int charset)
             {
                 switch (charset)
